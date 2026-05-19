@@ -1,0 +1,149 @@
+# Change Pack — {CP 标题}
+
+来源 CP: `{docs/change_proposals/CP-...}`
+生成者: AI
+
+> Change Pack 是 Gate A 前的候选包。它可以分析和提出 patch，但不能在批准前直接改文件。
+
+---
+
+## 准入摘要
+
+Change Pack 必须先判断 Proposal 是否可以进入 Truth。清晰且无冲突的 Proposal 走 Fast Path；有缺口、冲突、ADR 需求或已实现 Truth 冲突的 Proposal 走 Blocked Path。
+
+| 项目 | 值 |
+|---|---|
+| Proposal type | Idea / Requirement / Decision / Correction / Implementation Request / Experiment |
+| Related Truth、ADR | `{docs/sot/...}` / `{docs/adr/...}` / None |
+| Related implemented behavior | Code / spec / tests / data / API / UI evidence, or None |
+| Admission decision | READY / NEEDS_PROPOSAL_REPAIR / CONFLICTS_WITH_TRUTH / CONFLICTS_WITH_IMPLEMENTED_TRUTH / ADR_REQUIRED / OUT_OF_SCOPE |
+| Reason |  |
+| Required path | Fast Path / Blocked Path |
+
+### 停线检查表
+
+AI must fill Yes 或 No for every item. If any item is Yes, Admission decision must not be `READY` and the Change Pack must use Blocked Path.
+
+No。任一项为 Yes 时，Admission decision 不得为 `READY`，必须走 Blocked Path。
+
+| 检查 | Yes/No | 证据或问题 |
+|---|---|---|
+| Proposal 是否存在歧义或缺失关键边界？ |  |  |
+| Proposal 是否与现有 Truth 冲突？ |  |  |
+| Proposal 是否与 Active 且已实现的 Truth 冲突？ |  |  |
+| 是否需要新增或修改 ADR？ |  |  |
+| Truth 未定义的规则？ |  |  |
+| 是否改变架构、数据、安全、API、AI 或权限边界？ |  |  |
+| 是否需要人类做产品或架构选择？ |  |  |
+
+---
+
+## 影响审查
+
+| 领域 | 影响 | 文件或说明 |
+|---|---|---|
+| Product | Yes/No |  |
+| Architecture | Yes/No |  |
+| Data | Yes/No |  |
+| API | Yes/No |  |
+| Client | Yes/No |  |
+| Server | Yes/No |  |
+| AI / Prompt | Yes/No |  |
+| Testing | Yes/No |  |
+| Security / Privacy | Yes/No |  |
+| Docs / Governance | Yes/No |  |
+
+---
+
+## Change Pack 正文
+
+只填写一个路径。
+
+### 3A. Fast Path — Truth Patch Candidate / Fast Path — Truth Patch Candidate
+
+仅当 Admission decision 为 `READY` 时填写本节。否则写：
+
+```text
+Truth Patch Candidate: Not generated
+Reason: Admission decision is not READY.
+```
+
+#### 需要更新的 SoT 文件
+
+| 文件 | 变更摘要 | Rule IDs | 生命周期动作 |
+|---|---|---|---|
+| `{path}` |  |  | Add、Modify、Supersede 或 Deprecate |
+
+#### ADR 动作
+
+选择一项：
+
+- [ ] No ADR needed
+- [ ] Create ADR: `{path}`
+- [ ] Update ADR: `{path}`
+
+{说明原因。}
+
+#### 规则变更
+
+| Rule ID | 动作 | 摘要 | 来源 | 验证 | 下游投射 |
+|---|---|---|---|---|---|
+| RULE-XXX-001 | Add、Modify、Supersede 或 Deprecate |  | CP、ADR |  | Spec、Tests、Code |
+
+#### 执行包摘要
+
+仅当 Admission decision 为 `READY` 时填写。Blocked Path 不生成 Execution Pack Summary。
+
+- `specs/{NNN-feature}/spec.md`
+
+- {范围}
+
+检查项}
+
+- {不做什么}
+
+### Blocked Path — 阻塞摘要
+
+仅当 Admission decision 不是 `READY` 时填写本节。Blocked Path 不生成可应用 Truth Patch Candidate。
+
+```text
+Truth Patch Candidate: Not generated
+```
+
+| 项目 | 值 |
+|---|---|
+| Blocker type | NEEDS_PROPOSAL_REPAIR / CONFLICTS_WITH_TRUTH / CONFLICTS_WITH_IMPLEMENTED_TRUTH / ADR_REQUIRED / OUT_OF_SCOPE |
+| Evidence |  |
+| Why AI must not decide |  |
+| Suggested CP repair or next action |  |
+| Impact if accepted |  |
+
+人类决策选项：
+
+1. {可决策选项 A}
+2. {可决策选项 B}
+3. {可决策选项 C}
+
+#### Required only for `CONFLICTS_WITH_IMPLEMENTED_TRUTH`
+
+#### 仅 `CONFLICTS_WITH_IMPLEMENTED_TRUTH` 必填
+
+| 项目 | 值 |
+|---|---|
+| Existing implemented behavior |  |
+| Affected code / spec / tests / data / API / UI |  |
+| Migration or compatibility risk | None / Low / Medium / High |
+| Old Rule lifecycle action | Keep / Modify / Supersede / Deprecate |
+
+---
+
+## 所需人类动作 — Gate A
+
+选择一项：
+
+- [ ] Approve and apply Truth Patch.
+- [ ] Create / Update ADR.
+
+人类决策：
+
+{待填写}

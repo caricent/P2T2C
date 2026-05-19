@@ -1,0 +1,40 @@
+name: Bug report
+description: Report a reproducible P2T2C issue.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: dropdown
+    id: release-root
+    attributes:
+      label: Release root
+      options:
+        - P2T2C_EN
+        - P2T2C_CN
+        - Repository root
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Template version
+      placeholder: "0.5.0"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Include exact commands and relevant output.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true

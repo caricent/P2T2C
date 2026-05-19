@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  release-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run release checks
+        shell: bash
+        run: |
+          make check
+          make checksums
+
+      - name: Run release smoke tests
+        shell: bash
+        run: bash scripts/release_smoke_test.sh

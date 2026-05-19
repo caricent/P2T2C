@@ -1,0 +1,37 @@
+workflow: P2T2C Exception-Gated Workflow
+language: en-US
+supported_languages:
+  - en-US
+language_policy: monolingual_release_root
+status: template
+truth_root: docs/sot
+proposal_root: docs/change_proposals
+adr_root: docs/adr
+spec_root: specs
+reference_root: docs/reference
+
+canonical_entries:
+  human: README.md
+  ai: AGENTS.md
+
+human_gates:
+  gate_a: Apply Change Pack
+  gate_b: Resolve Truth Drift
+
+closure_decisions:
+  - CLOSE
+  - BACKFILL_EXECUTION_DOCS
+  - HUMAN_TRUTH_DECISION_REQUIRED
+
+truth_documents:
+  governance:
+    - docs/sot/governance/P2T2C_GOVERNANCE.md
+  project_specific: []
+
+notes:
+  language_policy: "Managed workflow documents are English-only inside this release root."
+  project_specific_truth: "Add real SoT files under docs/sot/** only when the project has current rules for that area."
+  placeholder_domain_sot: "Not shipped; empty placeholder SoT files are intentionally omitted."
+
+forbidden_default_reads:
+  - docs/reference/

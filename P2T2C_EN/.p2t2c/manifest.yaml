@@ -1,0 +1,31 @@
+version: "0.5.0"
+workflow: "P2T2C Exception-Gated Workflow"
+upgrade_model: "ai_readable_safe_upgrade"
+language: "en-US"
+supported_languages:
+  - "en-US"
+language_policy: "monolingual_release_root"
+
+metadata:
+  version_file: "P2T2C_TEMPLATE_VERSION"
+  ownership_file: ".p2t2c/ownership.yaml"
+  lock_file: ".p2t2c/lock.sha256"
+  upgrade_root: ".p2t2c/upgrade"
+
+canonical_entries:
+  human: "README.md"
+  ai: "AGENTS.md"
+
+policy:
+  dry_run_required: true
+  default_source: "local_release_path"
+  network_download: false
+  project_owned_files_are_read_only: true
+  conflicts_stop_apply: true
+  obsolete_managed_files_removed_when_lock_matches: true
+  managed_docs_language: "English-only inside this release root"
+
+compatibility:
+  new_proposals_after_upgrade: "Use the upgraded P2T2C workflow."
+  historical_specs_tasks_closures: "Remain valid historical records."
+  reopened_truth_changes: "Require a new Change Pack under the upgraded workflow."

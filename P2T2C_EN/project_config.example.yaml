@@ -1,0 +1,53 @@
+project:
+  name: "YourProject"
+  description: "Replace with your project description"
+  workflow: "P2T2C Exception-Gated Workflow"
+  language: "en-US"
+  supported_languages:
+    - "en-US"
+  language_policy: "monolingual_release_root"
+  language_note: "This project uses the English P2T2C release root."
+
+roots:
+  truth: "docs/sot"
+  proposals: "docs/change_proposals"
+  adr: "docs/adr"
+  specs: "specs"
+  reference: "docs/reference"
+
+technology_stack:
+  backend: "TBD"
+  frontend: "TBD"
+  mobile: "TBD"
+  database: "TBD"
+  ai: "TBD"
+  testing: "TBD"
+
+p2t2c:
+  default_mode: "single_path_exception_gated"
+  human_gates:
+    gate_a: "Apply Change Pack"
+    gate_b: "Resolve Truth Drift"
+  closure_decisions:
+    - "CLOSE"
+    - "BACKFILL_EXECUTION_DOCS"
+    - "HUMAN_TRUTH_DECISION_REQUIRED"
+  stop_the_line_conditions:
+    - "Proposal ambiguous"
+    - "Proposal conflicts with Truth"
+    - "Proposal conflicts with implemented Truth"
+    - "ADR required"
+    - "AI must invent a new rule"
+    - "Plan invalid during coding"
+    - "Acceptance failed"
+    - "Code leads or changes Truth"
+
+agent_policy:
+  default_forbidden_reads:
+    - "docs/reference"
+  business_rules_allowed_only_in:
+    - "docs/sot"
+  coding_requires:
+    - "spec.md"
+    - "plan.md"
+    - "tasks.md"

@@ -1,0 +1,31 @@
+name: Feature request
+description: Propose a P2T2C workflow or release-harness improvement.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: dropdown
+    id: release-root
+    attributes:
+      label: Release root
+      options:
+        - Both release roots
+        - P2T2C_EN
+        - P2T2C_CN
+        - Repository root
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What workflow or release problem should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Describe the desired behavior or documentation change.
+    validations:
+      required: true

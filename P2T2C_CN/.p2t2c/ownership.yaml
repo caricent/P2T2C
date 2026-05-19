@@ -1,0 +1,48 @@
+language_policy: "中文单语语言专属发行根"
+
+core_managed:
+  description: "P2T2C 核心模板、prompt、执行模板和脚本。未被本地修改时可安全自动升级。"
+  paths:
+    - "prompts/**"
+    - "templates/**"
+    - "templates/adr/ADR_TEMPLATE.md"
+    - "sdd/templates/**"
+    - "scripts/check_p2t2c.sh"
+    - "scripts/p2t2c_install.sh"
+    - "scripts/p2t2c_upgrade.sh"
+    - "docs/change_proposals/CP_TEMPLATE.md"
+
+governance_managed:
+  description: "P2T2C 治理、入口、元数据和模板文档。仅在上次 lock 后未改变时升级。"
+  paths:
+    - "AGENTS.md"
+    - "CHECKSUMS.sha256"
+    - "P2T2C_TEMPLATE_VERSION"
+    - "README.md"
+    - "P2T2C_LICENSE.md"
+    - "Makefile"
+    - "project_config.example.yaml"
+    - "docs/adr/README.md"
+    - "docs/change_proposals/README.md"
+    - "docs/closure/README.md"
+    - "docs/reference/README.md"
+    - "specs/README.md"
+    - ".p2t2c/manifest.yaml"
+    - ".p2t2c/ownership.yaml"
+    - "migrations/p2t2c/**"
+
+obsolete_managed:
+  description: "旧版 P2T2C 受管文件；当 lock hash 证明它们未被本地修改时可移除。"
+
+project_owned:
+  description: "项目业务 Truth、实现和历史产物。升级脚本不得写入这些路径，除非移除迁移文件列出的未修改旧占位模板。"
+  paths:
+    - "docs/sot/ai/**"
+    - "docs/adr/ADR-*.md"
+    - "docs/change_proposals/CP-*.md"
+    - "docs/closure/CR-*.md"
+    - "specs/**"
+    - "src/**"
+    - "tests/**"
+    - "database/**"
+    - "package.json"

@@ -1,0 +1,58 @@
+ownership_model: "P2T2C safe upgrade ownership"
+language_policy: "English-only language-specific release root"
+
+core_managed:
+  description: "P2T2C core templates, prompts, execution templates, and scripts. Safe to auto-upgrade when not locally modified."
+  paths:
+    - "prompts/**"
+    - "templates/**"
+    - "templates/adr/ADR_TEMPLATE.md"
+    - "sdd/templates/**"
+    - "scripts/check_p2t2c.sh"
+    - "scripts/p2t2c_install.sh"
+    - "scripts/p2t2c_upgrade.sh"
+    - "docs/change_proposals/CP_TEMPLATE.md"
+
+governance_managed:
+  description: "P2T2C governance, entrypoints, metadata, and template docs. Upgrade only when unchanged since last lock."
+  paths:
+    - "AGENTS.md"
+    - "CHECKSUMS.sha256"
+    - "P2T2C_TEMPLATE_VERSION"
+    - "README.md"
+    - "P2T2C_LICENSE.md"
+    - "Makefile"
+    - "project_config.example.yaml"
+    - "docs/adr/README.md"
+    - "docs/change_proposals/README.md"
+    - "docs/closure/README.md"
+    - "docs/reference/README.md"
+    - "docs/sot/governance/P2T2C_GOVERNANCE.md"
+    - "docs/sot/manifest.yaml"
+    - "specs/README.md"
+    - ".p2t2c/manifest.yaml"
+    - ".p2t2c/ownership.yaml"
+    - "migrations/p2t2c/**"
+
+obsolete_managed:
+  description: "Former P2T2C-managed files removed when their lock hash proves they were not locally modified."
+  source: "migrations/p2t2c/0.2.0-to-0.3.0.md"
+
+project_owned:
+  description: "Project business truth, implementation, and historical artifacts. Upgrade scripts must never write these paths unless removing an unchanged obsolete template placeholder listed by migration."
+  paths:
+    - "docs/sot/product/**"
+    - "docs/sot/data/**"
+    - "docs/sot/api/**"
+    - "docs/sot/client/**"
+    - "docs/sot/server/**"
+    - "docs/sot/ai/**"
+    - "docs/sot/testing/**"
+    - "docs/adr/ADR-*.md"
+    - "docs/change_proposals/CP-*.md"
+    - "docs/closure/CR-*.md"
+    - "specs/**"
+    - "src/**"
+    - "tests/**"
+    - "database/**"
+    - "package.json"

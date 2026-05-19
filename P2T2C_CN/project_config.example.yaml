@@ -1,0 +1,47 @@
+project:
+  name: "YourProject"
+  description: "请替换为项目描述"
+  workflow: "P2T2C Exception-Gated Workflow"
+  language: "zh-CN"
+  supported_languages:
+    - "zh-CN"
+  language_policy: "monolingual_release_root"
+  language_note: "本项目使用 P2T2C 中文发行根。"
+
+roots:
+  proposals: "docs/change_proposals"
+  specs: "specs"
+
+technology_stack:
+  backend: "TBD"
+  frontend: "TBD"
+  mobile: "TBD"
+  database: "TBD"
+  ai: "TBD"
+  testing: "TBD"
+
+p2t2c:
+  default_mode: "single_path_exception_gated"
+  human_gates:
+    gate_a: "Apply Change Pack"
+    gate_b: "Resolve Truth Drift"
+  closure_decisions:
+    - "CLOSE"
+    - "BACKFILL_EXECUTION_DOCS"
+    - "HUMAN_TRUTH_DECISION_REQUIRED"
+  stop_the_line_conditions:
+    - "Proposal ambiguous"
+    - "Proposal conflicts with Truth"
+    - "ADR required"
+    - "Acceptance failed"
+    - "Code leads or changes Truth"
+
+agent_policy:
+  default_forbidden_reads:
+    - "docs/reference"
+  business_rules_allowed_only_in:
+    - "docs/sot"
+  coding_requires:
+    - "spec.md"
+    - "plan.md"
+    - "tasks.md"

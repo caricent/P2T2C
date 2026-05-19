@@ -1,0 +1,35 @@
+# Prompt 03 — Apply Approved Change Pack
+
+Use only after Gate A has been confirmed by a human.
+
+Prerequisites:
+
+- Change Pack `Admission decision` must be `READY`.
+- Gate A must explicitly choose `Approve and apply Truth Patch`.
+- Change Pack must not contain an unresolved `Blocking Brief`.
+- If `Truth Patch Candidate: Not generated` exists, stop and do not apply SoT / ADR changes.
+
+First read `AGENTS.md`, then complete the Required Reading listed there.
+
+Additional reads for this stage:
+
+- Approved Change Pack
+- Related CP
+- `templates/truth/SOT_DOCUMENT_TEMPLATE.md`
+- `templates/truth/RULE_BLOCK_TEMPLATE.md`
+- `docs/sot/manifest.yaml`
+
+Actions:
+
+1. Apply the Truth Patch to `docs/sot/`.
+2. If the Change Pack includes an ADR action, create or update `docs/adr/` only when Gate A explicitly confirmed the full ADR content and no blocker remains; otherwise stop. Skip ADR when no ADR action exists.
+3. Update `docs/sot/manifest.yaml`.
+4. Run `make check`.
+
+Forbidden:
+
+- Do not put business rules in `AGENTS.md`, prompts, tests, or code comments.
+- Do not let prompts / tests / specs define a new rule by themselves.
+- If a new conflict appears during application, stop immediately.
+- If the Change Pack contains a `Blocking Brief`, stop and require human resolution first.
+- If `make check` fails, stop and report failure evidence.

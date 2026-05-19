@@ -1,0 +1,37 @@
+workflow: P2T2C Exception-Gated Workflow
+language: zh-CN
+supported_languages:
+  - zh-CN
+language_policy: monolingual_release_root
+status: template
+truth_root: docs/sot
+proposal_root: docs/change_proposals
+adr_root: docs/adr
+spec_root: specs
+reference_root: docs/reference
+
+canonical_entries:
+  human: README.md
+  ai: AGENTS.md
+
+human_gates:
+  gate_a: Apply Change Pack
+  gate_b: Resolve Truth Drift
+
+closure_decisions:
+  - CLOSE
+  - BACKFILL_EXECUTION_DOCS
+  - HUMAN_TRUTH_DECISION_REQUIRED
+
+truth_documents:
+  governance:
+    - docs/sot/governance/P2T2C_GOVERNANCE.md
+  project_specific: []
+
+notes:
+  language_policy: "受管工作流文档在本发行根内保持中文单语。"
+  project_specific_truth: "只有当项目在某个领域已有当前规则时，才在 docs/sot/** 下添加真实 SoT 文件。"
+  placeholder_domain_sot: "不随模板发布空的领域 SoT 占位文件。"
+
+forbidden_default_reads:
+  - docs/reference/
