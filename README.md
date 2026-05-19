@@ -18,6 +18,41 @@ Use P2T2C when you need:
 - Install and upgrade scripts that can be copied into existing projects without overwriting project-owned files.
 - Bilingual release roots for English and Chinese teams that need the same workflow in language-specific documentation.
 
+## Workflow Diagram
+
+```mermaid
+flowchart TD
+  proposal["Human proposal"] --> change_pack["AI generates Change Pack"]
+  truth["Current Truth in docs/sot and ADRs"] --> change_pack
+
+  change_pack --> admission{"Admission decision"}
+  admission -->|Ready| gate_a{"Gate A: approve Truth change?"}
+  admission -->|Blocked| blocking["Blocking Brief: repair proposal, resolve conflict, or create ADR"]
+  blocking --> proposal
+
+  gate_a -->|Approved| truth_patch["Apply Truth Patch"]
+  gate_a -->|Not approved| proposal
+  truth_patch --> execution_pack["Generate Execution Pack: spec, plan, tasks"]
+  execution_pack --> coding["Execute one coding task"]
+  coding --> task_check{"More tasks?"}
+  task_check -->|Yes| coding
+  task_check -->|No| acceptance["Acceptance: build, test, lint, governance check"]
+
+  acceptance --> acceptance_result{"Checks pass?"}
+  acceptance_result -->|No| fix_code["Fix implementation or docs, then rerun acceptance"]
+  fix_code --> acceptance
+  acceptance_result -->|Yes| closure["Closure Report"]
+
+  closure --> drift{"Truth Drift found?"}
+  drift -->|No| close["Close"]
+  drift -->|Execution docs only| backfill["Backfill spec, plan, or tasks"]
+  drift -->|Truth drift| gate_b{"Gate B: human Truth decision"}
+
+  gate_b -->|Fix code| fix_code
+  gate_b -->|Accept code| truth_patch
+  gate_b -->|Need CP or ADR| proposal
+```
+
 This repository publishes the P2T2C workflow template as a bilingual MIT-licensed release selector. The repository root is only a selector and aggregate check surface; it is not a P2T2C release root.
 
 ## Release Roots
