@@ -1,4 +1,4 @@
-version: "0.5.0"
+version: "0.7.0"
 workflow: "P2T2C Exception-Gated Workflow"
 upgrade_model: "ai_readable_safe_upgrade"
 language: "en-US"
@@ -7,14 +7,17 @@ supported_languages:
 language_policy: "monolingual_release_root"
 
 metadata:
-  version_file: "P2T2C_TEMPLATE_VERSION"
+  version_file: ".p2t2c/VERSION"
+  checksum_file: ".p2t2c/CHECKSUMS.sha256"
   ownership_file: ".p2t2c/ownership.yaml"
   lock_file: ".p2t2c/lock.sha256"
   upgrade_root: ".p2t2c/upgrade"
+  internal_asset_root: ".p2t2c"
+  script_root: ".p2t2c/bin"
 
 canonical_entries:
-  human: "README.md"
-  ai: "AGENTS.md"
+  human: "P2T2C_README.md"
+  ai: "P2T2C_AGENTS.md"
 
 policy:
   dry_run_required: true
@@ -23,6 +26,9 @@ policy:
   project_owned_files_are_read_only: true
   conflicts_stop_apply: true
   obsolete_managed_files_removed_when_lock_matches: true
+  visible_release_dirs:
+    - "docs"
+    - "specs"
   managed_docs_language: "English-only inside this release root"
 
 compatibility:

@@ -2,6 +2,18 @@
 
 All notable changes to P2T2C are documented here.
 
+## 0.7.0 - 2026-05-20
+
+- Renamed installed P2T2C entry files to `P2T2C_README.md` and `P2T2C_AGENTS.md`.
+- Moved release metadata files under `.p2t2c/` to avoid project-root filename conflicts.
+- Stopped installing a root-level Makefile; project checks run through `.p2t2c/bin/check_p2t2c.sh`.
+
+## 0.6.0 - 2026-05-20
+
+- Moved internal prompts, templates, scripts, and migration notes under `.p2t2c/`.
+- Kept installed project-root P2T2C work surfaces focused on `docs/` and `specs/`.
+- Added safe upgrade handling for removing unchanged legacy root-level internal assets.
+
 ## 0.5.0 - 2026-05-19
 
 - Prepared the bilingual P2T2C release selector for public MIT publication.

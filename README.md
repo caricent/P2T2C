@@ -95,4 +95,4 @@ GitHub Actions runs the same release checks and smoke tests through `.github/wor
 
 P2T2C is released under the MIT License. See `LICENSE`.
 
-Each standalone release root also includes `P2T2C_LICENSE.md` so the license notice is preserved when copying only `P2T2C_EN/` or `P2T2C_CN/` into another project.
+Each standalone release root also includes `.p2t2c/P2T2C_LICENSE.md` so the license notice is preserved when installing only `P2T2C_EN/` or `P2T2C_CN/` into another project.

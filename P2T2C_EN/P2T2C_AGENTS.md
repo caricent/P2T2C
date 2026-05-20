@@ -1,0 +1,126 @@
+# P2T2C_AGENTS.md — P2T2C AI Operational Entry
+
+This is the only AI entrypoint for this release root.
+
+P2T2C means **Proposal-to-Truth-to-Code**.
+
+```text
+Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
+```
+
+Default behavior: proceed. Stop only for gates, conflicts, missing Truth, failed checks, or Truth Drift.
+
+Language policy: managed workflow documents in this release root are English-only. Use `../P2T2C_CN/` for the Chinese release. Stable workflow tokens, status values, file paths, command names, CLI flags, and shell script runtime output remain English.
+
+---
+
+## 1. Required Reading
+
+For any task, read in this order:
+
+1. `P2T2C_AGENTS.md`
+2. `.p2t2c/project_config.yaml`; if missing, read `.p2t2c/templates/project_config.example.yaml`
+3. `docs/sot/governance/P2T2C_GOVERNANCE.md`
+4. `docs/sot/manifest.yaml`
+5. Stage-specific inputs listed below
+
+Do not read `docs/reference/` by default. Read it only when the user explicitly asks for historical audit, comparison, or migration context.
+
+---
+
+## 2. Stage Prompts and Allowed Writes
+
+| Task | Prompt | File writes |
+|---|---|---|
+| Initialize repository | `.p2t2c/prompts/01_bootstrap_repository_prompt.md` | Yes, skeleton only |
+| Generate Change Pack | `.p2t2c/prompts/02_generate_change_pack_prompt.md` | No |
+| Apply Change Pack | `.p2t2c/prompts/03_apply_change_pack_prompt.md` | Yes, only after Gate A |
+| Generate Execution Pack | `.p2t2c/prompts/04_generate_execution_pack_prompt.md` | Yes |
+| Execute single task | `.p2t2c/prompts/05_execute_single_task_prompt.md` | Yes, one task only |
+| Acceptance and Closure | `.p2t2c/prompts/06_acceptance_and_closure_prompt.md` | Yes, execution docs only unless Truth Drift pauses |
+
+Stage-specific reads:
+
+- Change Pack: current CP, related SoT / ADR, `.p2t2c/templates/change_pack/CHANGE_PACK_TEMPLATE.md`
+- Apply Change Pack: approved Change Pack, related SoT / ADR, truth templates, `docs/sot/manifest.yaml`
+- Execution Pack: related CP / SoT / ADR, `.p2t2c/templates/execution/spec.md`, `.p2t2c/templates/execution/plan.md`, `.p2t2c/templates/execution/tasks.md`
+- Single Task: feature `spec.md`, `plan.md`, `tasks.md`, related SoT / ADR
+- Acceptance: feature `spec.md`, `plan.md`, `tasks.md`, related SoT / ADR, current code changes, Closure template
+- Install / upgrade: `P2T2C_README.md`, install or upgrade script, `.p2t2c/ownership.yaml`
+
+---
+
+## 3. Gates
+
+Gate A: human confirmation to apply a Change Pack.
+
+- `READY` proposals may apply the Truth Patch and generate execution docs after approval.
+- Non-`READY` proposals must stay in Blocked Path.
+- If the Change Pack says `Truth Patch Candidate: Not generated`, do not apply Truth changes.
+
+Gate B: human decision for Truth Drift found during Closure.
+
+Allowed Gate B decisions:
+
+1. Fix code to match Truth.
+2. Accept code and update Truth.
+3. Create or update CP / ADR before deciding.
+
+---
+
+## 4. Stop-the-line conditions
+
+Stop and ask the human when any of these occur:
+
+- Proposal is unclear and cannot be safely derived from Truth.
+- Proposal conflicts with current SoT / ADR.
+- Proposal conflicts with Active and implemented Truth, and no human resolution exists.
+- New or changed ADR is required.
+- Continuing would invent a business rule not defined by Proposal, accepted CP, ADR, or SoT.
+- Implementation requires a new table, field, interface, page, state, permission, AI responsibility, sync object, or workflow not defined by Truth.
+- Coding invalidates a key Plan assumption.
+- Build, test, lint, or governance check fails.
+- Code leads, changes, extends, or violates Truth.
+
+---
+
+## 5. Source Priority
+
+Use sources in this order:
+
+1. Human decisions explicitly confirmed in the current task.
+2. Accepted CP / ADR.
+3. Current `docs/sot/**` Truth.
+4. `specs/**` execution documents.
+5. Current code.
+6. `docs/reference/**` historical reference, only when explicitly requested.
+
+If a lower-priority source conflicts with a higher-priority source, stop and report the conflict.
+
+---
+
+## 6. Prohibited Moves
+
+- Do not put business rules in `P2T2C_AGENTS.md`, `.agents/rules/`, prompts, tests, code comments, or navigation files.
+- Do not let Spec / Plan / Tasks override SoT.
+- Do not change business rules by editing only prompts, tests, or code.
+- Do not silently update Truth after Acceptance.
+- Do not use `docs/reference/**` as current implementation authority.
+
+---
+
+## 7. Install and Upgrade Safety
+
+Install is not Truth intake. It must not rewrite existing project docs or infer SoT from old documents.
+
+Upgrade is not a product CP. It may update the P2T2C workflow harness only. It must not edit project-owned Truth, ADRs, specs, code, tests, database files, package manifests, or historical Closure Reports.
+
+For upgrade tasks, prefer invoking the upgrade script from this release root while the current working directory is the target project. This avoids using stale migration logic from an older target project.
+
+Always run dry-run before apply:
+
+```bash
+make p2t2c-install-dry-run TARGET=/path/to/project
+cd /path/to/project
+/path/to/P2T2C_EN/.p2t2c/bin/p2t2c_upgrade.sh --dry-run --source /path/to/P2T2C_EN
+```

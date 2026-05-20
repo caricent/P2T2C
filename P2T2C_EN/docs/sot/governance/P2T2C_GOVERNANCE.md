@@ -2,12 +2,12 @@
 
 Status: Active
 Owner: Project maintainers
-Last updated: 2026-05-19
+Last updated: 2026-05-20
 
 ## AI Reading Contract
 
 - Canonical scope: P2T2C workflow governance, Truth document style, language policy, execution-pack rules, gates, and drift handling.
-- Must-read with: `AGENTS.md` and `docs/sot/manifest.yaml`.
+- Must-read with: `P2T2C_AGENTS.md` and `docs/sot/manifest.yaml`.
 - Do not infer: AI must not invent business rules, silently accept conflicts, or treat execution docs as Truth.
 - Stop-the-line if: any rule below conflicts with an accepted CP / ADR or current SoT.
 
@@ -183,7 +183,7 @@ Truth documents must be easy for humans to review and for AI to cite.
 Rule Block format is defined by:
 
 ```text
-templates/truth/RULE_BLOCK_TEMPLATE.md
+.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md
 ```
 
 Important fields include Status, Applies to, Source, Supersedes, Superseded by, Migration required, Rule, Rationale, Validation, Downstream projections, and Stop-the-line if.
@@ -218,13 +218,13 @@ P2T2C-managed human and AI workflow documents use English-first single-file bili
 Validation:
 
 - `make check`
-- `shasum -a 256 -c CHECKSUMS.sha256`
+- `shasum -a 256 -c .p2t2c/CHECKSUMS.sha256`
 - Manual scan of representative docs/templates confirms English appears first and Chinese is present.
 
 Downstream projections:
 
-- `README.md`, `AGENTS.md`, `project_config.example.yaml`, `.p2t2c/manifest.yaml`, `docs/sot/manifest.yaml`
-- `prompts/**`, `templates/**`, `sdd/templates/**`, `docs/*/README.md`, `migrations/p2t2c/**`
+- `P2T2C_README.md`, `P2T2C_AGENTS.md`, `.p2t2c/templates/project_config.example.yaml`, `.p2t2c/manifest.yaml`, `docs/sot/manifest.yaml`
+- `.p2t2c/prompts/**`, `.p2t2c/templates/**`, `.p2t2c/templates/execution/**`, `docs/*/README.md`, `.p2t2c/migrations/**`
 
 Stop-the-line if:
 
@@ -246,7 +246,7 @@ P2T2C is distributed as two self-contained language-specific release roots:
 
 - `P2T2C_EN/` contains the English release.
 - `P2T2C_CN/` contains the Chinese release.
-- Each release root is independently installable, upgradeable, checkable, and carries its own `.p2t2c` metadata, checksums, lock file, prompts, templates, scripts, and Truth.
+- Each release root is independently installable, upgradeable, checkable, and carries its own `.p2t2c` metadata, checksums, lock file, internal prompts, templates, scripts, and Truth.
 - Managed human and AI workflow documents, prompts, templates, README files, and migration notes must be monolingual inside each release root.
 - Stable workflow tokens, status values, file paths, command names, CLI flags, and shell script runtime output remain English.
 - The repository root is only a selector and aggregate check surface. It is not a P2T2C release root.
@@ -259,7 +259,7 @@ Validation:
 
 - `make check` at repository root runs checks for both release roots.
 - `make check` passes inside `P2T2C_EN/` and `P2T2C_CN/`.
-- `shasum -a 256 -c CHECKSUMS.sha256` passes inside both release roots.
+- `shasum -a 256 -c .p2t2c/CHECKSUMS.sha256` passes inside both release roots.
 - Install and upgrade smoke tests pass for both release roots.
 - Representative managed docs scan confirms same-file bilingual pairings are absent.
 
@@ -274,6 +274,95 @@ Stop-the-line if:
 - A managed release-root document reintroduces same-file bilingual human/AI instructions.
 - A release root cannot install, upgrade, or pass checks independently.
 - A change localizes script runtime output without an accepted CP.
+
+### RULE-GOV-007: Minimal Project-Root Surface
+
+Status: Active
+Applies to: P2T2C release packaging, install, upgrade, and managed path layout
+Source: Maintainer decision on 2026-05-20
+Supersedes: previous exposed internal asset layout
+Superseded by: None
+Migration required: Yes, template version `0.6.0`
+
+Rule:
+
+After P2T2C is installed into a project, only the user-facing P2T2C work surfaces are visible at the project root:
+
+- `docs/`
+- `specs/`
+
+P2T2C internal runtime assets must live under `.p2t2c/`:
+
+- `.p2t2c/prompts/**`
+- `.p2t2c/templates/**`
+- `.p2t2c/templates/execution/**`
+- `.p2t2c/bin/**`
+- `.p2t2c/migrations/**`
+
+User-copyable entry templates may stay beside their target documents, such as `docs/change_proposals/CP_TEMPLATE.md`. Any new visible P2T2C root directory requires an accepted CP or ADR first.
+
+Validation:
+
+- `make check`
+- Install smoke tests must not create root-level `prompts/`, `templates/`, `scripts/`, `sdd/`, or `migrations/`.
+- Upgrade smoke tests must remove old root-level internal assets when the lock hash matches.
+
+Downstream projections:
+
+- `.p2t2c/ownership.yaml`
+- `.p2t2c/manifest.yaml`
+- `.p2t2c/bin/**`
+- `.p2t2c/migrations/0.5.0-to-0.6.0.md`
+- Human and AI entry documents
+
+Stop-the-line if:
+
+- A P2T2C change reintroduces a root-level internal asset directory.
+- Upgrade would delete locally modified old internal assets.
+- A visible P2T2C root directory is added without an accepted CP or ADR.
+
+### RULE-GOV-008: P2T2C Root Entry File Names
+
+Status: Active
+Applies to: P2T2C release packaging, install, upgrade, and root-file projection
+Source: Maintainer decision on 2026-05-20
+Supersedes: root-level `README.md` and `AGENTS.md` as P2T2C installed entries
+Superseded by: None
+Migration required: Yes, template version `0.7.0`
+
+Rule:
+
+After P2T2C is installed into a project, exactly two P2T2C-specific root entry files may be projected:
+
+- `P2T2C_README.md` is the primary human entry for understanding the P2T2C workflow.
+- `P2T2C_AGENTS.md` is the P2T2C AI operational entry.
+
+New installs must not create root-level `README.md`, `AGENTS.md`, `Makefile`, `CHECKSUMS.sha256`, `P2T2C_TEMPLATE_VERSION`, `P2T2C_LICENSE.md`, or `project_config.example.yaml`. Upgrade scripts may remove or migrate these old root files only when the lock hash proves they were not locally modified.
+
+If an AI tool only auto-loads root-level `AGENTS.md`, users should manually reference `P2T2C_AGENTS.md` from their project-owned `AGENTS.md`.
+
+Validation:
+
+- `make check`
+- New install smoke tests do not create old root files.
+- `0.6.0 -> 0.7.0` upgrade smoke tests migrate unchanged old entry files.
+- Upgrades must stop after local modifications to old `README.md`, `AGENTS.md`, or `Makefile`.
+
+Downstream projections:
+
+- `P2T2C_README.md`
+- `P2T2C_AGENTS.md`
+- `.p2t2c/CHECKSUMS.sha256`
+- `.p2t2c/VERSION`
+- `.p2t2c/P2T2C_LICENSE.md`
+- `.p2t2c/templates/project_config.example.yaml`
+- `.p2t2c/migrations/0.6.0-to-0.7.0.md`
+
+Stop-the-line if:
+
+- New install projects any old root file.
+- Upgrade deletes or overwrites a locally modified old root entry or project Makefile.
+- A managed document still treats `README.md` or `AGENTS.md` as the P2T2C installed target entry.
 
 ---
 

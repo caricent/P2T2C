@@ -2,12 +2,12 @@
 
 Status: Active
 Owner: Project maintainers
-Last updated: 2026-05-19
+Last updated: 2026-05-20
 
 ## AI 阅读契约
 
 - 权威范围：P2T2C 工作流治理、Truth 文档风格、语言策略、执行包规则、关卡和漂移处理。
-- 必须一起读取：`AGENTS.md` 和 `docs/sot/manifest.yaml`。
+- 必须一起读取：`P2T2C_AGENTS.md` 和 `docs/sot/manifest.yaml`。
 - 不得推断：AI 不得发明业务规则、静默接受冲突，或把执行文档当作 Truth。
 - 停线条件：以下任一规则与已接受 CP、ADR 或当前 SoT 冲突。
 
@@ -183,7 +183,7 @@ Truth 文档必须便于人类审阅，也便于 AI 引用。
 Rule Block 格式定义在：
 
 ```text
-templates/truth/RULE_BLOCK_TEMPLATE.md
+.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md
 ```
 
 验证：
@@ -224,7 +224,7 @@ P2T2C 以两个自包含语言专属发行根发布：
 
 - `P2T2C_EN/` 包含英文发行版。
 - `P2T2C_CN/` 包含中文发行版。
-- 每个发行根都可独立安装、升级、检查，并包含自己的 `.p2t2c` 元数据、checksum、lock 文件、prompt、template、script 和 Truth。
+- 每个发行根都可独立安装、升级、检查，并包含自己的 `.p2t2c` 元数据、checksum、lock 文件、内部 prompt、template、script 和 Truth。
 - 受管人类与 AI 工作流文档、prompt、template、README 和迁移说明在各自发行根内必须保持单语。
 - 稳定工作流 token、状态值、文件路径、命令名、CLI 参数和 shell 脚本运行时输出保持英文。
 - 仓库根目录只作为语言选择和聚合检查入口，不是 P2T2C 发行根。
@@ -237,7 +237,7 @@ P2T2C 以两个自包含语言专属发行根发布：
 
 - 仓库根目录 `make check` 会检查两个发行根。
 - `P2T2C_EN/` 和 `P2T2C_CN/` 内的 `make check` 均通过。
-- 两个发行根内的 `shasum -a 256 -c CHECKSUMS.sha256` 均通过。
+- 两个发行根内的 `shasum -a 256 -c .p2t2c/CHECKSUMS.sha256` 均通过。
 - 两个发行根的 install 和 upgrade smoke test 均通过。
 - 代表性受管文档扫描确认没有同文件双语说明。
 
@@ -252,6 +252,95 @@ P2T2C 以两个自包含语言专属发行根发布：
 - 受管发行根文档重新引入同文件双语人类或 AI 指令。
 - 任一发行根无法独立安装、升级或通过检查。
 - 未经已接受 CP 就本地化 shell 脚本运行时输出。
+
+### RULE-GOV-007: 根目录使用者工作面收敛
+
+Status: Active
+Applies to: P2T2C release packaging, install, upgrade, and managed path layout
+Source: Maintainer decision on 2026-05-20
+Supersedes: previous exposed internal asset layout
+Superseded by: None
+Migration required: Yes, template version `0.6.0`
+
+规则：
+
+P2T2C 安装到项目后，根目录只暴露使用者需要日常关注的 P2T2C 工作面：
+
+- `docs/`
+- `specs/`
+
+P2T2C 内部运行资产必须放在 `.p2t2c/` 下：
+
+- `.p2t2c/prompts/**`
+- `.p2t2c/templates/**`
+- `.p2t2c/templates/execution/**`
+- `.p2t2c/bin/**`
+- `.p2t2c/migrations/**`
+
+用户可复制的入口模板可以保留在目标文档旁边，例如 `docs/change_proposals/CP_TEMPLATE.md`。新增任何可见 P2T2C 根目录前，必须先经过已接受 CP 或 ADR。
+
+验证：
+
+- `make check`
+- install smoke test 不得创建根级 `prompts/`、`templates/`、`scripts/`、`sdd/` 或 `migrations/`。
+- upgrade smoke test 必须在 lock hash 匹配时移除旧的根级内部资产。
+
+下游投射：
+
+- `.p2t2c/ownership.yaml`
+- `.p2t2c/manifest.yaml`
+- `.p2t2c/bin/**`
+- `.p2t2c/migrations/0.5.0-to-0.6.0.md`
+- 人类和 AI 入口文档
+
+停线条件：
+
+- P2T2C 变更重新引入根级内部资产目录。
+- 升级会删除本地修改过的旧内部资产。
+- 未经已接受 CP 或 ADR 新增可见 P2T2C 根目录。
+
+### RULE-GOV-008: P2T2C 根入口文件命名
+
+Status: Active
+Applies to: P2T2C release packaging, install, upgrade, and root-file projection
+Source: Maintainer decision on 2026-05-20
+Supersedes: root-level `README.md` and `AGENTS.md` as P2T2C installed entries
+Superseded by: None
+Migration required: Yes, template version `0.7.0`
+
+规则：
+
+P2T2C 安装到项目后，允许在根目录保留两个 P2T2C 专属入口文件：
+
+- `P2T2C_README.md` 是使用者理解 P2T2C 工作流的首要文档。
+- `P2T2C_AGENTS.md` 是 P2T2C 的 AI 操作入口。
+
+P2T2C 不得在新安装中创建根级 `README.md`、`AGENTS.md`、`Makefile`、`CHECKSUMS.sha256`、`P2T2C_TEMPLATE_VERSION`、`P2T2C_LICENSE.md` 或 `project_config.example.yaml`。这些旧根文件只有在 lock hash 证明未被本地修改时，升级脚本才可移除或迁移。
+
+如果某些 AI 工具只自动读取根级 `AGENTS.md`，使用者应在项目自己的 `AGENTS.md` 中手动引用 `P2T2C_AGENTS.md`。
+
+验证：
+
+- `make check`
+- 新安装 smoke test 不创建旧根文件。
+- `0.6.0 -> 0.7.0` upgrade smoke test 迁移未修改的旧入口文件。
+- 本地修改旧 `README.md`、`AGENTS.md` 或 `Makefile` 后升级必须停线。
+
+下游投射：
+
+- `P2T2C_README.md`
+- `P2T2C_AGENTS.md`
+- `.p2t2c/CHECKSUMS.sha256`
+- `.p2t2c/VERSION`
+- `.p2t2c/P2T2C_LICENSE.md`
+- `.p2t2c/templates/project_config.example.yaml`
+- `.p2t2c/migrations/0.6.0-to-0.7.0.md`
+
+停线条件：
+
+- 新安装投射任何旧根文件。
+- 升级删除或覆盖本地修改过的旧根入口或项目 Makefile。
+- 受管文档仍把 `README.md` 或 `AGENTS.md` 当作 P2T2C 安装目标入口。
 
 ---
 

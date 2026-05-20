@@ -11,8 +11,8 @@ spec_root: specs
 reference_root: docs/reference
 
 canonical_entries:
-  human: README.md
-  ai: AGENTS.md
+  human: P2T2C_README.md
+  ai: P2T2C_AGENTS.md
 
 human_gates:
   gate_a: Apply Change Pack

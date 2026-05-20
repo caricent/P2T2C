@@ -22,17 +22,31 @@ run_release_root() {
 
   echo "==> Checking $rel"
   make -C "$release_root" check
-  (cd "$release_root" && shasum -a 256 -c CHECKSUMS.sha256)
+  (cd "$release_root" && shasum -a 256 -c .p2t2c/CHECKSUMS.sha256)
 
   echo "==> Installing $rel into smoke target"
   make -C "$release_root" p2t2c-install-dry-run TARGET="$target"
   make -C "$release_root" p2t2c-install TARGET="$target"
-  make -C "$target" check
+  (cd "$target" && bash .p2t2c/bin/check_p2t2c.sh)
+  for internal_dir in prompts templates scripts sdd migrations; do
+    if [[ -e "$target/$internal_dir" ]]; then
+      echo "ERROR: installed target exposes internal directory: $internal_dir" >&2
+      exit 1
+    fi
+  done
+  for old_root_file in README.md AGENTS.md Makefile CHECKSUMS.sha256 P2T2C_TEMPLATE_VERSION P2T2C_LICENSE.md project_config.example.yaml; do
+    if [[ -e "$target/$old_root_file" ]]; then
+      echo "ERROR: installed target exposes old root file: $old_root_file" >&2
+      exit 1
+    fi
+  done
+  test -f "$target/P2T2C_README.md"
+  test -f "$target/P2T2C_AGENTS.md"
 
   echo "==> Upgrading $rel smoke target from current source"
-  (cd "$target" && "$release_root/scripts/p2t2c_upgrade.sh" --dry-run --source "$release_root")
-  (cd "$target" && "$release_root/scripts/p2t2c_upgrade.sh" --apply --source "$release_root")
-  make -C "$target" check
+  (cd "$target" && "$release_root/.p2t2c/bin/p2t2c_upgrade.sh" --dry-run --source "$release_root")
+  (cd "$target" && "$release_root/.p2t2c/bin/p2t2c_upgrade.sh" --apply --source "$release_root")
+  (cd "$target" && bash .p2t2c/bin/check_p2t2c.sh)
 }
 
 run_release_root "P2T2C_EN"
