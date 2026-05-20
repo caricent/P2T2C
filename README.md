@@ -20,34 +20,78 @@ Use P2T2C when you need:
 
 ## Workflow Diagram
 
+The workflow runs through six stages. The diagram groups every step into the stage it
+belongs to and color-codes the role that owns it: orange = human action, gold = human
+decision gate, blue = AI action, purple = automatic decision, red = blocked / repair,
+green = done.
+
 ```mermaid
 flowchart TD
-  proposal["Human proposal"] --> change_pack["AI generates Change Pack"]
-  truth["Current Truth in docs/sot and ADRs"] --> change_pack
+  classDef human fill:#ffe8cc,stroke:#e8590c,stroke-width:2px,color:#1a1a1a;
+  classDef ai fill:#e7f5ff,stroke:#1971c2,stroke-width:1.5px,color:#1a1a1a;
+  classDef gate fill:#fff3bf,stroke:#f08c00,stroke-width:2.5px,color:#1a1a1a;
+  classDef decision fill:#f3f0ff,stroke:#7048e8,stroke-width:1.5px,color:#1a1a1a;
+  classDef stop fill:#ffe3e3,stroke:#e03131,stroke-width:2px,color:#1a1a1a;
+  classDef done fill:#ebfbee,stroke:#2f9e44,stroke-width:2px,color:#1a1a1a;
 
-  change_pack --> admission{"Admission decision"}
-  admission -->|Ready| gate_a{"Gate A: approve Truth change?"}
-  admission -->|Blocked| blocking["Blocking Brief: repair proposal, resolve conflict, or create ADR"]
-  blocking --> proposal
+  subgraph S1["Stage 1 · Propose"]
+    proposal["Human proposal"]:::human
+    truth[("Current Truth<br/>docs/sot + ADRs")]:::ai
+    change_pack["AI: generate Change Pack"]:::ai
+  end
 
-  gate_a -->|Approved| truth_patch["Apply Truth Patch"]
+  subgraph S2["Stage 2 · Admit &amp; Gate A"]
+    admission{"Admission?"}:::decision
+    blocking["Blocking Brief<br/>repair · resolve conflict · ADR"]:::stop
+    gate_a{"Gate A — human<br/>approve Truth change?"}:::gate
+  end
+
+  subgraph S3["Stage 3 · Patch &amp; Plan"]
+    truth_patch["Apply Truth Patch"]:::ai
+    execution_pack["AI: Execution Pack<br/>spec · plan · tasks"]:::ai
+  end
+
+  subgraph S4["Stage 4 · Build"]
+    coding["Execute one coding task"]:::ai
+    task_check{"More tasks?"}:::decision
+  end
+
+  subgraph S5["Stage 5 · Accept"]
+    acceptance["Acceptance<br/>build · test · lint · governance"]:::ai
+    acceptance_result{"Checks pass?"}:::decision
+    fix_code["Fix implementation or docs"]:::ai
+  end
+
+  subgraph S6["Stage 6 · Close"]
+    closure["Closure Report"]:::ai
+    drift{"Truth Drift?"}:::decision
+    gate_b{"Gate B — human<br/>Truth decision"}:::gate
+    backfill["Backfill spec · plan · tasks"]:::ai
+    close(["Close"]):::done
+  end
+
+  proposal --> change_pack
+  truth --> change_pack
+  change_pack --> admission
+  admission -->|Ready| gate_a
+  admission -->|Blocked| blocking
+  blocking -.->|repair| proposal
+  gate_a -->|Approved| truth_patch
   gate_a -->|Not approved| proposal
-  truth_patch --> execution_pack["Generate Execution Pack: spec, plan, tasks"]
-  execution_pack --> coding["Execute one coding task"]
-  coding --> task_check{"More tasks?"}
-  task_check -->|Yes| coding
-  task_check -->|No| acceptance["Acceptance: build, test, lint, governance check"]
-
-  acceptance --> acceptance_result{"Checks pass?"}
-  acceptance_result -->|No| fix_code["Fix implementation or docs, then rerun acceptance"]
-  fix_code --> acceptance
-  acceptance_result -->|Yes| closure["Closure Report"]
-
-  closure --> drift{"Truth Drift found?"}
-  drift -->|No| close["Close"]
-  drift -->|Execution docs only| backfill["Backfill spec, plan, or tasks"]
-  drift -->|Truth drift| gate_b{"Gate B: human Truth decision"}
-
+  truth_patch --> execution_pack
+  execution_pack --> coding
+  coding --> task_check
+  task_check -->|Yes, next task| coding
+  task_check -->|No| acceptance
+  acceptance --> acceptance_result
+  acceptance_result -->|No| fix_code
+  fix_code -.->|rerun| acceptance
+  acceptance_result -->|Yes| closure
+  closure --> drift
+  drift -->|No drift| close
+  drift -->|Execution docs only| backfill
+  backfill --> close
+  drift -->|Truth drift| gate_b
   gate_b -->|Fix code| fix_code
   gate_b -->|Accept code| truth_patch
   gate_b -->|Need CP or ADR| proposal
