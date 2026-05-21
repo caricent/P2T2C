@@ -342,6 +342,116 @@ P2T2C 不得在新安装中创建根级 `README.md`、`AGENTS.md`、`Makefile`�
 - 升级删除或覆盖本地修改过的旧根入口或项目 Makefile。
 - 受管文档仍把 `README.md` 或 `AGENTS.md` 当作 P2T2C 安装目标入口。
 
+### RULE-GOV-009: Rule 标识完整性
+
+Status: Active
+Applies to: `docs/sot/**`
+Source: 维护者决策 2026-05-21
+Supersedes: None
+Superseded by: None
+Migration required: Yes, 模板版本 `0.8.0`
+
+Rule:
+
+Truth 文档中的 Rule 标识必须构成一致、可机器校验的图。
+
+- 每个 Rule Block 使用 `RULE-{AREA}-{NNN}` 标识，且在整个 `docs/sot/**` 内唯一。
+- lifecycle 链必须双向：若 `RULE-A` 声明 `Superseded by: RULE-B`，则 `RULE-B` 必须声明 `Supersedes: RULE-A`，反之亦然。`None` 是唯一允许的空值。
+- `Supersedes` 或 `Superseded by` 字段中出现的每个标识，都必须能在 `docs/sot/**` 中找到真实的 Rule Block。
+- 被任何 `Superseded by` 字段指向的规则不得仍为 `Status: Active`，必须是 `Superseded` 或 `Deprecated`。
+
+Rationale:
+
+Rule 标识是 Truth、spec、task 与代码之间稳定的连接键。重复标识、悬空引用、或被取代却仍标 `Active` 的规则，会悄悄破坏这一连接，让冲突的 Truth 共存而不被发现。
+
+Validation:
+
+- `make check` 对 `docs/sot/**` 运行 SoT 完整性扫描。
+- 扫描报告重复标识、悬空 lifecycle 引用、断裂的双向链、以及被取代却仍 Active 的规则。
+
+Downstream projections:
+
+- `.p2t2c/bin/check_p2t2c.sh`
+- `.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md`
+
+Stop-the-line if:
+
+- SoT 完整性扫描报告任何错误。
+- 新规则复用已有标识。
+
+### RULE-GOV-010: 代码到 Truth 的回链锚点
+
+Status: Active
+Applies to: `src/**`, `docs/sot/**`
+Source: 维护者决策 2026-05-21
+Supersedes: None
+Superseded by: None
+Migration required: Yes, 模板版本 `0.8.0`
+
+Rule:
+
+实现某条 Truth 规则的代码必须携带指向该规则的回链锚点，且不得把规则文本复制进代码。
+
+- 锚点格式为包含 `Implements: RULE-{AREA}-{NNN}` 的注释行，可用逗号分隔列出多个标识。
+- 锚点只记录指针。业务规则本身留在 `docs/sot/**`，代码注释不得成为规则来源（见 RULE-GOV-002 与 Prohibited Moves）。
+- 锚点中出现的每个标识，都必须能解析到 `docs/sot/**` 中 `Status` 为 `Active` 的 Rule Block。
+- 对项目工作面这是软约束：当不存在 `src/**` 树时（例如空模板发行根），跳过锚点扫描。
+
+Rationale:
+
+Truth 通过 spec 正向投射到代码，但缺少回链时，"这段代码实现了哪条规则"这一反向问题就没有可机器校验的答案，Closure 阶段的 Truth Drift 检测也失去结构化依据。仅指针的锚点在把规则文本保持在唯一位置的同时恢复了反向链接。
+
+Validation:
+
+- `make check` 仅在 `src/**` 存在时运行锚点扫描。
+- 扫描报告指向缺失标识或非 `Active` 规则的锚点。
+
+Downstream projections:
+
+- `.p2t2c/bin/check_p2t2c.sh`
+- `.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md`
+
+Stop-the-line if:
+
+- 锚点指向缺失或非 `Active` 的规则。
+- 规则文本被移入代码注释而非以指针形式记录。
+
+### RULE-GOV-011: EARS 验收绑定 Rule 标识
+
+Status: Active
+Applies to: `specs/**`
+Source: 维护者决策 2026-05-21
+Supersedes: None
+Superseded by: None
+Migration required: Yes, 模板版本 `0.8.0`
+
+Rule:
+
+验收标准必须通过共享标识可追溯到它所验证的 Truth 规则。
+
+- `spec.md` 中每条 EARS 验收语句末尾标注一个或多个 `[RULE-{AREA}-{NNN}]` 标签，命名其所验证的规则。
+- `tasks.md` 中每条验收命令或可执行验收步骤标注其所验收的同一标识。
+- `spec.md` 验收中标注的每个标识，也必须出现在该 spec 的 `## 0. Truth References` 表中。
+
+Rationale:
+
+EARS 语句与规则的 `Validation` 字段在两处描述同一约束。缺少共享标识时，它们可能漂移成不一致的措辞而不被察觉。以标识绑定使一条需求从 Truth 经 spec、task 到验收步骤可追溯。
+
+Validation:
+
+- spec 与 task 用所验证的规则标识标注验收。
+- 被标注的标识出现在 spec 的 Truth References 表中。
+
+Downstream projections:
+
+- `.p2t2c/templates/execution/spec.md`
+- `.p2t2c/templates/execution/tasks.md`
+- `.p2t2c/prompts/04_generate_execution_pack_prompt.md`
+
+Stop-the-line if:
+
+- 某条验收标准验证的行为，其规则标识未出现在 Truth References 中。
+
 ---
 
 ## 6. 执行包规则

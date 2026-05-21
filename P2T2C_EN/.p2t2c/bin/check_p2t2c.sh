@@ -31,6 +31,7 @@ required=(
   ".p2t2c/migrations/0.4.0-to-0.5.0.md"
   ".p2t2c/migrations/0.5.0-to-0.6.0.md"
   ".p2t2c/migrations/0.6.0-to-0.7.0.md"
+  ".p2t2c/migrations/0.7.0-to-0.8.0.md"
   ".p2t2c/prompts/01_bootstrap_repository_prompt.md"
   ".p2t2c/prompts/02_generate_change_pack_prompt.md"
   ".p2t2c/prompts/03_apply_change_pack_prompt.md"
@@ -119,9 +120,9 @@ if [[ -f "docs/sot/manifest.yaml" ]]; then
   language="$(awk -F': *' '$1 == "language" {print $2; exit}' docs/sot/manifest.yaml)"
 fi
 
-check_phrase ".p2t2c/VERSION" "0.7.0"
+check_phrase ".p2t2c/VERSION" "0.8.0"
 check_phrase "docs/sot/manifest.yaml" "language_policy: monolingual_release_root"
-check_phrase ".p2t2c/manifest.yaml" "version: \"0.7.0\""
+check_phrase ".p2t2c/manifest.yaml" "version: \"0.8.0\""
 check_phrase ".p2t2c/manifest.yaml" "language_policy: \"monolingual_release_root\""
 check_phrase ".p2t2c/P2T2C_LICENSE.md" "MIT License"
 check_phrase ".p2t2c/P2T2C_LICENSE.md" "Copyright (c) 2026 Caricent"
@@ -129,11 +130,14 @@ check_phrase ".p2t2c/P2T2C_LICENSE.md" "jasonbaoly"
 check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-006"
 check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "Superseded by"
 check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-007"
+check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-009"
+check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-010"
+check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-011"
 check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "--dry-run"
 check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "--rollback"
-check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.6.0-to-0.7.0.md"
+check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.7.0-to-0.8.0.md"
 check_phrase ".p2t2c/bin/p2t2c_install.sh" "--target"
-check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.6.0-to-0.7.0.md"
+check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.7.0-to-0.8.0.md"
 check_phrase ".p2t2c/templates/change_pack/CHANGE_PACK_TEMPLATE.md" "Truth Patch Candidate: Not generated"
 check_phrase ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md" "Closure Decision"
 check_phrase ".p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md" "Supersedes"
@@ -181,6 +185,91 @@ elif [[ "$language" == "zh-CN" ]]; then
 else
   echo "ERROR: unknown docs/sot/manifest.yaml language: $language"
   missing=1
+fi
+
+# --- RULE-GOV-009: SoT rule identifier integrity ---------------------------
+# Scans docs/sot/**/*.md for Rule Blocks and validates:
+#   - unique RULE-IDs across all SoT
+#   - bidirectional Supersedes / Superseded by links
+#   - no dangling lifecycle references
+#   - no superseded-yet-Active rule
+sot_report="$(
+  find docs/sot -type f -name '*.md' 2>/dev/null | sort | while IFS= read -r f; do
+    [[ -n "$f" ]] && cat "$f" && printf '\n'
+  done | awk '
+    function flush() {
+      if (cur != "") {
+        if (cur in seen) { print "ERROR: duplicate RULE-ID: " cur }
+        seen[cur] = 1
+        status[cur] = cur_status
+        sup[cur] = cur_sup
+        supby[cur] = cur_supby
+      }
+      cur = ""; cur_status = ""; cur_sup = "None"; cur_supby = "None"
+    }
+    /^###[[:space:]]+RULE-[A-Z]+-[0-9]+/ {
+      flush()
+      match($0, /RULE-[A-Z]+-[0-9]+/); cur = substr($0, RSTART, RLENGTH)
+      next
+    }
+    cur != "" && /^Status:/        { s = $0; sub(/^Status:[[:space:]]*/, "", s); cur_status = s; next }
+    cur != "" && /^Supersedes:/    { s = $0; sub(/^Supersedes:[[:space:]]*/, "", s); gsub(/`/, "", s); cur_sup = s; next }
+    cur != "" && /^Superseded by:/ { s = $0; sub(/^Superseded by:[[:space:]]*/, "", s); gsub(/`/, "", s); cur_supby = s; next }
+    END {
+      flush()
+      for (r in seen) {
+        # dangling + bidirectional for Superseded by
+        if (supby[r] != "" && supby[r] != "None") {
+          n = split(supby[r], t, /[,[:space:]]+/)
+          for (i = 1; i <= n; i++) {
+            id = t[i]; if (id !~ /^RULE-/) continue
+            if (!(id in seen)) { print "ERROR: " r " Superseded by references missing RULE-ID: " id; continue }
+            if (sup[id] !~ ("(^|[, ])" r "([, ]|$)")) print "ERROR: broken link: " r " Superseded by " id " but " id " does not Supersede " r
+          }
+        }
+        # dangling + bidirectional for Supersedes
+        if (sup[r] != "" && sup[r] != "None") {
+          n = split(sup[r], t, /[,[:space:]]+/)
+          for (i = 1; i <= n; i++) {
+            id = t[i]; if (id !~ /^RULE-/) continue
+            if (!(id in seen)) { print "ERROR: " r " Supersedes references missing RULE-ID: " id; continue }
+            if (supby[id] !~ ("(^|[, ])" r "([, ]|$)")) print "ERROR: broken link: " r " Supersedes " id " but " id " is not Superseded by " r
+          }
+        }
+        # superseded-yet-Active
+        if (supby[r] != "" && supby[r] != "None" && status[r] ~ /Active/)
+          print "ERROR: " r " is Superseded by " supby[r] " but still Status: Active"
+      }
+    }
+  '
+)"
+if [[ -n "$sot_report" ]]; then
+  printf "%s\n" "$sot_report"
+  missing=1
+fi
+
+# --- RULE-GOV-010: code-to-Truth back-reference anchors (soft) -------------
+# Only runs when a project src/ tree exists; the empty template root skips it.
+if [[ -d "src" ]]; then
+  active_ids="$(
+    find docs/sot -type f -name '*.md' 2>/dev/null | sort | while IFS= read -r f; do
+      [[ -n "$f" ]] && cat "$f" && printf '\n'
+    done | awk '
+      /^###[[:space:]]+RULE-[A-Z]+-[0-9]+/ { match($0, /RULE-[A-Z]+-[0-9]+/); cur = substr($0, RSTART, RLENGTH); next }
+      cur != "" && /^Status:/ { if ($0 ~ /Active/) print cur; cur = "" }
+    '
+  )"
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    loc="${line%:*}"
+    id="$(printf "%s" "$line" | grep -o 'RULE-[A-Z]\+-[0-9]\+')"
+    [[ -z "$id" ]] && continue
+    if ! printf "%s\n" "$active_ids" | grep -qx -- "$id"; then
+      echo "ERROR: code anchor references missing or non-Active RULE-ID: $id ($loc)"
+      missing=1
+    fi
+  done < <(rg --no-heading -n "Implements:[[:space:]]*RULE-[A-Z]+-[0-9]+" src 2>/dev/null \
+            | grep -o '^[^:]*:[0-9]*:.*RULE-[A-Z]\+-[0-9]\+' || true)
 fi
 
 if [[ $missing -eq 0 ]]; then

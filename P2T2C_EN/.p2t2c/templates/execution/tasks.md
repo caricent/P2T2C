@@ -37,8 +37,10 @@ Operations:
 
 Acceptance:
 
-- [ ] `{command}` — Expected: {expected} | Actual: {fill after run}
-- [ ] Behavior: {expected behavior} | Actual: {fill after check}
+Each acceptance step names the Truth rule identifier it accepts (RULE-GOV-011), matching the EARS tags in `spec.md`.
+
+- [ ] `{command}` — Verifies: `{RULE-...}` | Expected: {expected} | Actual: {fill after run}
+- [ ] Behavior: {expected behavior} — Verifies: `{RULE-...}` | Actual: {fill after check}
 
 Drift notes:
 

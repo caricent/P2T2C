@@ -55,9 +55,11 @@ As a {role}, I want to {behavior}, so that {value}.
 
 ## 4. Acceptance Criteria (EARS)
 
-- When {trigger}, the system shall {expected behavior}.
-- While {state}, the system shall {continuous behavior}.
-- The system shall not {forbidden behavior}.
+Each statement ends with the Truth rule identifier(s) it verifies (RULE-GOV-011). Every tagged identifier must also appear in section 0 Truth References.
+
+- When {trigger}, the system shall {expected behavior}. [RULE-...]
+- While {state}, the system shall {continuous behavior}. [RULE-...]
+- The system shall not {forbidden behavior}. [RULE-...]
 
 ---
 

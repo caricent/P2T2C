@@ -95,6 +95,7 @@ GOVERNANCE_MANAGED=(
   ".p2t2c/migrations/0.4.0-to-0.5.0.md"
   ".p2t2c/migrations/0.5.0-to-0.6.0.md"
   ".p2t2c/migrations/0.6.0-to-0.7.0.md"
+  ".p2t2c/migrations/0.7.0-to-0.8.0.md"
 )
 
 ALL_MANAGED=(

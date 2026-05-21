@@ -25,6 +25,11 @@ Downstream projections:
 - Tests: {which tests should cover this}
 - Code: {which modules should implement this}
 
+Code anchor (RULE-GOV-010):
+
+- Implementing code carries a pointer-only comment such as `Implements: RULE-{AREA}-{NNN}`.
+- The anchor records the pointer only; the rule text stays in this SoT, never in the code comment.
+
 Stop-the-line if:
 
 - {when AI must pause for human confirmation}

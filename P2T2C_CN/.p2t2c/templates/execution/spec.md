@@ -53,9 +53,11 @@ As a {角色}, I want to {行为}, so that {价值}.
 
 ## 验收标准（EARS）
 
-- When {触发条件}, the system shall {预期行为}.
-- While {持续条件}, the system shall {持续行为}.
-- The system shall not {禁止行为}.
+每条语句末尾标注其所验证的 Truth 规则标识（RULE-GOV-011）。每个被标注的标识也必须出现在第 0 节 Truth References 中。
+
+- When {触发条件}, the system shall {预期行为}. [RULE-...]
+- While {持续条件}, the system shall {持续行为}. [RULE-...]
+- The system shall not {禁止行为}. [RULE-...]
 
 ---
 

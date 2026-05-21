@@ -28,6 +28,13 @@ Truth references:
 1. {做什么；不写完整代码。}
 2. {关键数据、枚举、接口路径、边界条件。}
 
+Acceptance:
+
+每条验收步骤标注其所验收的 Truth 规则标识（RULE-GOV-011），与 `spec.md` 中的 EARS 标签一致。
+
+- [ ] `{command}` — Verifies: `{RULE-...}` | Expected: {expected} | Actual: {运行后回填}
+- [ ] Behavior: {预期行为} — Verifies: `{RULE-...}` | Actual: {检查后回填}
+
 - {如发现 Execution Doc Drift 或 Truth Drift，记录并暂停或留到 Closure。}
 
 ---

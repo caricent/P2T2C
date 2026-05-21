@@ -364,6 +364,116 @@ Stop-the-line if:
 - Upgrade deletes or overwrites a locally modified old root entry or project Makefile.
 - A managed document still treats `README.md` or `AGENTS.md` as the P2T2C installed target entry.
 
+### RULE-GOV-009: Rule Identifier Integrity
+
+Status: Active
+Applies to: `docs/sot/**`
+Source: Maintainer decision on 2026-05-21
+Supersedes: None
+Superseded by: None
+Migration required: Yes, template version `0.8.0`
+
+Rule:
+
+Rule identifiers in Truth documents must form a consistent, machine-checkable graph.
+
+- Every Rule Block uses a `RULE-{AREA}-{NNN}` identifier that is unique across all of `docs/sot/**`.
+- Lifecycle links must be bidirectional: if `RULE-A` declares `Superseded by: RULE-B`, then `RULE-B` must declare `Supersedes: RULE-A`, and the reverse must also hold. `None` is the only allowed empty value.
+- Every identifier named in a `Supersedes` or `Superseded by` field must resolve to a real Rule Block in `docs/sot/**`.
+- A rule that is named by any `Superseded by` field must not retain `Status: Active`; it must be `Superseded` or `Deprecated`.
+
+Rationale:
+
+Rule identifiers are the stable join key between Truth, specs, tasks, and code. Duplicate identifiers, dangling references, or a superseded rule still marked `Active` silently break that join and let conflicting Truth coexist undetected.
+
+Validation:
+
+- `make check` runs the SoT integrity scan over `docs/sot/**`.
+- The scan reports duplicate identifiers, dangling lifecycle references, broken bidirectional links, and superseded-yet-Active rules.
+
+Downstream projections:
+
+- `.p2t2c/bin/check_p2t2c.sh`
+- `.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md`
+
+Stop-the-line if:
+
+- The SoT integrity scan reports any error.
+- A new rule would reuse an existing identifier.
+
+### RULE-GOV-010: Code-to-Truth Back-reference Anchors
+
+Status: Active
+Applies to: `src/**`, `docs/sot/**`
+Source: Maintainer decision on 2026-05-21
+Supersedes: None
+Superseded by: None
+Migration required: Yes, template version `0.8.0`
+
+Rule:
+
+Code that implements a Truth rule must carry a back-reference anchor pointing to that rule, without copying the rule text into code.
+
+- The anchor format is a comment line containing `Implements: RULE-{AREA}-{NNN}`, optionally listing multiple identifiers separated by commas.
+- An anchor records only the pointer. The business rule itself stays in `docs/sot/**`; code comments must not become the source of a rule (see RULE-GOV-002 and Prohibited Moves).
+- Every identifier named in an anchor must resolve to a Rule Block in `docs/sot/**` whose `Status` is `Active`.
+- This is a soft contract for the project surface: when no `src/**` tree exists (for example, an empty template release root), the anchor scan is skipped.
+
+Rationale:
+
+Truth projects forward into code through specs, but without a back-reference the reverse question — "which rule does this code implement?" — has no machine-checkable answer, and Closure-stage Truth Drift detection has no structural basis. A pointer-only anchor restores the reverse link while keeping rule text in exactly one place.
+
+Validation:
+
+- `make check` runs the anchor scan only when `src/**` exists.
+- The scan reports anchors that reference a missing identifier or a non-`Active` rule.
+
+Downstream projections:
+
+- `.p2t2c/bin/check_p2t2c.sh`
+- `.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md`
+
+Stop-the-line if:
+
+- An anchor references a missing or non-`Active` rule.
+- A rule text is moved into a code comment instead of a pointer.
+
+### RULE-GOV-011: EARS Acceptance Binds to Rule Identifiers
+
+Status: Active
+Applies to: `specs/**`
+Source: Maintainer decision on 2026-05-21
+Supersedes: None
+Superseded by: None
+Migration required: Yes, template version `0.8.0`
+
+Rule:
+
+Acceptance criteria must be traceable to the Truth rules they verify by a shared identifier.
+
+- Each EARS acceptance statement in `spec.md` ends with one or more `[RULE-{AREA}-{NNN}]` tags naming the rules it verifies.
+- Each acceptance command or executable acceptance step in `tasks.md` names the same identifier it accepts.
+- Every identifier tagged in `spec.md` acceptance must also appear in that spec's `## 0. Truth References` table.
+
+Rationale:
+
+EARS statements and a rule's `Validation` field describe the same constraint in two places. Without a shared identifier they can drift into inconsistent wordings unnoticed. Binding them by identifier makes one requirement traceable from Truth through spec and task to its acceptance step.
+
+Validation:
+
+- Specs and tasks tag acceptance with the rule identifiers they verify.
+- Tagged identifiers appear in the spec Truth References table.
+
+Downstream projections:
+
+- `.p2t2c/templates/execution/spec.md`
+- `.p2t2c/templates/execution/tasks.md`
+- `.p2t2c/prompts/04_generate_execution_pack_prompt.md`
+
+Stop-the-line if:
+
+- An acceptance criterion verifies behavior whose rule identifier is absent from Truth References.
+
 ---
 
 ## 6. Execution Pack Rules

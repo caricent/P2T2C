@@ -29,9 +29,10 @@ specs/{NNN-feature}/tasks.md
 Requirements:
 
 - `spec.md` must include Truth references.
+- Each EARS acceptance statement in `spec.md` must end with the `[RULE-...]` identifier(s) it verifies, and each tagged identifier must appear in the Truth References table (RULE-GOV-011).
 - `plan.md` states strategy only; do not write full code.
 - `tasks.md` must split work into independently acceptable tasks.
-- Each task must have an acceptance command or executable acceptance step.
+- Each task must have an acceptance command or executable acceptance step, and that step must name the same `RULE-...` identifier it accepts (RULE-GOV-011).
 - Do not add business rules not defined by Truth in spec / plan / tasks.
 - Wait for explicit user instruction before coding unless the user already authorized automatic execution.
 
