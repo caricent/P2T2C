@@ -14,4 +14,4 @@ Rules:
 
 - Migration notes describe workflow/template/governance changes only.
 - Business Truth, ADR, specs, code, tests, and historical Closure Reports are not migrated automatically.
-- New workflow rules apply to CPs created after the upgrade.
+- New workflow rules apply to SPs created after the upgrade.

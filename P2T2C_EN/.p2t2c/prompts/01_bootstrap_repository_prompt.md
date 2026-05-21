@@ -31,5 +31,5 @@ When done, report:
 - Which directories were created.
 - The responsibility of each directory.
 - Which parts are placeholders only.
-- The recommended next CP / spec.
+- The recommended next SP / spec.
 - Whether `bash .p2t2c/bin/check_p2t2c.sh` passed.

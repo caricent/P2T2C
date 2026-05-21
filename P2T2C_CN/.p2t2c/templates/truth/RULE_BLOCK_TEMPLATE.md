@@ -2,7 +2,7 @@
 
 Status: Draft | Active | Superseded | Deprecated
 Applies to: {模块、层或工作流}
-Source: {CP、ADR 或 human decision}
+Source: {SP、ADR 或 human decision}
 Supersedes: {RULE-ID or None}
 Superseded by: {RULE-ID or None}
 Migration required: Yes 或 No

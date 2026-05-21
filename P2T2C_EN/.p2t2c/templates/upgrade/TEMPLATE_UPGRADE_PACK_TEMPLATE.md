@@ -16,7 +16,7 @@ Source release: `{path or URL}`
 
 | Item | Decision |
 |---|---|
-| New CPs after upgrade | Use upgraded P2T2C workflow |
+| New SPs after upgrade | Use upgraded P2T2C workflow |
 | Existing specs / tasks | Leave unchanged |
 | Historical Closure Reports | Leave unchanged |
 | Project-owned Truth / ADR | Do not modify |

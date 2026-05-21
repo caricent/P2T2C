@@ -9,7 +9,7 @@ project:
   language_note: "本项目使用 P2T2C 中文发行根。"
 
 roots:
-  proposals: "docs/change_proposals"
+  proposals: "docs/submit_proposals"
   specs: "specs"
 
 technology_stack:

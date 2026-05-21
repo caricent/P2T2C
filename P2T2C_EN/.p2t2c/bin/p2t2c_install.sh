@@ -66,8 +66,8 @@ INSTALL_FILES=(
   "P2T2C_README.md"
   ".p2t2c/P2T2C_LICENSE.md"
   "docs/adr/README.md"
-  "docs/change_proposals/CP_TEMPLATE.md"
-  "docs/change_proposals/README.md"
+  "docs/submit_proposals/SP_TEMPLATE.md"
+  "docs/submit_proposals/README.md"
   "docs/closure/README.md"
   "docs/reference/README.md"
   "docs/sot/governance/P2T2C_GOVERNANCE.md"
@@ -84,6 +84,7 @@ INSTALL_FILES=(
   ".p2t2c/migrations/0.5.0-to-0.6.0.md"
   ".p2t2c/migrations/0.6.0-to-0.7.0.md"
   ".p2t2c/migrations/0.7.0-to-0.8.0.md"
+  ".p2t2c/migrations/0.8.0-to-0.8.1.md"
   ".p2t2c/migrations/README.md"
   ".p2t2c/prompts/01_bootstrap_repository_prompt.md"
   ".p2t2c/prompts/02_generate_change_pack_prompt.md"
@@ -92,7 +93,7 @@ INSTALL_FILES=(
   ".p2t2c/prompts/05_execute_single_task_prompt.md"
   ".p2t2c/prompts/06_acceptance_and_closure_prompt.md"
   ".p2t2c/templates/adr/ADR_TEMPLATE.md"
-  ".p2t2c/templates/change_pack/CHANGE_PACK_TEMPLATE.md"
+  ".p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md"
   ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md"
   ".p2t2c/templates/execution/plan.md"
   ".p2t2c/templates/execution/spec.md"
@@ -107,7 +108,7 @@ MANAGED_LOCK_FILES=("${INSTALL_FILES[@]}")
 
 is_denied() {
   case "$1" in
-    src/*|tests/*|database/*|package.json|docs/adr/ADR-*.md|docs/change_proposals/CP-*.md|docs/closure/CR-*.md|specs/*/*)
+    src/*|tests/*|database/*|package.json|docs/adr/ADR-*.md|docs/submit_proposals/SP-*.md|docs/closure/CR-*.md|specs/*/*)
       return 0
       ;;
     *)

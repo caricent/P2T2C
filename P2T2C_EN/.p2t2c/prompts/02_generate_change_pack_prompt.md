@@ -1,14 +1,14 @@
 # Prompt 02 — Generate Change Pack (No File Changes)
 
-Goal: generate a Change Pack from a Change Proposal for human Gate A review.
+Goal: generate a Change Pack from a Submit Proposal for human Gate A review.
 
 First read `P2T2C_AGENTS.md`, then complete the Required Reading listed there.
 
 Additional reads for this stage:
 
-- Current CP file
+- Current SP file
 - Related SoT
-- `.p2t2c/templates/change_pack/CHANGE_PACK_TEMPLATE.md`
+- `.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
 
 The Change Pack must include:
 

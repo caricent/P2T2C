@@ -4,7 +4,7 @@ Status: Draft | Active | Deprecated
 Owner: {team / person}
 Last updated: {YYYY-MM-DD}
 Related ADRs: {links}
-Related CPs: {links}
+Related SPs: {links}
 
 ---
 
@@ -45,6 +45,6 @@ Use `.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md` for each rule block.
 
 ## 5. Change Log
 
-| Date | Change | CP / ADR |
+| Date | Change | SP / ADR |
 |---|---|---|
 | {YYYY-MM-DD} | Created | {link} |

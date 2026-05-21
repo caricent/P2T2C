@@ -1,4 +1,4 @@
-# CP-{YYYYMMDD}-{short-title}
+# SP-{YYYYMMDD}-{short-title}
 
 ---
 
@@ -77,6 +77,6 @@ UI；如无，写 None}
 
 ## 给 AI 的处理要求
 
-请基于本 CP 生成 Change Pack。
+请基于本 SP 生成 Change Pack。
 
 在 Gate A 之前，不要修改任何文件。

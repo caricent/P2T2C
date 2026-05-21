@@ -2,7 +2,7 @@
 
 Status: Draft | Active | Superseded | Deprecated
 Applies to: {module / layer / workflow}
-Source: {CP / ADR / human decision}
+Source: {SP / ADR / human decision}
 Supersedes: {RULE-ID or None}
 Superseded by: {RULE-ID or None}
 Migration required: Yes / No

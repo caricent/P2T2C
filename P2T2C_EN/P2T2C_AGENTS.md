@@ -4,6 +4,8 @@ This is the only AI entrypoint for this release root.
 
 P2T2C means **Proposal-to-Truth-to-Code**.
 
+Abbreviations: SP = Submit Proposal (the human-authored proposal, filename `SP-YYYYMMDD-...`); CPK = Change Pack (the AI-generated candidate pack). They no longer share the CP abbreviation.
+
 ```text
 Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
 ```
@@ -41,9 +43,9 @@ Do not read `docs/reference/` by default. Read it only when the user explicitly 
 
 Stage-specific reads:
 
-- Change Pack: current CP, related SoT / ADR, `.p2t2c/templates/change_pack/CHANGE_PACK_TEMPLATE.md`
+- Change Pack: current SP, related SoT / ADR, `.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
 - Apply Change Pack: approved Change Pack, related SoT / ADR, truth templates, `docs/sot/manifest.yaml`
-- Execution Pack: related CP / SoT / ADR, `.p2t2c/templates/execution/spec.md`, `.p2t2c/templates/execution/plan.md`, `.p2t2c/templates/execution/tasks.md`
+- Execution Pack: related SP / SoT / ADR, `.p2t2c/templates/execution/spec.md`, `.p2t2c/templates/execution/plan.md`, `.p2t2c/templates/execution/tasks.md`
 - Single Task: feature `spec.md`, `plan.md`, `tasks.md`, related SoT / ADR
 - Acceptance: feature `spec.md`, `plan.md`, `tasks.md`, related SoT / ADR, current code changes, Closure template
 - Install / upgrade: `P2T2C_README.md`, install or upgrade script, `.p2t2c/ownership.yaml`
@@ -64,7 +66,7 @@ Allowed Gate B decisions:
 
 1. Fix code to match Truth.
 2. Accept code and update Truth.
-3. Create or update CP / ADR before deciding.
+3. Create or update SP / ADR before deciding.
 
 ---
 
@@ -76,7 +78,7 @@ Stop and ask the human when any of these occur:
 - Proposal conflicts with current SoT / ADR.
 - Proposal conflicts with Active and implemented Truth, and no human resolution exists.
 - New or changed ADR is required.
-- Continuing would invent a business rule not defined by Proposal, accepted CP, ADR, or SoT.
+- Continuing would invent a business rule not defined by Proposal, accepted SP, ADR, or SoT.
 - Implementation requires a new table, field, interface, page, state, permission, AI responsibility, sync object, or workflow not defined by Truth.
 - Coding invalidates a key Plan assumption.
 - Build, test, lint, or governance check fails.
@@ -89,7 +91,7 @@ Stop and ask the human when any of these occur:
 Use sources in this order:
 
 1. Human decisions explicitly confirmed in the current task.
-2. Accepted CP / ADR.
+2. Accepted SP / ADR.
 3. Current `docs/sot/**` Truth.
 4. `specs/**` execution documents.
 5. Current code.
@@ -113,7 +115,7 @@ If a lower-priority source conflicts with a higher-priority source, stop and rep
 
 Install is not Truth intake. It must not rewrite existing project docs or infer SoT from old documents.
 
-Upgrade is not a product CP. It may update the P2T2C workflow harness only. It must not edit project-owned Truth, ADRs, specs, code, tests, database files, package manifests, or historical Closure Reports.
+Upgrade is not a product SP. It may update the P2T2C workflow harness only. It must not edit project-owned Truth, ADRs, specs, code, tests, database files, package manifests, or historical Closure Reports.
 
 For upgrade tasks, prefer invoking the upgrade script from this release root while the current working directory is the target project. This avoids using stale migration logic from an older target project.
 

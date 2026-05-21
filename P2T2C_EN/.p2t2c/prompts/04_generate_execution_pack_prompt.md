@@ -12,7 +12,7 @@ First read `P2T2C_AGENTS.md`, then complete the Required Reading listed there.
 
 Additional reads for this stage:
 
-- Related CP
+- Related SP
 - Related ADR
 - `.p2t2c/templates/execution/spec.md`
 - `.p2t2c/templates/execution/plan.md`
@@ -40,4 +40,4 @@ Must stop:
 
 - Truth Patch has not been applied.
 - Execution docs require a new rule not defined by SoT / ADR.
-- CP, Truth, and ADR conflict.
+- SP, Truth, and ADR conflict.

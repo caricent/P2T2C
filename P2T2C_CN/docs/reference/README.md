@@ -2,4 +2,4 @@
 
 这里放历史资料、导出文档、截图、旧版规格、供应商文档等非权威参考资料。
 
-Reference 文档不是默认实现依据。如果 reference 内容要改变当前项目 Truth，必须先创建 CP 并更新 SoT。
+Reference 文档不是默认实现依据。如果 reference 内容要改变当前项目 Truth，必须先创建 SP 并更新 SoT。

@@ -2,6 +2,8 @@
 
 P2T2C 表示 **Proposal-to-Truth-to-Code**。
 
+缩写约定：SP = Submit Proposal（人类提交的提案，文件名 `SP-YYYYMMDD-...`）；CPK = Change Pack（AI 生成的候选包）。两者不再共用 CP 缩写。
+
 P2T2C 帮助开发者与 AI 协作开发软件，同时避免需求、权威 Truth、实施计划、代码变更和验收结果相互脱节。它让 AI 保持推进能力，但防止 AI 在缺少确认或 Truth 支撑时自行改变业务规则。
 
 ```text
@@ -55,8 +57,8 @@ P2T2C checks passed.
 
 ## 2. 人类工作流
 
-1. 在 `docs/change_proposals/` 中编写 Change Proposal。
-2. 让 AI 基于 CP 生成 Change Pack。
+1. 在 `docs/submit_proposals/` 中编写 Submit Proposal。
+2. 让 AI 基于 SP 生成 Change Pack。
 3. 审查 Gate A：批准并应用 Truth Patch，或修订、拒绝、拆分、解决提案。
 4. 让 AI 生成 `spec.md`、`plan.md` 和 `tasks.md`。
 5. 让 AI 一次执行一个 task。
@@ -132,7 +134,7 @@ make p2t2c-rollback UPGRADE=.p2t2c/upgrade/{upgrade-id}
 | `.p2t2c/CHECKSUMS.sha256` | release 文件校验和 |
 | `.p2t2c/` | 模板元数据、归属和 lock 状态 |
 | `.p2t2c/bin/` | 检查、安装、升级、回滚 |
-| `docs/change_proposals/` | 提案模板和 CP |
+| `docs/submit_proposals/` | 提案模板和 SP |
 | `docs/adr/` | 已接受的架构或策略决策记录 |
 | `docs/sot/` | 当前项目 Truth |
 | `docs/sot/governance/P2T2C_GOVERNANCE.md` | P2T2C 权威治理 Truth |

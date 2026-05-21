@@ -56,7 +56,7 @@ CORE_MANAGED=(
   ".p2t2c/prompts/04_generate_execution_pack_prompt.md"
   ".p2t2c/prompts/05_execute_single_task_prompt.md"
   ".p2t2c/prompts/06_acceptance_and_closure_prompt.md"
-  ".p2t2c/templates/change_pack/CHANGE_PACK_TEMPLATE.md"
+  ".p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md"
   ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md"
   ".p2t2c/templates/adr/ADR_TEMPLATE.md"
   ".p2t2c/templates/install/INSTALL_REPORT_TEMPLATE.md"
@@ -69,7 +69,7 @@ CORE_MANAGED=(
   ".p2t2c/bin/check_p2t2c.sh"
   ".p2t2c/bin/p2t2c_install.sh"
   ".p2t2c/bin/p2t2c_upgrade.sh"
-  "docs/change_proposals/CP_TEMPLATE.md"
+  "docs/submit_proposals/SP_TEMPLATE.md"
 )
 
 GOVERNANCE_MANAGED=(
@@ -80,7 +80,7 @@ GOVERNANCE_MANAGED=(
   ".p2t2c/P2T2C_LICENSE.md"
   ".p2t2c/templates/project_config.example.yaml"
   "docs/adr/README.md"
-  "docs/change_proposals/README.md"
+  "docs/submit_proposals/README.md"
   "docs/closure/README.md"
   "docs/reference/README.md"
   "docs/sot/governance/P2T2C_GOVERNANCE.md"
@@ -96,6 +96,7 @@ GOVERNANCE_MANAGED=(
   ".p2t2c/migrations/0.5.0-to-0.6.0.md"
   ".p2t2c/migrations/0.6.0-to-0.7.0.md"
   ".p2t2c/migrations/0.7.0-to-0.8.0.md"
+  ".p2t2c/migrations/0.8.0-to-0.8.1.md"
 )
 
 ALL_MANAGED=(
@@ -108,7 +109,7 @@ is_project_owned() {
     docs/sot/product/*|docs/sot/data/*|docs/sot/api/*|docs/sot/client/*|docs/sot/server/*|docs/sot/ai/*|docs/sot/testing/*)
       return 0
       ;;
-    docs/adr/ADR-*.md|docs/change_proposals/CP-*.md|docs/closure/CR-*.md|specs/*/*|src/*|tests/*|database/*|package.json)
+    docs/adr/ADR-*.md|docs/submit_proposals/SP-*.md|docs/closure/CR-*.md|specs/*/*|src/*|tests/*|database/*|package.json)
       return 0
       ;;
     *)
@@ -173,7 +174,7 @@ cleanup_empty_legacy_dirs() {
     "scripts"
     "prompts"
     "templates/adr"
-    "templates/change_pack"
+    "templates/change_packs"
     "templates/closure"
     "templates/install"
     "templates/truth"
@@ -311,7 +312,8 @@ done
 for migration in \
   "$source_root/.p2t2c/migrations/0.2.0-to-0.3.0.md" \
   "$source_root/.p2t2c/migrations/0.5.0-to-0.6.0.md" \
-  "$source_root/.p2t2c/migrations/0.6.0-to-0.7.0.md"
+  "$source_root/.p2t2c/migrations/0.6.0-to-0.7.0.md" \
+  "$source_root/.p2t2c/migrations/0.8.0-to-0.8.1.md"
 do
   while IFS= read -r rel; do
     [[ -z "$rel" ]] && continue

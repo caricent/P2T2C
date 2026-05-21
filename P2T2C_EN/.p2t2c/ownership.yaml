@@ -11,7 +11,7 @@ core_managed:
     - ".p2t2c/bin/check_p2t2c.sh"
     - ".p2t2c/bin/p2t2c_install.sh"
     - ".p2t2c/bin/p2t2c_upgrade.sh"
-    - "docs/change_proposals/CP_TEMPLATE.md"
+    - "docs/submit_proposals/SP_TEMPLATE.md"
 
 governance_managed:
   description: "P2T2C governance, entrypoints, metadata, and template docs. Upgrade only when unchanged since last lock."
@@ -23,7 +23,7 @@ governance_managed:
     - ".p2t2c/P2T2C_LICENSE.md"
     - ".p2t2c/templates/project_config.example.yaml"
     - "docs/adr/README.md"
-    - "docs/change_proposals/README.md"
+    - "docs/submit_proposals/README.md"
     - "docs/closure/README.md"
     - "docs/reference/README.md"
     - "docs/sot/governance/P2T2C_GOVERNANCE.md"
@@ -51,7 +51,7 @@ project_owned:
     - "docs/sot/ai/**"
     - "docs/sot/testing/**"
     - "docs/adr/ADR-*.md"
-    - "docs/change_proposals/CP-*.md"
+    - "docs/submit_proposals/SP-*.md"
     - "docs/closure/CR-*.md"
     - "specs/**"
     - "src/**"

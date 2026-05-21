@@ -12,7 +12,7 @@
 
 本阶段额外读取：
 
-- 相关 CP
+- 相关 SP
 - 相关 ADR、SoT
 - `.p2t2c/templates/execution/spec.md`
 - `.p2t2c/templates/execution/plan.md`

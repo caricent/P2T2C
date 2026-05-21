@@ -1,6 +1,6 @@
 # Spec {NNN}: {功能名称}
 
-来源 CP: `{docs/change_proposals/CP-...}`
+来源 SP: `{docs/submit_proposals/SP-...}`
 相关 ADR: `{docs/adr/ADR-... | None}`
 
 ---

@@ -14,7 +14,7 @@
 本阶段额外读取：
 
 - 已确认的 Change Pack
-- 相关 CP、SoT、ADR
+- 相关 SP、SoT、ADR
 - `.p2t2c/templates/truth/SOT_DOCUMENT_TEMPLATE.md`
 - `.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md`
 - `docs/sot/manifest.yaml`

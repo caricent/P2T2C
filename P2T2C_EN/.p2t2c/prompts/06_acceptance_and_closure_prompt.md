@@ -37,4 +37,4 @@ If Truth Drift exists, stop and ask the human to choose:
 
 1. Fix code.
 2. Update Truth.
-3. Create / update CP or ADR before deciding.
+3. Create / update SP or ADR before deciding.

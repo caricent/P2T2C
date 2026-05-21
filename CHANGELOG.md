@@ -2,6 +2,13 @@
 
 All notable changes to P2T2C are documented here.
 
+## 0.8.1 - 2026-05-21
+
+- Disambiguated the `CP` abbreviation, which previously meant both Change Proposal and Change Pack. Submit Proposal is now `SP`; Change Pack is now `CPK`.
+- Renamed `docs/change_proposals/` to `docs/submit_proposals/`, `CP_TEMPLATE.md` to `SP_TEMPLATE.md`, and the proposal instance prefix from `CP-` to `SP-`.
+- Renamed `.p2t2c/templates/change_pack/` to `.p2t2c/templates/change_packs/`.
+- Updated governance stage table, AGENTS/README abbreviation notes, ownership, manifests, and check/install/upgrade scripts to the new naming. Naming-only change; no workflow semantics change.
+
 ## 0.8.0 - 2026-05-21
 
 - Added `RULE-GOV-009` rule identifier integrity: `make check` now scans `docs/sot/**` for duplicate RULE-IDs, dangling lifecycle references, broken bidirectional supersede links, and superseded-yet-Active rules.

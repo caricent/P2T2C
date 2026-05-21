@@ -94,7 +94,7 @@ flowchart TD
   drift -->|Truth drift| gate_b
   gate_b -->|Fix code| fix_code
   gate_b -->|Accept code| truth_patch
-  gate_b -->|Need CP or ADR| proposal
+  gate_b -->|Need SP or ADR| proposal
 ```
 
 This repository publishes the P2T2C workflow template as a bilingual MIT-licensed release selector. The repository root is only a selector and aggregate check surface; it is not a P2T2C release root.

@@ -2,6 +2,8 @@
 
 P2T2C means **Proposal-to-Truth-to-Code**.
 
+Abbreviations: SP = Submit Proposal (the human-authored proposal, filename `SP-YYYYMMDD-...`); CPK = Change Pack (the AI-generated candidate pack). They no longer share the CP abbreviation.
+
 P2T2C helps developers collaborate with AI without letting requirements, authoritative Truth, implementation plans, code changes, and acceptance results drift apart. It keeps AI productive while preventing it from changing business rules without confirmation or Truth support.
 
 ```text
@@ -55,8 +57,8 @@ P2T2C checks passed.
 
 ## 2. Human workflow
 
-1. Write a Change Proposal in `docs/change_proposals/`.
-2. Ask AI to generate a Change Pack from the CP.
+1. Write a Submit Proposal in `docs/submit_proposals/`.
+2. Ask AI to generate a Change Pack from the SP.
 3. Review Gate A: approve and apply the Truth Patch, or revise, reject, split, or resolve the proposal.
 4. Let AI generate `spec.md`, `plan.md`, and `tasks.md`.
 5. Let AI execute one task at a time.
@@ -132,7 +134,7 @@ After installation, P2T2C keeps `P2T2C_README.md` and `P2T2C_AGENTS.md` at the p
 | `.p2t2c/CHECKSUMS.sha256` | Release file checksums |
 | `.p2t2c/` | Template metadata, ownership, and lock state |
 | `.p2t2c/bin/` | Check, install, upgrade, rollback |
-| `docs/change_proposals/` | Proposal templates and CPs |
+| `docs/submit_proposals/` | Proposal templates and SPs |
 | `docs/adr/` | Accepted architectural or policy decision records |
 | `docs/sot/` | Current project Truth |
 | `docs/sot/governance/P2T2C_GOVERNANCE.md` | Canonical P2T2C governance Truth |

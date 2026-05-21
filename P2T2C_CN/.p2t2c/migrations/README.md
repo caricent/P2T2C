@@ -14,4 +14,4 @@
 
 governance 变化。
 - Business Truth、ADR、spec、code、tests 和历史 Closure Report 不会自动迁移。
-- 新工作流规则适用于升级后创建的 CP。
+- 新工作流规则适用于升级后创建的 SP。

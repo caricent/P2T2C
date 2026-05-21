@@ -14,7 +14,7 @@ First read `P2T2C_AGENTS.md`, then complete the Required Reading listed there.
 Additional reads for this stage:
 
 - Approved Change Pack
-- Related CP
+- Related SP
 - `.p2t2c/templates/truth/SOT_DOCUMENT_TEMPLATE.md`
 - `.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md`
 - `docs/sot/manifest.yaml`

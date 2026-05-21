@@ -10,7 +10,7 @@ project:
 
 roots:
   truth: "docs/sot"
-  proposals: "docs/change_proposals"
+  proposals: "docs/submit_proposals"
   adr: "docs/adr"
   specs: "specs"
   reference: "docs/reference"

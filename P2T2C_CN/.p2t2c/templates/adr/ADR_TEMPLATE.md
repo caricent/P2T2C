@@ -1,6 +1,6 @@
 # ADR-{YYYYMMDD}-{short-title}
 
-相关 CP: {docs/change_proposals/CP-...}
+相关 SP: {docs/submit_proposals/SP-...}
 
 ---
 

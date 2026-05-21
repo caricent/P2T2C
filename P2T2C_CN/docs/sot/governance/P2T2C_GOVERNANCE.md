@@ -9,7 +9,7 @@ Last updated: 2026-05-20
 - 权威范围：P2T2C 工作流治理、Truth 文档风格、语言策略、执行包规则、关卡和漂移处理。
 - 必须一起读取：`P2T2C_AGENTS.md` 和 `docs/sot/manifest.yaml`。
 - 不得推断：AI 不得发明业务规则、静默接受冲突，或把执行文档当作 Truth。
-- 停线条件：以下任一规则与已接受 CP、ADR 或当前 SoT 冲突。
+- 停线条件：以下任一规则与已接受 SP、ADR 或当前 SoT 冲突。
 
 ---
 
@@ -47,8 +47,8 @@ Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> A
 
 | 阶段 | 输出 | 规则 |
 |---|---|---|
-| Proposal | CP | 人类拥有最终意图。 |
-| Change Pack | Admission Summary、Impact Review、Fast Path 或 Blocked Path | AI 分析，不改文件。 |
+| Proposal | SP | 人类拥有最终意图。 |
+| Change Pack（CPK） | Admission Summary、Impact Review、Fast Path 或 Blocked Path | AI 分析，不改文件。 |
 | Gate A | Apply、revise、stop、split 或 reject | 人类决策。 |
 | Truth Patch | SoT、ADR、manifest updates | 仅在 Gate A 后。 |
 | Execution Pack | `spec.md`、`plan.md`、`tasks.md` | 将已接受 Truth 投射为可执行工作。 |
@@ -75,7 +75,7 @@ Migration required: Yes, templates become bilingual in-place
 
 | 文档 | 职责 | 是否 Truth | 是否可定义业务规则 |
 |---|---|---|---|
-| Change Proposal | 拟议变更 | No | 仅提案 |
+| Submit Proposal | 拟议变更 | No | 仅提案 |
 | ADR | 决策背景、权衡、后果 | 决策历史 | 只记录已确认决策 |
 | SoT | 当前权威项目规则 | Yes | Yes |
 | Spec | 功能做什么 | No | 不可，必须引用 Truth |
@@ -145,11 +145,11 @@ HUMAN_TRUTH_DECISION_REQUIRED
 
 AI 必须在以下情况暂停：
 
-- CP 信息不足，无法安全生成 Truth Patch。
-- CP 与当前 SoT 或 ADR 冲突。
-- CP 与 Active 且已实现的 Truth 冲突，且没有人类解决方案。
+- SP 信息不足，无法安全生成 Truth Patch。
+- SP 与当前 SoT 或 ADR 冲突。
+- SP 与 Active 且已实现的 Truth 冲突，且没有人类解决方案。
 - 需要新增或修改 ADR。
-- 继续执行需要 Proposal、已接受 CP、ADR 或 SoT 未定义的业务规则。
+- 继续执行需要 Proposal、已接受 SP、ADR 或 SoT 未定义的业务规则。
 - 实现需要 Truth 未定义的新表、字段、接口、页面、状态、权限、AI 职责、同步对象或工作流。
 - 编码使关键 Plan 假设失效。
 - build、test、lint 或 governance check 失败。
@@ -251,7 +251,7 @@ P2T2C 以两个自包含语言专属发行根发布：
 
 - 受管发行根文档重新引入同文件双语人类或 AI 指令。
 - 任一发行根无法独立安装、升级或通过检查。
-- 未经已接受 CP 就本地化 shell 脚本运行时输出。
+- 未经已接受 SP 就本地化 shell 脚本运行时输出。
 
 ### RULE-GOV-007: 根目录使用者工作面收敛
 
@@ -277,7 +277,7 @@ P2T2C 内部运行资产必须放在 `.p2t2c/` 下：
 - `.p2t2c/bin/**`
 - `.p2t2c/migrations/**`
 
-用户可复制的入口模板可以保留在目标文档旁边，例如 `docs/change_proposals/CP_TEMPLATE.md`。新增任何可见 P2T2C 根目录前，必须先经过已接受 CP 或 ADR。
+用户可复制的入口模板可以保留在目标文档旁边，例如 `docs/submit_proposals/SP_TEMPLATE.md`。新增任何可见 P2T2C 根目录前，必须先经过已接受 SP 或 ADR。
 
 验证：
 
@@ -297,7 +297,7 @@ P2T2C 内部运行资产必须放在 `.p2t2c/` 下：
 
 - P2T2C 变更重新引入根级内部资产目录。
 - 升级会删除本地修改过的旧内部资产。
-- 未经已接受 CP 或 ADR 新增可见 P2T2C 根目录。
+- 未经已接受 SP 或 ADR 新增可见 P2T2C 根目录。
 
 ### RULE-GOV-008: P2T2C 根入口文件命名
 
@@ -499,6 +499,6 @@ Gate B 选项：
 
 1. 修代码，使代码符合 Truth。
 2. 接受代码，并更新 Truth。
-3. 创建或更新 CP、ADR 后再决策。
+3. 创建或更新 SP、ADR 后再决策。
 
 验收失败不等于收口。必须暂停并报告证据。

@@ -1,4 +1,4 @@
-# CP-{YYYYMMDD}-{short-title}
+# SP-{YYYYMMDD}-{short-title}
 
 Status: Draft | Accepted | Rejected | Implemented
 Owner: {name}
@@ -90,6 +90,6 @@ Known implementation impact:
 
 ## 9. AI Handling Request
 
-Please generate a Change Pack from this CP.
+Please generate a Change Pack from this SP.
 
 Before Gate A, do not modify any files.

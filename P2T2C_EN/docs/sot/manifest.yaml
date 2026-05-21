@@ -5,7 +5,7 @@ supported_languages:
 language_policy: monolingual_release_root
 status: template
 truth_root: docs/sot
-proposal_root: docs/change_proposals
+proposal_root: docs/submit_proposals
 adr_root: docs/adr
 spec_root: specs
 reference_root: docs/reference

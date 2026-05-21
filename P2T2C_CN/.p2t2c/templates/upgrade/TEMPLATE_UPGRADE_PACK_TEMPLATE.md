@@ -14,14 +14,14 @@ governance 能力。}
 
 | Item | Decision |
 |---|---|
-| New CPs after upgrade | Use upgraded P2T2C workflow |
+| New SPs after upgrade | Use upgraded P2T2C workflow |
 | Existing specs、tasks | Leave unchanged |
 | Historical Closure Reports | Leave unchanged |
 | Project-owned Truth、ADR | Do not modify |
 
 | 项目 | 决策 |
 |---|---|
-| 升级后的新 CP | 使用升级后的 P2T2C 工作流 |
+| 升级后的新 SP | 使用升级后的 P2T2C 工作流 |
 | 现有 specs、tasks | 保持不变 |
 | 历史 Closure Reports | 保持不变 |
 | 项目拥有的 Truth、ADR | 不修改 |

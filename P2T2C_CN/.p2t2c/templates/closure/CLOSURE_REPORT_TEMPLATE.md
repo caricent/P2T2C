@@ -59,7 +59,7 @@ Tasks 有差异，但不影响 Truth：
 
 | 漂移 | 代码行为 | Truth 规则 | 建议解决方式 |
 |---|---|---|---|
-| {item} | {behavior} | {rule} | 修代码、更新 Truth 或创建新的 CP/ADR |
+| {item} | {behavior} | {rule} | 修代码、更新 Truth 或创建新的 SP/ADR |
 
 如果本节非空，Closure Decision 必须是 `HUMAN_TRUTH_DECISION_REQUIRED`。
 
@@ -83,7 +83,7 @@ Tasks 有差异，但不影响 Truth：
 
 1. 修代码，使代码符合 Truth。
 2. 接受代码，并更新 Truth。
-3. 创建或更新 CP、ADR 后再决策。
+3. 创建或更新 SP、ADR 后再决策。
 
 人类决策：
 

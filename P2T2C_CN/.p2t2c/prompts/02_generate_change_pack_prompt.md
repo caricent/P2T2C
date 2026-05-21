@@ -1,14 +1,14 @@
 # Prompt 02 — 生成 Change Pack（不改文件）
 
-目标：根据 Change Proposal 生成 Change Pack，供 Gate A 人工确认。
+目标：根据 Submit Proposal 生成 Change Pack，供 Gate A 人工确认。
 
 先读取 `P2T2C_AGENTS.md`，并按其中的 Required Reading 完成基础读取。
 
 本阶段额外读取：
 
-- 当前 CP 文件
-- 与 CP 相关的 SoT、ADR
-- `.p2t2c/templates/change_pack/CHANGE_PACK_TEMPLATE.md`
+- 当前 SP 文件
+- 与 SP 相关的 SoT、ADR
+- `.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
 
 输出 Change Pack，必须包含：
 

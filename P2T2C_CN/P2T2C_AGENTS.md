@@ -4,6 +4,8 @@
 
 P2T2C 表示 **Proposal-to-Truth-to-Code**。
 
+缩写约定：SP = Submit Proposal（人类提交的提案，文件名 `SP-YYYYMMDD-...`）；CPK = Change Pack（AI 生成的候选包）。两者不再共用 CP 缩写。
+
 ```text
 Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
 ```
@@ -39,9 +41,9 @@ Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> A
 
 阶段额外读取：
 
-- Change Pack：当前 CP、相关 SoT、ADR、`.p2t2c/templates/change_pack/CHANGE_PACK_TEMPLATE.md`
+- Change Pack：当前 SP、相关 SoT、ADR、`.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
 - Apply Change Pack：已批准 Change Pack、相关 SoT、ADR、truth templates、`docs/sot/manifest.yaml`
-- Execution Pack：相关 CP、SoT、ADR、`.p2t2c/templates/execution/spec.md`、`.p2t2c/templates/execution/plan.md`、`.p2t2c/templates/execution/tasks.md`
+- Execution Pack：相关 SP、SoT、ADR、`.p2t2c/templates/execution/spec.md`、`.p2t2c/templates/execution/plan.md`、`.p2t2c/templates/execution/tasks.md`
 - Single Task：feature `spec.md`、`plan.md`、`tasks.md`、相关 SoT、ADR
 - Acceptance：feature `spec.md`、`plan.md`、`tasks.md`、相关 SoT、ADR、当前代码变更、Closure template
 - Install、upgrade：`P2T2C_README.md`、install 或 upgrade script、`.p2t2c/ownership.yaml`
@@ -62,7 +64,7 @@ Gate B：Closure 中发现 Truth Drift 后的人类决策。
 
 1. 修代码，使代码符合 Truth。
 2. 接受代码并更新 Truth。
-3. 创建或更新 CP、ADR 后再决策。
+3. 创建或更新 SP、ADR 后再决策。
 
 ---
 
@@ -74,7 +76,7 @@ Gate B：Closure 中发现 Truth Drift 后的人类决策。
 - Proposal 与当前 SoT、ADR 冲突。
 - Proposal 与 Active 且已实现的 Truth 冲突，且没有人类解决方案。
 - 需要新增或修改 ADR。
-- 继续执行会发明 Proposal、已接受 CP、ADR 或 SoT 未定义的业务规则。
+- 继续执行会发明 Proposal、已接受 SP、ADR 或 SoT 未定义的业务规则。
 - 实现需要 Truth 未定义的新表、字段、接口、页面、状态、权限、AI 职责、同步对象或工作流。
 - 编码使关键 Plan 假设失效。
 - build、test、lint 或 governance check 失败。
@@ -87,7 +89,7 @@ Gate B：Closure 中发现 Truth Drift 后的人类决策。
 按以下顺序使用来源：
 
 1. 当前任务中人类明确确认的决策。
-2. 已接受 CP、ADR。
+2. 已接受 SP、ADR。
 3. 当前 `docs/sot/**` Truth。
 4. `specs/**` 执行文档。
 5. 当前代码。
@@ -111,7 +113,7 @@ Gate B：Closure 中发现 Truth Drift 后的人类决策。
 
 安装不是 Truth 摄取。不得重写现有项目文档，也不得从旧文档推断 SoT。
 
-升级不是产品 CP。升级只能更新 P2T2C 工作流外壳，不得编辑项目拥有的 Truth、ADR、spec、代码、测试、数据库文件、package manifest 或历史 Closure Report。
+升级不是产品 SP。升级只能更新 P2T2C 工作流外壳，不得编辑项目拥有的 Truth、ADR、spec、代码、测试、数据库文件、package manifest 或历史 Closure Report。
 
 升级任务应优先在目标项目根目录下调用本发行根中的升级脚本，避免使用旧目标项目中的过期迁移逻辑。
 

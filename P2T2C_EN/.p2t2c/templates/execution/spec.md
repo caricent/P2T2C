@@ -2,7 +2,7 @@
 
 Status: Draft | Approved | Implemented
 Last updated: {YYYY-MM-DD}
-Source CP: `{docs/change_proposals/CP-...}`
+Source SP: `{docs/submit_proposals/SP-...}`
 Related ADR: `{docs/adr/ADR-... | None}`
 
 ---

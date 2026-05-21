@@ -39,6 +39,6 @@
 
 ## 变更记录
 
-| Date | Change | CP、ADR |
+| Date | Change | SP、ADR |
 |---|---|---|
 | {YYYY-MM-DD} | Created | {link} |

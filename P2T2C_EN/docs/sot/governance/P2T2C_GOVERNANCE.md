@@ -9,7 +9,7 @@ Last updated: 2026-05-20
 - Canonical scope: P2T2C workflow governance, Truth document style, language policy, execution-pack rules, gates, and drift handling.
 - Must-read with: `P2T2C_AGENTS.md` and `docs/sot/manifest.yaml`.
 - Do not infer: AI must not invent business rules, silently accept conflicts, or treat execution docs as Truth.
-- Stop-the-line if: any rule below conflicts with an accepted CP / ADR or current SoT.
+- Stop-the-line if: any rule below conflicts with an accepted SP / ADR or current SoT.
 
 ---
 
@@ -47,8 +47,8 @@ Stop-the-line if:
 
 | Stage | Output | Rule|
 |---|---|---|
-| Proposal| CP | Human owns final intent.|
-| Change Pack| Admission Summary, Impact Review, Fast Path or Blocked Path | AI analyzes; no file changes.|
+| Proposal| SP | Human owns final intent.|
+| Change Pack (CPK)| Admission Summary, Impact Review, Fast Path or Blocked Path | AI analyzes; no file changes.|
 | Gate A | Apply, revise, stop, split, or reject | Human decides.|
 | Truth Patch | SoT / ADR / manifest updates | Only after Gate A.|
 | Execution Pack| `spec.md`, `plan.md`, `tasks.md` | Projects accepted Truth into executable work.|
@@ -75,7 +75,7 @@ Business rules belong in `docs/sot/**`. ADRs explain why. Specs, plans, tasks, p
 
 | Document | Responsibility | Truth? | May define business rules? |
 |---|---|---|---|
-| Change Proposal| Proposed change| No | Proposal only|
+| Submit Proposal| Proposed change| No | Proposal only|
 | ADR | Decision background, tradeoffs, consequences| Decision history| Only records confirmed decisions|
 | SoT | Current authoritative project rules| Yes | Yes |
 | Spec | What a feature does| No | No, must cite Truth|
@@ -145,11 +145,11 @@ Stop-the-line if:
 
 AI must stop when:
 
-- CP information is insufficient to safely generate a Truth Patch.
-- CP conflicts with current SoT / ADR.
-- CP conflicts with Active and implemented Truth, and no human resolution exists.
+- SP information is insufficient to safely generate a Truth Patch.
+- SP conflicts with current SoT / ADR.
+- SP conflicts with Active and implemented Truth, and no human resolution exists.
 - A new or modified ADR is required.
-- Continuing requires a business rule not defined by Proposal, accepted CP, ADR, or SoT.
+- Continuing requires a business rule not defined by Proposal, accepted SP, ADR, or SoT.
 - Implementation requires a new table, field, interface, page, state, permission, AI responsibility, sync object, or workflow not defined by Truth.
 - Coding invalidates a key Plan assumption.
 - Build, test, lint, or governance check fails.
@@ -212,7 +212,7 @@ P2T2C-managed human and AI workflow documents use English-first single-file bili
 - English is the default/global-facing language.
 - Chinese appears alongside English in the same file for human and AI instructions.
 - Stable workflow tokens, status values, file paths, command names, and CLI flags remain unchanged.
-- Shell script runtime output remains English-only unless a future accepted CP changes that rule.
+- Shell script runtime output remains English-only unless a future accepted SP changes that rule.
 - Do not create parallel language-specific files such as `README.zh-CN.md` for the managed template.
 
 Validation:
@@ -229,7 +229,7 @@ Downstream projections:
 Stop-the-line if:
 
 - A managed document removes Chinese equivalents for human/AI instructions.
-- A change localizes script runtime output without an accepted CP.
+- A change localizes script runtime output without an accepted SP.
 
 ### RULE-GOV-006: Dual Monolingual Release Roots
 
@@ -273,7 +273,7 @@ Stop-the-line if:
 
 - A managed release-root document reintroduces same-file bilingual human/AI instructions.
 - A release root cannot install, upgrade, or pass checks independently.
-- A change localizes script runtime output without an accepted CP.
+- A change localizes script runtime output without an accepted SP.
 
 ### RULE-GOV-007: Minimal Project-Root Surface
 
@@ -299,7 +299,7 @@ P2T2C internal runtime assets must live under `.p2t2c/`:
 - `.p2t2c/bin/**`
 - `.p2t2c/migrations/**`
 
-User-copyable entry templates may stay beside their target documents, such as `docs/change_proposals/CP_TEMPLATE.md`. Any new visible P2T2C root directory requires an accepted CP or ADR first.
+User-copyable entry templates may stay beside their target documents, such as `docs/submit_proposals/SP_TEMPLATE.md`. Any new visible P2T2C root directory requires an accepted SP or ADR first.
 
 Validation:
 
@@ -319,7 +319,7 @@ Stop-the-line if:
 
 - A P2T2C change reintroduces a root-level internal asset directory.
 - Upgrade would delete locally modified old internal assets.
-- A visible P2T2C root directory is added without an accepted CP or ADR.
+- A visible P2T2C root directory is added without an accepted SP or ADR.
 
 ### RULE-GOV-008: P2T2C Root Entry File Names
 
@@ -519,6 +519,6 @@ Gate B options:
 
 1. Fix code to match Truth.
 2. Accept code and update Truth.
-3. Create or update CP / ADR before deciding.
+3. Create or update SP / ADR before deciding.
 
 Acceptance failure is not Closure. Stop and report evidence.

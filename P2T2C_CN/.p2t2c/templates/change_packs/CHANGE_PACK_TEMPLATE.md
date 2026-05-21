@@ -1,6 +1,6 @@
-# Change Pack — {CP 标题}
+# Change Pack — {SP 标题}
 
-来源 CP: `{docs/change_proposals/CP-...}`
+来源 SP: `{docs/submit_proposals/SP-...}`
 生成者: AI
 
 > Change Pack 是 Gate A 前的候选包。它可以分析和提出 patch，但不能在批准前直接改文件。
@@ -88,7 +88,7 @@ Reason: Admission decision is not READY.
 
 | Rule ID | 动作 | 摘要 | 来源 | 验证 | 下游投射 |
 |---|---|---|---|---|---|
-| RULE-XXX-001 | Add、Modify、Supersede 或 Deprecate |  | CP、ADR |  | Spec、Tests、Code |
+| RULE-XXX-001 | Add、Modify、Supersede 或 Deprecate |  | SP、ADR |  | Spec、Tests、Code |
 
 #### 执行包摘要
 
@@ -115,7 +115,7 @@ Truth Patch Candidate: Not generated
 | Blocker type | NEEDS_PROPOSAL_REPAIR / CONFLICTS_WITH_TRUTH / CONFLICTS_WITH_IMPLEMENTED_TRUTH / ADR_REQUIRED / OUT_OF_SCOPE |
 | Evidence |  |
 | Why AI must not decide |  |
-| Suggested CP repair or next action |  |
+| Suggested SP repair or next action |  |
 | Impact if accepted |  |
 
 人类决策选项：

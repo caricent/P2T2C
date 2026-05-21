@@ -66,7 +66,7 @@ Code changes, extends, or violates SoT / ADR:
 
 | Drift | Code behavior | Truth rule | Suggested resolution |
 |---|---|---|---|
-| {item} | {behavior} | {rule} | Fix code / Update Truth / New CP or ADR |
+| {item} | {behavior} | {rule} | Fix code / Update Truth / New SP or ADR |
 
 If this section is non-empty, Closure Decision must be `HUMAN_TRUTH_DECISION_REQUIRED`.
 
@@ -90,7 +90,7 @@ If Decision is `HUMAN_TRUTH_DECISION_REQUIRED`, the human must choose:
 
 1. Fix code so code matches Truth.
 2. Accept code and update Truth.
-3. Create / update CP or ADR before deciding.
+3. Create / update SP or ADR before deciding.
 
 Human decision:
 

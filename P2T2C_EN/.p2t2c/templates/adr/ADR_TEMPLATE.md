@@ -2,7 +2,7 @@
 
 Status: Proposed | Accepted | Superseded | Deprecated
 Date: {YYYY-MM-DD}
-Related CP: {docs/change_proposals/CP-...}
+Related SP: {docs/submit_proposals/SP-...}
 
 ---
 
