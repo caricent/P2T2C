@@ -13,7 +13,7 @@ db6871f8a715de421a5708aaa560c85124ca6bb44ce7fe4bc6a189bfd140258e  docs/reference
 5ff7a50ed12bdd1490876a0eb30d3e15a38b4be8f250339a0917e8a67be37179  docs/sot/manifest.yaml
 79f6f8172221b90bd79d59a559f7639e52a66d33490ac83971e047112774c596  .p2t2c/templates/project_config.example.yaml
 2d8f332f50b3a81d7f3b690883173363d1b2a179fd423c6dd1e64c270fbe232f  specs/README.md
-98975dbb1acde4dec926b00e50fb841b5c1064e026bd25598a126bd441d451c6  .p2t2c/bin/check_p2t2c.sh
+751e2fbe97e2c30f4fd649a8e4b75dc3c3423872bce45fd99696c5f021fd0131  .p2t2c/bin/check_p2t2c.sh
 5e0122f6d4ce11afea391b1ecbbbd7827c4a4b1fd136f7ba658ba60e5f8813cc  .p2t2c/bin/p2t2c_install.sh
 0a40227191ce1acad1abb9e5089452077b698a2bc46b0b91edb9fa7808f5e660  .p2t2c/bin/p2t2c_upgrade.sh
 19da93e82cc6a4734bc9734f3dfab1ec9166766a60ada7ba7a5923ff655af3a6  .p2t2c/migrations/0.1.0-to-0.2.0.md
@@ -39,4 +39,4 @@ d6062585f7ad760f47be1c7fae5f4c517311b9024fd6d6a4406dcd25d5fba1c9  .p2t2c/templat
 81fc3e414e54371f53d425045bd647cb24c46012dbe72882c06155df2742abda  .p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md
 133655735a30565e573c7f8831a9047d4b7b93dcace9e2bced92309c39a4bc4b  .p2t2c/templates/truth/SOT_DOCUMENT_TEMPLATE.md
 db985f29114663e0ced5899c83bb950441a3d7f3edfb3fff359a075c57b4b4d0  .p2t2c/templates/upgrade/TEMPLATE_UPGRADE_PACK_TEMPLATE.md
-71b1c5a08819830bbd64272acabb26aef40eb3a274dfaca0d84c647f872aba6d  .p2t2c/migrations/0.7.0-to-0.8.0.md
+882e89a9ebe5ed870268cc0efd0e1e2004cf0c3a4562a3970930da66feca5029  .p2t2c/migrations/0.7.0-to-0.8.0.md

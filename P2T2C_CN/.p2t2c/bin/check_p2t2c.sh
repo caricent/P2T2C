@@ -91,7 +91,7 @@ for migration in ".p2t2c/migrations/0.2.0-to-0.3.0.md" ".p2t2c/migrations/0.5.0-
       missing=1
     fi
     if [[ "$obsolete" == */* ]]; then
-      matches="$(rg -n --fixed-strings "$obsolete" . --glob '!.p2t2c/migrations/**' --glob '!docs/reference/**' || true)"
+      matches="$(grep -rnF --exclude-dir=.git --exclude-dir=migrations --exclude-dir=reference -e "$obsolete" . || true)"
       matches="$(printf "%s\n" "$matches" | grep -v -- ".p2t2c/$obsolete" || true)"
       if [[ -n "$matches" ]]; then
         echo "ERROR: obsolete file is referenced outside migration notes: $obsolete"
@@ -170,7 +170,7 @@ if [[ "$language" == "en-US" ]]; then
   check_phrase "P2T2C_README.md" "Human workflow"
   check_phrase "P2T2C_README.md" "English-only"
   check_phrase "P2T2C_AGENTS.md" "This is the only AI entrypoint"
-  if rg -P --quiet "\\p{Han}" "${managed_doc_globs[@]}"; then
+  if grep -rqP "\\p{Han}" "${managed_doc_globs[@]}" 2>/dev/null; then
     echo "ERROR: English release root contains CJK text in managed docs"
     missing=1
   fi
@@ -178,7 +178,7 @@ elif [[ "$language" == "zh-CN" ]]; then
   check_phrase "P2T2C_README.md" "人类工作流"
   check_phrase "P2T2C_README.md" "中文单语"
   check_phrase "P2T2C_AGENTS.md" "AI 操作入口"
-  if rg -P --quiet " / .*\\p{Han}" "${managed_doc_globs[@]}"; then
+  if grep -rqP " / .*\\p{Han}" "${managed_doc_globs[@]}" 2>/dev/null; then
     echo "ERROR: Chinese release root contains same-line bilingual pairings"
     missing=1
   fi
@@ -268,8 +268,8 @@ if [[ -d "src" ]]; then
       echo "ERROR: code anchor references missing or non-Active RULE-ID: $id ($loc)"
       missing=1
     fi
-  done < <(rg --no-heading -n "Implements:[[:space:]]*RULE-[A-Z]+-[0-9]+" src 2>/dev/null \
-            | grep -o '^[^:]*:[0-9]*:.*RULE-[A-Z]\+-[0-9]\+' || true)
+  done < <(grep -rnE "Implements:[[:space:]]*RULE-[A-Z]+-[0-9]+" src 2>/dev/null \
+            | grep -oE '^[^:]*:[0-9]*:.*RULE-[A-Z]+-[0-9]+' || true)
 fi
 
 if [[ $missing -eq 0 ]]; then
