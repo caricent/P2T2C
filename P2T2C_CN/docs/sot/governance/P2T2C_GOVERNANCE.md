@@ -2,14 +2,15 @@
 
 Status: Active
 Owner: Project maintainers
-Last updated: 2026-05-20
+Last updated: 2026-05-22
 
 ## AI 阅读契约
 
 - 权威范围：P2T2C 工作流治理、Truth 文档风格、语言策略、执行包规则、关卡和漂移处理。
 - 必须一起读取：`P2T2C_AGENTS.md` 和 `docs/sot/manifest.yaml`。
+- 按需读取：本文件按 Rule Block 的 `Phases` 字段分阶段加载。AI 在某阶段只读 `Phases` 含该阶段或 `all` 的规则，不必通读全文（见 RULE-GOV-012）。各阶段规则清单由 `make check` 从 `Phases` 字段自动生成。
+- 历史层分离：lifecycle 元数据和已取代规则放在 `docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md`，默认不读，仅在审计、迁移或冲突排查时读取。
 - 不得推断：AI 不得发明业务规则、静默接受冲突，或把执行文档当作 Truth。
-- 停线条件：以下任一规则与已接受 SP、ADR 或当前 SoT 冲突。
 
 ---
 
@@ -18,11 +19,7 @@ Last updated: 2026-05-20
 ### RULE-GOV-001: 单一路径例外门控
 
 Status: Active
-Applies to: P2T2C workflow
-Source: Template maintainers
-Supersedes: previous unnumbered workflow section
-Superseded by: None
-Migration required: Yes, template metadata moves to `0.4.0`
+Phases: all
 
 规则：
 
@@ -63,11 +60,7 @@ Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> A
 ### RULE-GOV-002: Truth 边界
 
 Status: Active
-Applies to: P2T2C documents
-Source: Template maintainers
-Supersedes: previous unnumbered document-role table
-Superseded by: None
-Migration required: Yes, templates become bilingual in-place
+Phases: all
 
 规则：
 
@@ -98,11 +91,7 @@ Migration required: Yes, templates become bilingual in-place
 ### RULE-GOV-003: 准入与人类关卡
 
 Status: Active
-Applies to: Change Pack generation and application
-Source: Template maintainers
-Supersedes: previous unnumbered admission/gate section
-Superseded by: None
-Migration required: Yes, Change Pack template becomes bilingual in-place
+Phases: change_pack, apply_change_pack
 
 规则：
 
@@ -143,17 +132,7 @@ HUMAN_TRUTH_DECISION_REQUIRED
 
 ## 4. 停线条件
 
-AI 必须在以下情况暂停：
-
-- SP 信息不足，无法安全生成 Truth Patch。
-- SP 与当前 SoT 或 ADR 冲突。
-- SP 与 Active 且已实现的 Truth 冲突，且没有人类解决方案。
-- 需要新增或修改 ADR。
-- 继续执行需要 Proposal、已接受 SP、ADR 或 SoT 未定义的业务规则。
-- 实现需要 Truth 未定义的新表、字段、接口、页面、状态、权限、AI 职责、同步对象或工作流。
-- 编码使关键 Plan 假设失效。
-- build、test、lint 或 governance check 失败。
-- Code-to-Truth Drift 构成实质 Truth Drift。
+停线条件的权威清单在 `P2T2C_AGENTS.md` 第 4 节，本文件不复述。各 Rule Block 的 `停线条件` 段补充该规则特有的暂停条件。
 
 如果 Stop-the-line Checklist 任一项为 Yes，Admission decision 不得为 `READY`。
 
@@ -164,11 +143,7 @@ AI 必须在以下情况暂停：
 ### RULE-GOV-004: Rule Block 风格
 
 Status: Active
-Applies to: `docs/sot/**`
-Source: Template maintainers
-Supersedes: previous unnumbered Truth document style section
-Superseded by: None
-Migration required: Yes, Truth templates become bilingual in-place
+Phases: apply_change_pack
 
 规则：
 
@@ -178,6 +153,7 @@ Truth 文档必须便于人类审阅，也便于 AI 引用。
 - 重要规则使用一个稳定 Rule Block。
 - 使用 `RULE-DATA-001` 这类稳定 ID。
 - 关键规则必须可验证。
+- Active 层只保留执行期字段（`Phases`、规则、验证、停线条件）；lifecycle 元数据写入 `*_HISTORY.md`。
 - 边界保持清晰：ADR 解释原因，SoT 定义当前行为。
 
 Rule Block 格式定义在：
@@ -194,29 +170,10 @@ Rule Block 格式定义在：
 
 - 挑战 Active 且已实现的 Truth，但没有明确 lifecycle trail。
 
-### RULE-GOV-005: 英文优先单文件双语模板
-
-Status: Superseded
-Applies to: P2T2C-managed docs, prompts, templates, README files, and migration notes
-Source: Template maintainers
-Supersedes: `workflow: P2T2C Exception-Gated Workflow CN`, `language: zh-CN`
-Superseded by: `RULE-GOV-006`
-Migration required: Yes, template version `0.4.0`
-
-规则：
-
-P2T2C-managed human and AI workflow documents 曾采用英文优先、单文件双语呈现。
-
-此规则已被 `RULE-GOV-006` 取代，仅作为历史 lifecycle 记录保留。
-
 ### RULE-GOV-006: 双单语发行根
 
 Status: Active
-Applies to: P2T2C-managed docs, prompts, templates, README files, migration notes, and release packaging
-Source: Maintainer decision on 2026-05-19
-Supersedes: `RULE-GOV-005`
-Superseded by: None
-Migration required: Yes, template version `0.5.0`
+Phases: install_upgrade
 
 规则：
 
@@ -229,10 +186,6 @@ P2T2C 以两个自包含语言专属发行根发布：
 - 稳定工作流 token、状态值、文件路径、命令名、CLI 参数和 shell 脚本运行时输出保持英文。
 - 仓库根目录只作为语言选择和聚合检查入口，不是 P2T2C 发行根。
 
-理由：
-
-单文件双语文档会增加 AI 阅读时的重复上下文。双单语发行根在保留语言支持的同时，降低每次任务的阅读负担。
-
 验证：
 
 - 仓库根目录 `make check` 会检查两个发行根。
@@ -240,12 +193,6 @@ P2T2C 以两个自包含语言专属发行根发布：
 - 两个发行根内的 `shasum -a 256 -c .p2t2c/CHECKSUMS.sha256` 均通过。
 - 两个发行根的 install 和 upgrade smoke test 均通过。
 - 代表性受管文档扫描确认没有同文件双语说明。
-
-下游投射：
-
-- 根目录 selector：`README.md`、`AGENTS.md`、`Makefile`
-- 英文发行根：`P2T2C_EN/**`
-- 中文发行根：`P2T2C_CN/**`
 
 停线条件：
 
@@ -256,11 +203,7 @@ P2T2C 以两个自包含语言专属发行根发布：
 ### RULE-GOV-007: 根目录使用者工作面收敛
 
 Status: Active
-Applies to: P2T2C release packaging, install, upgrade, and managed path layout
-Source: Maintainer decision on 2026-05-20
-Supersedes: previous exposed internal asset layout
-Superseded by: None
-Migration required: Yes, template version `0.6.0`
+Phases: install_upgrade
 
 规则：
 
@@ -285,14 +228,6 @@ P2T2C 内部运行资产必须放在 `.p2t2c/` 下：
 - install smoke test 不得创建根级 `prompts/`、`templates/`、`scripts/`、`sdd/` 或 `migrations/`。
 - upgrade smoke test 必须在 lock hash 匹配时移除旧的根级内部资产。
 
-下游投射：
-
-- `.p2t2c/ownership.yaml`
-- `.p2t2c/manifest.yaml`
-- `.p2t2c/bin/**`
-- `.p2t2c/migrations/0.5.0-to-0.6.0.md`
-- 人类和 AI 入口文档
-
 停线条件：
 
 - P2T2C 变更重新引入根级内部资产目录。
@@ -302,11 +237,7 @@ P2T2C 内部运行资产必须放在 `.p2t2c/` 下：
 ### RULE-GOV-008: P2T2C 根入口文件命名
 
 Status: Active
-Applies to: P2T2C release packaging, install, upgrade, and root-file projection
-Source: Maintainer decision on 2026-05-20
-Supersedes: root-level `README.md` and `AGENTS.md` as P2T2C installed entries
-Superseded by: None
-Migration required: Yes, template version `0.7.0`
+Phases: install_upgrade
 
 规则：
 
@@ -326,38 +257,24 @@ P2T2C 不得在新安装中创建根级 `README.md`、`AGENTS.md`、`Makefile`�
 - `0.6.0 -> 0.7.0` upgrade smoke test 迁移未修改的旧入口文件。
 - 本地修改旧 `README.md`、`AGENTS.md` 或 `Makefile` 后升级必须停线。
 
-下游投射：
-
-- `P2T2C_README.md`
-- `P2T2C_AGENTS.md`
-- `.p2t2c/CHECKSUMS.sha256`
-- `.p2t2c/VERSION`
-- `.p2t2c/P2T2C_LICENSE.md`
-- `.p2t2c/templates/project_config.example.yaml`
-- `.p2t2c/migrations/0.6.0-to-0.7.0.md`
-
 停线条件：
 
 - 新安装投射任何旧根文件。
-- 升级删除或覆盖本地修改过的旧根入口或项目 Makefile。
+- 升级删除或覆盖本地修改过的旧入口或项目 Makefile。
 - 受管文档仍把 `README.md` 或 `AGENTS.md` 当作 P2T2C 安装目标入口。
 
 ### RULE-GOV-009: Rule 标识完整性
 
 Status: Active
-Applies to: `docs/sot/**`
-Source: 维护者决策 2026-05-21
-Supersedes: None
-Superseded by: None
-Migration required: Yes, 模板版本 `0.8.0`
+Phases: apply_change_pack, acceptance
 
 Rule:
 
-Truth 文档中的 Rule 标识必须构成一致、可机器校验的图。
+Truth 文档中的 Rule 标识必须构成一致、可机器校验的图，扫描范围覆盖 Active 层与 `*_HISTORY.md` 合集。
 
-- 每个 Rule Block 使用 `RULE-{AREA}-{NNN}` 标识，且在整个 `docs/sot/**` 内唯一。
+- 每个 Rule Block 使用 `RULE-{AREA}-{NNN}` 标识，且在整个 `docs/sot/**`（含 History）内唯一。
 - lifecycle 链必须双向：若 `RULE-A` 声明 `Superseded by: RULE-B`，则 `RULE-B` 必须声明 `Supersedes: RULE-A`，反之亦然。`None` 是唯一允许的空值。
-- `Supersedes` 或 `Superseded by` 字段中出现的每个标识，都必须能在 `docs/sot/**` 中找到真实的 Rule Block。
+- `Supersedes` 或 `Superseded by` 字段中出现的每个标识，都必须能在 `docs/sot/**` 中找到真实条目。
 - 被任何 `Superseded by` 字段指向的规则不得仍为 `Status: Active`，必须是 `Superseded` 或 `Deprecated`。
 
 Rationale:
@@ -366,13 +283,8 @@ Rule 标识是 Truth、spec、task 与代码之间稳定的连接键。重复标
 
 Validation:
 
-- `make check` 对 `docs/sot/**` 运行 SoT 完整性扫描。
+- `make check` 对 `docs/sot/**`（含 History）运行 SoT 完整性扫描。
 - 扫描报告重复标识、悬空 lifecycle 引用、断裂的双向链、以及被取代却仍 Active 的规则。
-
-Downstream projections:
-
-- `.p2t2c/bin/check_p2t2c.sh`
-- `.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md`
 
 Stop-the-line if:
 
@@ -382,11 +294,7 @@ Stop-the-line if:
 ### RULE-GOV-010: 代码到 Truth 的回链锚点
 
 Status: Active
-Applies to: `src/**`, `docs/sot/**`
-Source: 维护者决策 2026-05-21
-Supersedes: None
-Superseded by: None
-Migration required: Yes, 模板版本 `0.8.0`
+Phases: single_task, acceptance
 
 Rule:
 
@@ -406,11 +314,6 @@ Validation:
 - `make check` 仅在 `src/**` 存在时运行锚点扫描。
 - 扫描报告指向缺失标识或非 `Active` 规则的锚点。
 
-Downstream projections:
-
-- `.p2t2c/bin/check_p2t2c.sh`
-- `.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md`
-
 Stop-the-line if:
 
 - 锚点指向缺失或非 `Active` 的规则。
@@ -419,11 +322,7 @@ Stop-the-line if:
 ### RULE-GOV-011: EARS 验收绑定 Rule 标识
 
 Status: Active
-Applies to: `specs/**`
-Source: 维护者决策 2026-05-21
-Supersedes: None
-Superseded by: None
-Migration required: Yes, 模板版本 `0.8.0`
+Phases: execution_pack, single_task, acceptance
 
 Rule:
 
@@ -442,15 +341,38 @@ Validation:
 - spec 与 task 用所验证的规则标识标注验收。
 - 被标注的标识出现在 spec 的 Truth References 表中。
 
-Downstream projections:
-
-- `.p2t2c/templates/execution/spec.md`
-- `.p2t2c/templates/execution/tasks.md`
-- `.p2t2c/prompts/04_generate_execution_pack_prompt.md`
-
 Stop-the-line if:
 
 - 某条验收标准验证的行为，其规则标识未出现在 Truth References 中。
+
+### RULE-GOV-012: 阶段化按需阅读与 Active/History 分层
+
+Status: Active
+Phases: all
+
+Rule:
+
+P2T2C 治理 Truth 按阶段分层组织，使 AI 每次任务的阅读量与当前阶段相关规则数成正比，而非与规则总数成正比。
+
+- 每个 Active Rule Block 必须声明 `Phases` 字段，取值为 manifest `phases` 列表中的稳定 token，或 `all`。
+- AI 在某阶段只读取 `Phases` 含该阶段或 `all` 的规则；阶段与规则的映射由 `make check` 从 `Phases` 字段自动生成，不手工维护。
+- Active 层 Rule Block 只保留 `Phases`、规则、验证、停线条件。lifecycle 元数据（`Source`、`Supersedes`、`Superseded by`、`Migration required`、下游投射）与已 `Superseded`/`Deprecated` 的整条规则，写入同目录 `*_HISTORY.md`，并列入 `forbidden_default_reads`。
+- 完整性校验（RULE-GOV-009）扫描 Active 与 History 合集，分层不削弱 lifecycle 图的可校验性。
+
+Rationale:
+
+工作流规则只增不减：lifecycle 链强制旧规则保留为 `Superseded` 而非删除。若默认阅读"全部 active 规则"，每个任务的阅读基线会随规则总数线性增长，其中多数与当前阶段无关。按 `Phases` 字段加载，把阅读成本与规则总数解耦；把 lifecycle 历史移出默认读取路径，进一步降低固定阅读量，同时保留机器可校验的 lifecycle 图。
+
+Validation:
+
+- `make check` 解析每条 Active 规则的 `Phases`，校验取值均为已知 phase token，且每个 phase 至少被一条规则覆盖。
+- `make check` 从 `Phases` 字段生成各阶段规则清单，可被 prompt 引用。
+- History 文件在 `forbidden_default_reads` 中。
+
+Stop-the-line if:
+
+- 某 Active 规则缺少 `Phases`，或 `Phases` 含未知 token。
+- Active 层 Rule Block 重新引入 lifecycle 元数据。
 
 ---
 

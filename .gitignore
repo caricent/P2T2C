@@ -21,3 +21,4 @@ coverage/
 
 **/.p2t2c/install/
 **/.p2t2c/upgrade/
+**/.p2t2c/generated/

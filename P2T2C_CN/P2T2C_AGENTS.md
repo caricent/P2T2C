@@ -22,22 +22,28 @@ Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> A
 
 1. `P2T2C_AGENTS.md`
 2. `.p2t2c/project_config.yaml`；如果缺失，读取 `.p2t2c/templates/project_config.example.yaml`
-5. 下方列出的阶段额外输入
+3. 治理 Truth 的**阶段子集**，而非整份文件（见下）
+4. 下方列出的阶段额外输入
 
-默认不要读取 `docs/reference/`。只有当用户明确要求历史审计、对比或迁移背景时才读取。
+治理按需阅读（RULE-GOV-012）：不要通读 `docs/sot/governance/P2T2C_GOVERNANCE.md` 全文。先确定当前阶段，再查 `.p2t2c/generated/phase_rules.txt`（由 `make check` 自动生成）中该阶段对应的 Rule 标识，只读这些 Rule Block。阶段与 token 的对应见第 2 节表格。
+
+默认不要读取 `docs/reference/`，也不要读取 `docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md`。只有当用户明确要求历史审计、对比、迁移背景或冲突排查时才读取它们。
 
 ---
 
-## 2. 阶段 Prompt 与允许写入
+## 2. 阶段 Prompt、Phase token 与允许写入
 
-| 任务 | Prompt | 文件写入 |
-|---|---|---|
-| 初始化仓库 | `.p2t2c/prompts/01_bootstrap_repository_prompt.md` | 是，仅骨架 |
-| 生成 Change Pack | `.p2t2c/prompts/02_generate_change_pack_prompt.md` | 否 |
-| 应用 Change Pack | `.p2t2c/prompts/03_apply_change_pack_prompt.md` | 是，仅 Gate A 后 |
-| 生成执行包 | `.p2t2c/prompts/04_generate_execution_pack_prompt.md` | 是 |
-| 执行单个任务 | `.p2t2c/prompts/05_execute_single_task_prompt.md` | 是，仅一个任务 |
-| 验收与收口 | `.p2t2c/prompts/06_acceptance_and_closure_prompt.md` | 是，仅执行文档，除非 Truth Drift 暂停 |
+`Phase token` 列用于在 `.p2t2c/generated/phase_rules.txt` 中查出该阶段需读取的治理 Rule 子集。
+
+| 任务 | Phase token | Prompt | 文件写入 |
+|---|---|---|---|
+| 初始化仓库 | `bootstrap` | `.p2t2c/prompts/01_bootstrap_repository_prompt.md` | 是，仅骨架 |
+| 生成 Change Pack | `change_pack` | `.p2t2c/prompts/02_generate_change_pack_prompt.md` | 否 |
+| 应用 Change Pack | `apply_change_pack` | `.p2t2c/prompts/03_apply_change_pack_prompt.md` | 是，仅 Gate A 后 |
+| 生成执行包 | `execution_pack` | `.p2t2c/prompts/04_generate_execution_pack_prompt.md` | 是 |
+| 执行单个任务 | `single_task` | `.p2t2c/prompts/05_execute_single_task_prompt.md` | 是，仅一个任务 |
+| 验收与收口 | `acceptance` | `.p2t2c/prompts/06_acceptance_and_closure_prompt.md` | 是，仅执行文档，除非 Truth Drift 暂停 |
+| 安装与升级 | `install_upgrade` | 见第 7 节 | 仅工作流外壳 |
 
 阶段额外读取：
 

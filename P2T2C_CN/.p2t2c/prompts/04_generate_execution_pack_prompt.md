@@ -10,10 +10,12 @@
 - 相关 SoT、ADR 必须是当前权威来源。
 - 不得从未应用的 proposal 或参考资料生成业务规则。
 
+治理阅读（RULE-GOV-012）：本阶段 phase token 为 `execution_pack`。只读取 `.p2t2c/generated/phase_rules.txt` 中 `execution_pack:` 行列出的治理 Rule Block，不通读 `P2T2C_GOVERNANCE.md` 全文，也不读 `P2T2C_GOVERNANCE_HISTORY.md`。
+
 本阶段额外读取：
 
 - 相关 SP
-- 相关 ADR、SoT
+- 相关项目 ADR、SoT
 - `.p2t2c/templates/execution/spec.md`
 - `.p2t2c/templates/execution/plan.md`
 - `.p2t2c/templates/execution/tasks.md`

@@ -4,12 +4,14 @@
 
 先读取 `P2T2C_AGENTS.md`，并按其中的 Required Reading 完成基础读取。
 
+治理阅读（RULE-GOV-012）：本阶段 phase token 为 `single_task`。只读取 `.p2t2c/generated/phase_rules.txt` 中 `single_task:` 行列出的治理 Rule Block，不通读 `P2T2C_GOVERNANCE.md` 全文，也不读 `P2T2C_GOVERNANCE_HISTORY.md`。
+
 本阶段额外读取：
 
 - feature `spec.md`
 - feature `plan.md`
 - feature `tasks.md`
-- 相关 SoT、ADR
+- 相关项目 SoT、ADR
 
 处理规则：
 

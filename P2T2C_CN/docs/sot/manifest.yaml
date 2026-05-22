@@ -26,12 +26,30 @@ closure_decisions:
 truth_documents:
   governance:
     - docs/sot/governance/P2T2C_GOVERNANCE.md
+  governance_history:
+    - docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md
   project_specific: []
+
+# RULE-GOV-012: phase-scoped reading. AI reads only the rules a phase needs.
+# The phase->rule map is derived from each rule's `Phases` field by
+# `make check` and written to the generated map below; never hand-maintained.
+phases:
+  - bootstrap
+  - change_pack
+  - apply_change_pack
+  - execution_pack
+  - single_task
+  - acceptance
+  - install_upgrade
+  - all
+phase_rule_map: .p2t2c/generated/phase_rules.txt
 
 notes:
   language_policy: "受管工作流文档在本发行根内保持中文单语。"
   project_specific_truth: "只有当项目在某个领域已有当前规则时，才在 docs/sot/** 下添加真实 SoT 文件。"
   placeholder_domain_sot: "不随模板发布空的领域 SoT 占位文件。"
+  phase_scoped_reading: "AI 按 phase token 从 phase_rule_map 读取治理规则子集，不通读 governance 全文。"
 
 forbidden_default_reads:
   - docs/reference/
+  - docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md
