@@ -10,6 +10,8 @@ Prerequisites:
 
 First read `P2T2C_AGENTS.md`, then complete the Required Reading listed there.
 
+Governance reading (RULE-GOV-012): this stage's phase token is `execution_pack`. Read only the governance Rule Blocks on the `execution_pack:` line of `.p2t2c/generated/phase_rules.txt`. Do not read all of `P2T2C_GOVERNANCE.md`, and do not read `P2T2C_GOVERNANCE_HISTORY.md`.
+
 Additional reads for this stage:
 
 - Related SP

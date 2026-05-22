@@ -26,12 +26,30 @@ closure_decisions:
 truth_documents:
   governance:
     - docs/sot/governance/P2T2C_GOVERNANCE.md
+  governance_history:
+    - docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md
   project_specific: []
+
+# RULE-GOV-012: phase-scoped reading. AI reads only the rules a phase needs.
+# The phase->rule map is derived from each rule's `Phases` field by
+# `make check` and written to the generated map below; never hand-maintained.
+phases:
+  - bootstrap
+  - change_pack
+  - apply_change_pack
+  - execution_pack
+  - single_task
+  - acceptance
+  - install_upgrade
+  - all
+phase_rule_map: .p2t2c/generated/phase_rules.txt
 
 notes:
   language_policy: "Managed workflow documents are English-only inside this release root."
   project_specific_truth: "Add real SoT files under docs/sot/** only when the project has current rules for that area."
   placeholder_domain_sot: "Not shipped; empty placeholder SoT files are intentionally omitted."
+  phase_scoped_reading: "AI reads a phase's governance rule subset from phase_rule_map by phase token, instead of the whole governance file."
 
 forbidden_default_reads:
   - docs/reference/
+  - docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md

@@ -22,3 +22,7 @@ coverage/
 **/.p2t2c/install/
 **/.p2t2c/upgrade/
 **/.p2t2c/generated/
+
+# FUSE mount residue (transient)
+.fuse_hidden*
+**/.fuse_hidden*

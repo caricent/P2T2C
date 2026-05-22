@@ -4,6 +4,8 @@ Goal: execute only the specified Task in `tasks.md`.
 
 First read `P2T2C_AGENTS.md`, then complete the Required Reading listed there.
 
+Governance reading (RULE-GOV-012): this stage's phase token is `single_task`. Read only the governance Rule Blocks on the `single_task:` line of `.p2t2c/generated/phase_rules.txt`. Do not read all of `P2T2C_GOVERNANCE.md`, and do not read `P2T2C_GOVERNANCE_HISTORY.md`.
+
 Additional reads for this stage:
 
 - Related SoT

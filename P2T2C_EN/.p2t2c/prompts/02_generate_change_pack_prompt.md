@@ -4,6 +4,8 @@ Goal: generate a Change Pack from a Submit Proposal for human Gate A review.
 
 First read `P2T2C_AGENTS.md`, then complete the Required Reading listed there.
 
+Governance reading (RULE-GOV-012): this stage's phase token is `change_pack`. Read only the governance Rule Blocks on the `change_pack:` line of `.p2t2c/generated/phase_rules.txt`. Do not read all of `P2T2C_GOVERNANCE.md`, and do not read `P2T2C_GOVERNANCE_HISTORY.md`.
+
 Additional reads for this stage:
 
 - Current SP file

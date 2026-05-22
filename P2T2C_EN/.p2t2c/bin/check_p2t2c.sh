@@ -19,6 +19,7 @@ required=(
   "docs/closure/README.md"
   "docs/reference/README.md"
   "docs/sot/governance/P2T2C_GOVERNANCE.md"
+  "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md"
   "docs/sot/manifest.yaml"
   "specs/README.md"
   ".p2t2c/bin/check_p2t2c.sh"
@@ -33,6 +34,7 @@ required=(
   ".p2t2c/migrations/0.6.0-to-0.7.0.md"
   ".p2t2c/migrations/0.7.0-to-0.8.0.md"
   ".p2t2c/migrations/0.8.0-to-0.8.1.md"
+  ".p2t2c/migrations/0.8.1-to-0.9.0.md"
   ".p2t2c/prompts/01_bootstrap_repository_prompt.md"
   ".p2t2c/prompts/02_generate_change_pack_prompt.md"
   ".p2t2c/prompts/03_apply_change_pack_prompt.md"
@@ -121,24 +123,29 @@ if [[ -f "docs/sot/manifest.yaml" ]]; then
   language="$(awk -F': *' '$1 == "language" {print $2; exit}' docs/sot/manifest.yaml)"
 fi
 
-check_phrase ".p2t2c/VERSION" "0.8.1"
+check_phrase ".p2t2c/VERSION" "0.9.0"
 check_phrase "docs/sot/manifest.yaml" "language_policy: monolingual_release_root"
-check_phrase ".p2t2c/manifest.yaml" "version: \"0.8.1\""
+check_phrase ".p2t2c/manifest.yaml" "version: \"0.9.0\""
 check_phrase ".p2t2c/manifest.yaml" "language_policy: \"monolingual_release_root\""
 check_phrase ".p2t2c/P2T2C_LICENSE.md" "MIT License"
 check_phrase ".p2t2c/P2T2C_LICENSE.md" "Copyright (c) 2026 Caricent"
 check_phrase ".p2t2c/P2T2C_LICENSE.md" "jasonbaoly"
 check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-006"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "Superseded by"
 check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-007"
 check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-009"
 check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-010"
 check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-011"
+check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-012"
+check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "Phases:"
+check_phrase "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md" "Superseded by"
+check_phrase "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md" "RULE-GOV-005"
 check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "--dry-run"
 check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "--rollback"
 check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.8.0-to-0.8.1.md"
+check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.8.1-to-0.9.0.md"
 check_phrase ".p2t2c/bin/p2t2c_install.sh" "--target"
 check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.8.0-to-0.8.1.md"
+check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.8.1-to-0.9.0.md"
 check_phrase ".p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md" "Truth Patch Candidate: Not generated"
 check_phrase ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md" "Closure Decision"
 check_phrase ".p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md" "Supersedes"
@@ -161,6 +168,7 @@ managed_doc_globs=(
   "docs/reference/README.md"
   "docs/sot/manifest.yaml"
   "docs/sot/governance/P2T2C_GOVERNANCE.md"
+  "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md"
   "specs/README.md"
   ".p2t2c/migrations"
   ".p2t2c/prompts"
@@ -189,36 +197,49 @@ else
 fi
 
 # --- RULE-GOV-009: SoT rule identifier integrity ---------------------------
-# Scans docs/sot/**/*.md for Rule Blocks and validates:
-#   - unique RULE-IDs across all SoT
+# Scans docs/sot/**/*.md (Active layer + *_HISTORY.md) for Rule Blocks.
+# RULE-GOV-012 splits each rule across two files: the Active layer carries
+# Status/Phases, the HISTORY layer carries lifecycle metadata. The same
+# RULE-ID therefore legitimately appears once per layer; fields are MERGED
+# per ID across files (last non-empty value wins). A genuine duplicate is
+# two Rule Blocks sharing an ID *within the same file*, which is flagged.
+# Validates:
+#   - no duplicate RULE-ID within a single file
 #   - bidirectional Supersedes / Superseded by links
 #   - no dangling lifecycle references
 #   - no superseded-yet-Active rule
 sot_report="$(
   find docs/sot -type f -name '*.md' 2>/dev/null | sort | while IFS= read -r f; do
-    [[ -n "$f" ]] && cat "$f" && printf '\n'
-  done | awk '
+    [[ -n "$f" ]] && awk -v fn="$f" '{print fn "\t" $0}' "$f" && printf '\n'
+  done | awk -F'\t' '
+    function body(line,   s) { s = line; return s }
     function flush() {
       if (cur != "") {
-        if (cur in seen) { print "ERROR: duplicate RULE-ID: " cur }
+        key = cur SUBSEP headfile
+        if (key in seen_in_file) { print "ERROR: duplicate RULE-ID within " headfile ": " cur }
+        seen_in_file[key] = 1
         seen[cur] = 1
-        status[cur] = cur_status
-        sup[cur] = cur_sup
-        supby[cur] = cur_supby
+        if (cur_status   != "") status[cur] = cur_status
+        if (cur_sup      != "") sup[cur]    = cur_sup
+        if (cur_supby    != "") supby[cur]  = cur_supby
       }
-      cur = ""; cur_status = ""; cur_sup = "None"; cur_supby = "None"
+      cur = ""; cur_status = ""; cur_sup = ""; cur_supby = ""
     }
-    /^###[[:space:]]+RULE-[A-Z]+-[0-9]+/ {
+    { curfile = $1; line = $2 }
+    line ~ /^###[[:space:]]+RULE-[A-Z]+-[0-9]+/ {
       flush()
-      match($0, /RULE-[A-Z]+-[0-9]+/); cur = substr($0, RSTART, RLENGTH)
+      headfile = curfile
+      match(line, /RULE-[A-Z]+-[0-9]+/); cur = substr(line, RSTART, RLENGTH)
       next
     }
-    cur != "" && /^Status:/        { s = $0; sub(/^Status:[[:space:]]*/, "", s); cur_status = s; next }
-    cur != "" && /^Supersedes:/    { s = $0; sub(/^Supersedes:[[:space:]]*/, "", s); gsub(/`/, "", s); cur_sup = s; next }
-    cur != "" && /^Superseded by:/ { s = $0; sub(/^Superseded by:[[:space:]]*/, "", s); gsub(/`/, "", s); cur_supby = s; next }
+    cur != "" && line ~ /^Status:/        { s = line; sub(/^Status:[[:space:]]*/, "", s); cur_status = s; next }
+    cur != "" && line ~ /^Supersedes:/    { s = line; sub(/^Supersedes:[[:space:]]*/, "", s); gsub(/`/, "", s); cur_sup = s; next }
+    cur != "" && line ~ /^Superseded by:/ { s = line; sub(/^Superseded by:[[:space:]]*/, "", s); gsub(/`/, "", s); cur_supby = s; next }
     END {
       flush()
       for (r in seen) {
+        if (!(r in sup))   sup[r] = "None"
+        if (!(r in supby)) supby[r] = "None"
         # dangling + bidirectional for Superseded by
         if (supby[r] != "" && supby[r] != "None") {
           n = split(supby[r], t, /[,[:space:]]+/)
@@ -271,6 +292,74 @@ if [[ -d "src" ]]; then
     fi
   done < <(grep -rnE "Implements:[[:space:]]*RULE-[A-Z]+-[0-9]+" src 2>/dev/null \
             | grep -oE '^[^:]*:[0-9]*:.*RULE-[A-Z]+-[0-9]+' || true)
+fi
+
+# --- RULE-GOV-012: phase-scoped reading map (auto-generated) ---------------
+# Parses the `Phases:` field of every Active rule, validates tokens against
+# the known phase list, ensures every phase is covered by >=1 rule, and
+# regenerates the phase->rule map that prompts read from. The map is derived,
+# never hand-maintained: adding a rule with a Phases line updates it here.
+known_phases="bootstrap change_pack apply_change_pack execution_pack single_task acceptance install_upgrade all"
+gov_active="docs/sot/governance/P2T2C_GOVERNANCE.md"
+
+if [[ -f "$gov_active" ]]; then
+  phase_report="$(
+    awk -v known="$known_phases" '
+      BEGIN { n = split(known, k, /[[:space:]]+/); for (i=1;i<=n;i++) known_set[k[i]] = 1 }
+      function finalize_rule() {
+        # Called when the current rule block ends (next heading or EOF).
+        # An Active rule MUST carry a Phases line; flag if it did not.
+        if (cur != "" && cur_status ~ /Active/ && !saw_phases)
+          print "ERR\tmissing Phases for Active rule: " cur
+      }
+      /^###[[:space:]]+RULE-[A-Z]+-[0-9]+/ {
+        finalize_rule()
+        match($0, /RULE-[A-Z]+-[0-9]+/); cur = substr($0, RSTART, RLENGTH)
+        cur_status = ""; saw_phases = 0; next
+      }
+      cur != "" && /^Status:/ { s=$0; sub(/^Status:[[:space:]]*/,"",s); cur_status=s; next }
+      cur != "" && /^Phases:/ { s=$0; sub(/^Phases:[[:space:]]*/,"",s); saw_phases=1
+        if (cur_status ~ /Active/) {
+          if (s == "") { print "ERR\tempty Phases for Active rule: " cur; next }
+          m = split(s, p, /[,[:space:]]+/)
+          for (j=1;j<=m;j++) {
+            tok=p[j]; if (tok=="") continue
+            if (!(tok in known_set)) { print "ERR\tunknown phase token \"" tok "\" in " cur }
+            else { print "MAP\t" tok "\t" cur; covered[tok]=1; if (tok=="all") has_all=1 }
+          }
+        }
+        next
+      }
+      END {
+        finalize_rule()
+        np = split(known, kk, /[[:space:]]+/)
+        # A phase counts as covered if a specific rule names it OR an `all`
+        # rule exists (an `all` rule applies to every phase by definition).
+        for (i=1;i<=np;i++) if (kk[i] != "all" && !(kk[i] in covered) && !has_all)
+          print "ERR\tphase has no rule coverage: " kk[i]
+      }
+    ' "$gov_active"
+  )"
+
+  phase_errs="$(printf "%s\n" "$phase_report" | awk -F'\t' '$1=="ERR"{print $2}')"
+  if [[ -n "$phase_errs" ]]; then
+    while IFS= read -r e; do [[ -n "$e" ]] && echo "ERROR: RULE-GOV-012: $e"; done <<< "$phase_errs"
+    missing=1
+  fi
+
+  mkdir -p .p2t2c/generated
+  generated_map=".p2t2c/generated/phase_rules.txt"
+  all_ids="$(printf "%s\n" "$phase_report" | awk -F'\t' '$1=="MAP" && $2=="all" {print $3}' | sort -u)"
+  {
+    echo "# Auto-generated by check_p2t2c.sh (RULE-GOV-012). Do not edit by hand."
+    echo "# Maps each workflow phase to the Active governance rules an AI must"
+    echo "# read in that phase. Rules tagged 'all' are folded into every phase."
+    for ph in $known_phases; do
+      [[ "$ph" == "all" ]] && continue
+      ids="$( { printf "%s\n" "$phase_report" | awk -F'\t' -v p="$ph" '$1=="MAP" && $2==p {print $3}'; printf "%s\n" "$all_ids"; } | sort -u | sed '/^$/d' | paste -sd, - )"
+      echo "${ph}: ${ids}"
+    done
+  } > "$generated_map"
 fi
 
 if [[ $missing -eq 0 ]]; then
