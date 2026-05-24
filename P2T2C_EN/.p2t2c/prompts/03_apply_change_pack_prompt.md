@@ -1,11 +1,11 @@
 # Prompt 03 — Apply Approved Change Pack
 
-Use only after Gate A has been confirmed by a human.
+Use only after Gate A has been confirmed by a human option choice.
 
 Prerequisites:
 
 - Change Pack `Admission decision` must be `READY`.
-- Gate A must explicitly choose `Approve and apply Truth Patch`.
+- Gate A must explicitly choose `Approve and apply Truth Patch` from the Change Pack's decision options.
 - Change Pack must not contain an unresolved `Blocking Brief`.
 - If `Truth Patch Candidate: Not generated` exists, stop and do not apply SoT / ADR changes.
 

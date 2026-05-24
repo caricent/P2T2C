@@ -35,6 +35,8 @@ Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> A
 
 `Phase token` 列用于在 `.p2t2c/generated/phase_rules.txt` 中查出该阶段需读取的治理 Rule 子集。
 
+Gate A 之前允许草拟或更新 `docs/submit_proposals/SP-*.md`。SP 是提案输入，不是 Truth 变更。
+
 | 任务 | Phase token | Prompt | 文件写入 |
 |---|---|---|---|
 | 初始化仓库 | `bootstrap` | `.p2t2c/prompts/01_bootstrap_repository_prompt.md` | 是，仅骨架 |
@@ -58,10 +60,11 @@ Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> A
 
 ## 3. 关卡
 
-Gate A：人类确认是否应用 Change Pack。
+Gate A：通过明确选项选择让人类确认。
 
-- `READY` 提案经批准后可以应用 Truth Patch 并生成执行文档。
-- 非 `READY` 提案必须停留在 Blocked Path。
+- AI 生成 Change Pack 后，如需要 Gate A，必须给出一组选项并等待人类选择。
+- `READY` 提案只有在人类选择 `Approve and apply Truth Patch` 后，才可应用 Truth Patch 并生成执行文档。
+- 非 `READY` 提案必须停留在 Blocked Path，并用选项选择处理修补、冲突解决、ADR、拒绝或拆分。
 - 如果 Change Pack 写有 `Truth Patch Candidate: Not generated`，不得应用 Truth 变更。
 
 Gate B：Closure 中发现 Truth Drift 后的人类决策。

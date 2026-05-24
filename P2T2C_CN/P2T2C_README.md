@@ -57,9 +57,9 @@ P2T2C checks passed.
 
 ## 2. 人类工作流
 
-1. 在 `docs/submit_proposals/` 中编写 Submit Proposal。
+1. 在 `docs/submit_proposals/SP-YYYYMMDD-...md` 编写或让 AI 草拟 Submit Proposal。
 2. 让 AI 基于 SP 生成 Change Pack。
-3. 审查 Gate A：批准并应用 Truth Patch，或修订、拒绝、拆分、解决提案。
+3. 通过 AI 给出的选项审查 Gate A：批准并应用 Truth Patch，或修订、拒绝、拆分、解决提案、处理 ADR。
 4. 让 AI 生成 `spec.md`、`plan.md` 和 `tasks.md`。
 5. 让 AI 一次执行一个 task。
 6. 仅在 Closure Report 报告 Truth Drift 时审查它。

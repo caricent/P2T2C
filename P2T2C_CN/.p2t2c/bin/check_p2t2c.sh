@@ -35,6 +35,7 @@ required=(
   ".p2t2c/migrations/0.7.0-to-0.8.0.md"
   ".p2t2c/migrations/0.8.0-to-0.8.1.md"
   ".p2t2c/migrations/0.8.1-to-0.9.0.md"
+  ".p2t2c/migrations/0.9.0-to-0.10.0.md"
   ".p2t2c/prompts/01_bootstrap_repository_prompt.md"
   ".p2t2c/prompts/02_generate_change_pack_prompt.md"
   ".p2t2c/prompts/03_apply_change_pack_prompt.md"
@@ -104,28 +105,17 @@ for migration in ".p2t2c/migrations/0.2.0-to-0.3.0.md" ".p2t2c/migrations/0.5.0-
   done < <(obsolete_list "$migration")
 done
 
-template_instance_files=()
-while IFS= read -r generated; do
-  [[ -z "$generated" ]] && continue
-  template_instance_files+=("$generated")
-done < <(find docs/submit_proposals docs/adr -maxdepth 1 -type f \( -name 'SP-*.md' -o -name 'ADR-*.md' \) | sort)
-
-if [[ "${#template_instance_files[@]}" -gt 0 ]]; then
-  echo "ERROR: release root must be an empty template; remove SP/ADR instance files:"
-  for generated in "${template_instance_files[@]}"; do
-    echo "ERROR: unexpected instance file: $generated"
-  done
-  missing=1
-fi
+# SP and ADR instance files are project-owned artifacts. They are valid in
+# installed projects, so the shared checker must not reject them.
 
 language="unknown"
 if [[ -f "docs/sot/manifest.yaml" ]]; then
   language="$(awk -F': *' '$1 == "language" {print $2; exit}' docs/sot/manifest.yaml)"
 fi
 
-check_phrase ".p2t2c/VERSION" "0.9.0"
+check_phrase ".p2t2c/VERSION" "0.10.0"
 check_phrase "docs/sot/manifest.yaml" "language_policy: monolingual_release_root"
-check_phrase ".p2t2c/manifest.yaml" "version: \"0.9.0\""
+check_phrase ".p2t2c/manifest.yaml" "version: \"0.10.0\""
 check_phrase ".p2t2c/manifest.yaml" "language_policy: \"monolingual_release_root\""
 check_phrase ".p2t2c/P2T2C_LICENSE.md" "MIT License"
 check_phrase ".p2t2c/P2T2C_LICENSE.md" "Copyright (c) 2026 Caricent"
@@ -143,9 +133,11 @@ check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "--dry-run"
 check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "--rollback"
 check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.8.0-to-0.8.1.md"
 check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.8.1-to-0.9.0.md"
+check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.9.0-to-0.10.0.md"
 check_phrase ".p2t2c/bin/p2t2c_install.sh" "--target"
 check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.8.0-to-0.8.1.md"
 check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.8.1-to-0.9.0.md"
+check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.9.0-to-0.10.0.md"
 check_phrase ".p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md" "Truth Patch Candidate: Not generated"
 check_phrase ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md" "Closure Decision"
 check_phrase ".p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md" "Supersedes"

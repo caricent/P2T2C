@@ -46,7 +46,7 @@ Stop-the-line if:
 |---|---|---|
 | Proposal| SP | Human owns final intent.|
 | Change Pack (CPK)| Admission Summary, Impact Review, Fast Path or Blocked Path | AI analyzes; no file changes.|
-| Gate A | Apply, revise, stop, split, or reject | Human decides.|
+| Gate A | Apply, revise, stop, split, or reject | Human decides through explicit options.|
 | Truth Patch | SoT / ADR / manifest updates | Only after Gate A.|
 | Execution Pack| `spec.md`, `plan.md`, `tasks.md` | Projects accepted Truth into executable work.|
 | Coding| Code and task Actual results | AI executes one task at a time.|
@@ -68,7 +68,7 @@ Business rules belong in `docs/sot/**`. ADRs explain why. Specs, plans, tasks, p
 
 | Document | Responsibility | Truth? | May define business rules? |
 |---|---|---|---|
-| Submit Proposal| Proposed change| No | Proposal only|
+| Submit Proposal| Proposed change| No | Proposal only; `SP-*.md` may be drafted before Gate A|
 | ADR | Decision background, tradeoffs, consequences| Decision history| Only records confirmed decisions|
 | SoT | Current authoritative project rules| Yes | Yes |
 | Spec | What a feature does| No | No, must cite Truth|
@@ -118,14 +118,19 @@ Gate A is required before applying a Truth Patch. Gate B is required only when C
 HUMAN_TRUTH_DECISION_REQUIRED
 ```
 
+Drafting or updating `docs/submit_proposals/SP-*.md` before Gate A is allowed. Gate A controls Truth, ADR, execution docs, code, test, and database changes, not proposal drafting.
+
+Gate A confirmation must be collected as an explicit option choice from the Change Pack's Gate A decision list. An open-ended question is not sufficient.
+
 Validation:
 
 - Blocked Path provides a single Blocking Brief with human decision options.
+- Change Pack provides a bounded Gate A decision list and records the selected option before application.
 - AI does not decide conflicts, accept ADRs, or silently retire old Truth.
 
 Stop-the-line if:
 
-- Gate A approval is missing before Truth changes.
+- Gate A option selection is missing before Truth changes.
 - Gate B is needed and no human decision exists.
 
 ---

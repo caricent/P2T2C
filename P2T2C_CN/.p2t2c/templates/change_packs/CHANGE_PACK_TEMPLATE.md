@@ -137,13 +137,21 @@ Truth Patch Candidate: Not generated
 
 ---
 
-## 所需人类动作 — Gate A
+## Gate A 决策选项
 
-选择一项：
+AI 生成本 Change Pack 后的动作：
 
-- [ ] Approve and apply Truth Patch.
-- [ ] Create / Update ADR.
+让人类只选择一项。界面支持选项选择时直接使用选项；否则展示本列表并等待人类选择。
 
-人类决策：
+选项：
+
+1. Approve and apply Truth Patch.
+2. Revise Proposal.
+3. Resolve Conflict.
+4. Create / Update ADR.
+5. Reject Proposal.
+6. Split Proposal.
+
+已选择的 Gate A 决策：
 
 {待填写}

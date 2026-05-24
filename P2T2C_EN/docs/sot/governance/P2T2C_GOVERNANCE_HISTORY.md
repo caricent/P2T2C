@@ -2,7 +2,7 @@
 
 Status: Reference
 Owner: Project maintainers
-Last updated: 2026-05-22
+Last updated: 2026-05-24
 
 This file holds the lifecycle metadata for the rules in `P2T2C_GOVERNANCE.md` (`Source`, `Supersedes`, `Superseded by`, `Migration required`, rationale, downstream projections), plus any `Superseded`/`Deprecated` rule in full.
 
@@ -45,18 +45,20 @@ Downstream projections:
 ### RULE-GOV-003
 
 Status: Active
-Source: Template maintainers
+Source: Template maintainers; maintainer update on 2026-05-24
 Supersedes: previous unnumbered admission/gate section
 Superseded by: None
-Migration required: Yes, Change Pack template becomes bilingual in-place
+Migration required: Yes, template version `0.10.0`
 
-Rationale: An Admission Summary plus human gates keeps the AI from deciding conflicts or silently changing Truth.
+Rationale: An Admission Summary plus human gates keeps the AI from deciding conflicts or silently changing Truth. Gate A now uses explicit option choices, and SP drafting is allowed before Gate A because proposal files are inputs rather than Truth changes.
 
 Downstream projections:
 
 - `.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
 - `.p2t2c/prompts/02_generate_change_pack_prompt.md`
 - `.p2t2c/prompts/03_apply_change_pack_prompt.md`
+- `docs/submit_proposals/SP_TEMPLATE.md`
+- `docs/submit_proposals/README.md`
 
 ### RULE-GOV-004
 

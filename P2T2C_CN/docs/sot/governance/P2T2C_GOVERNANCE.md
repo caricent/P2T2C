@@ -46,7 +46,7 @@ Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> A
 |---|---|---|
 | Proposal | SP | 人类拥有最终意图。 |
 | Change Pack（CPK） | Admission Summary、Impact Review、Fast Path 或 Blocked Path | AI 分析，不改文件。 |
-| Gate A | Apply、revise、stop、split 或 reject | 人类决策。 |
+| Gate A | Apply、revise、stop、split 或 reject | 人类通过明确选项决策。 |
 | Truth Patch | SoT、ADR、manifest updates | 仅在 Gate A 后。 |
 | Execution Pack | `spec.md`、`plan.md`、`tasks.md` | 将已接受 Truth 投射为可执行工作。 |
 | Coding | Code 和 task Actual results | AI 一次只执行一个任务。 |
@@ -68,7 +68,7 @@ Phases: all
 
 | 文档 | 职责 | 是否 Truth | 是否可定义业务规则 |
 |---|---|---|---|
-| Submit Proposal | 拟议变更 | No | 仅提案 |
+| Submit Proposal | 拟议变更 | No | 仅提案；Gate A 前可以草拟 `SP-*.md` |
 | ADR | 决策背景、权衡、后果 | 决策历史 | 只记录已确认决策 |
 | SoT | 当前权威项目规则 | Yes | Yes |
 | Spec | 功能做什么 | No | 不可，必须引用 Truth |
@@ -118,14 +118,19 @@ Truth Patch Candidate: Not generated
 HUMAN_TRUTH_DECISION_REQUIRED
 ```
 
+Gate A 前允许草拟或更新 `docs/submit_proposals/SP-*.md`。Gate A 控制 Truth、ADR、执行文档、代码、测试和数据库变更，不控制提案草拟本身。
+
+Gate A 确认必须来自 Change Pack 的 Gate A 决策选项。开放式追问不能替代明确选项选择。
+
 验证：
 
 - Blocked Path 提供单一 Blocking Brief 和人类决策选项。
+- Change Pack 提供有限 Gate A 决策选项，并在应用前记录已选择的选项。
 - AI 不自行决定冲突、不自行接受 ADR、不静默废止旧 Truth。
 
 停线条件：
 
-- 应用 Truth 前缺失 Gate A 批准。
+- 应用 Truth 前缺失 Gate A 选项选择。
 - 需要 Gate B 但没有人类决策。
 
 ---

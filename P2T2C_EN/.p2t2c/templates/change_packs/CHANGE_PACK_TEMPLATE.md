@@ -146,17 +146,21 @@ Human decision options:
 
 ---
 
-## 4. Required Human Action — Gate A
+## 4. Gate A Decision Options
 
-Choose one:
+AI action after generating this Change Pack:
 
-- [ ] Approve and apply Truth Patch.
-- [ ] Revise Proposal.
-- [ ] Resolve Conflict.
-- [ ] Create / Update ADR.
-- [ ] Reject Proposal.
-- [ ] Split Proposal.
+Ask the human to choose exactly one option. Use selectable options when the interface supports them; otherwise present this list and wait for the human choice.
 
-Human decision:
+Options:
+
+1. Approve and apply Truth Patch.
+2. Revise Proposal.
+3. Resolve Conflict.
+4. Create / Update ADR.
+5. Reject Proposal.
+6. Split Proposal.
+
+Selected Gate A decision:
 
 {to be filled}

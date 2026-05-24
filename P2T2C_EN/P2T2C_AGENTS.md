@@ -36,6 +36,8 @@ Do not read `docs/reference/` by default, and do not read `docs/sot/governance/P
 
 The `Phase token` column is used to look up the governance rule subset for that phase in `.p2t2c/generated/phase_rules.txt`.
 
+Drafting or updating `docs/submit_proposals/SP-*.md` is allowed before Gate A. An SP is proposal input, not a Truth change.
+
 | Task | Phase token | Prompt | File writes |
 |---|---|---|---|
 | Initialize repository | `bootstrap` | `.p2t2c/prompts/01_bootstrap_repository_prompt.md` | Yes, skeleton only |
@@ -59,10 +61,11 @@ Stage-specific reads:
 
 ## 3. Gates
 
-Gate A: human confirmation to apply a Change Pack.
+Gate A: human confirmation through an explicit option choice.
 
-- `READY` proposals may apply the Truth Patch and generate execution docs after approval.
-- Non-`READY` proposals must stay in Blocked Path.
+- After generating a Change Pack, AI must present a bounded Gate A option list when Gate A is needed and wait for the human choice.
+- `READY` proposals may apply the Truth Patch and generate execution docs only after the human chooses `Approve and apply Truth Patch`.
+- Non-`READY` proposals must stay in Blocked Path and use option choices for repair, conflict resolution, ADR handling, rejection, or split.
 - If the Change Pack says `Truth Patch Candidate: Not generated`, do not apply Truth changes.
 
 Gate B: human decision for Truth Drift found during Closure.

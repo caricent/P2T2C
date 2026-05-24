@@ -17,8 +17,8 @@ SP-YYYYMMDD-short-title.md
 
 ## Workflow
 
-1. Copy `SP_TEMPLATE.md`.
+1. Copy `SP_TEMPLATE.md` to `SP-YYYYMMDD-short-title.md`, or ask AI to create that SP file from the template.
 2. Write final requirements and non-goals clearly.
 3. Ask AI to generate a Change Pack and start with Admission Summary.
-4. If the Change Pack uses Fast Path, Gate A confirmation is required before AI may modify Truth and execution docs.
+4. If Gate A is needed, AI must present explicit decision options and wait for the human choice before modifying Truth or execution docs.
 5. If the Change Pack uses Blocked Path, repair the Proposal, resolve the conflict, or handle the ADR first.

@@ -2,7 +2,7 @@
 
 Status: Reference
 Owner: Project maintainers
-Last updated: 2026-05-22
+Last updated: 2026-05-24
 
 本文件保存 `P2T2C_GOVERNANCE.md` 中各规则的 lifecycle 元数据（`Source`、`Supersedes`、`Superseded by`、`Migration required`、理由、下游投射），以及已 `Superseded`/`Deprecated` 的整条规则。
 
@@ -45,18 +45,20 @@ Migration required: Yes, templates become bilingual in-place
 ### RULE-GOV-003
 
 Status: Active
-Source: Template maintainers
+Source: Template maintainers；维护者更新 2026-05-24
 Supersedes: previous unnumbered admission/gate section
 Superseded by: None
-Migration required: Yes, Change Pack template becomes bilingual in-place
+Migration required: Yes, 模板版本 `0.10.0`
 
-理由: Admission Summary + 人类关卡防止 AI 自行决定冲突或静默改 Truth。
+理由: Admission Summary + 人类关卡防止 AI 自行决定冲突或静默改 Truth。Gate A 现在使用明确选项选择，且 SP 草拟允许在 Gate A 前发生，因为提案文件是输入而不是 Truth 变更。
 
 下游投射:
 
 - `.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
 - `.p2t2c/prompts/02_generate_change_pack_prompt.md`
 - `.p2t2c/prompts/03_apply_change_pack_prompt.md`
+- `docs/submit_proposals/SP_TEMPLATE.md`
+- `docs/submit_proposals/README.md`
 
 ### RULE-GOV-004
 

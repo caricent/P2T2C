@@ -57,9 +57,9 @@ P2T2C checks passed.
 
 ## 2. Human workflow
 
-1. Write a Submit Proposal in `docs/submit_proposals/`.
+1. Write or ask AI to draft a Submit Proposal as `docs/submit_proposals/SP-YYYYMMDD-...md`.
 2. Ask AI to generate a Change Pack from the SP.
-3. Review Gate A: approve and apply the Truth Patch, or revise, reject, split, or resolve the proposal.
+3. Review Gate A by choosing one of the options AI presents: approve and apply the Truth Patch, revise, reject, split, resolve the proposal, or handle ADR work.
 4. Let AI generate `spec.md`, `plan.md`, and `tasks.md`.
 5. Let AI execute one task at a time.
 6. Review the Closure Report only if it reports Truth Drift.

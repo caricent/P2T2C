@@ -1,6 +1,6 @@
 # Prompt 02 — 生成 Change Pack（不改文件）
 
-目标：根据 Submit Proposal 生成 Change Pack，供 Gate A 人工确认。
+目标：根据 Submit Proposal 生成 Change Pack；如需要 Gate A，用明确选项让人类决策。
 
 先读取 `P2T2C_AGENTS.md`，并按其中的 Required Reading 完成基础读取。
 
@@ -17,7 +17,7 @@
 1. Admission Summary
 2. Impact Review
 3. Change Pack Body
-4. Gate A 所需的人类动作
+4. Gate A 决策选项和所需人类动作
 
 处理规则：
 
@@ -27,6 +27,7 @@
 - 如果 decision 不是 `READY`，禁止生成可应用 Truth Patch Candidate；必须写 `Truth Patch Candidate: Not generated`，并只输出一个统一 `Blocking Brief`。
 - 阻塞时不要同时展开多套 Repair、Conflict、ADR 模板。
 - 人类问题必须是可决策选项，最多列出 5 个高影响问题。
+- 生成 Change Pack 后如需要 Gate A，必须让人类从一组明确选项中选择一项。界面支持选项选择时直接使用选项；否则列出选项并等待人类选择。
 
 禁止：
 

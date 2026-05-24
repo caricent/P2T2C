@@ -87,6 +87,7 @@ INSTALL_FILES=(
   ".p2t2c/migrations/0.7.0-to-0.8.0.md"
   ".p2t2c/migrations/0.8.0-to-0.8.1.md"
   ".p2t2c/migrations/0.8.1-to-0.9.0.md"
+  ".p2t2c/migrations/0.9.0-to-0.10.0.md"
   ".p2t2c/migrations/README.md"
   ".p2t2c/prompts/01_bootstrap_repository_prompt.md"
   ".p2t2c/prompts/02_generate_change_pack_prompt.md"

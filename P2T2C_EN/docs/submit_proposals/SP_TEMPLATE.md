@@ -92,4 +92,6 @@ Known implementation impact:
 
 Please generate a Change Pack from this SP.
 
-Before Gate A, do not modify any files.
+Creating or updating this `SP-*.md` file is allowed before Gate A. Before Gate A, do not modify Truth, ADRs, execution docs, code, tests, or database files.
+
+If Gate A is needed after the Change Pack, present a bounded option choice for the human decision instead of an open-ended question.

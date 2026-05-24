@@ -79,4 +79,6 @@ UI；如无，写 None}
 
 请基于本 SP 生成 Change Pack。
 
-在 Gate A 之前，不要修改任何文件。
+在 Gate A 之前，可以创建或更新本 `SP-*.md` 文件。除此之外，不要修改 Truth、ADR、执行文档、代码、测试或数据库文件。
+
+生成 Change Pack 后如需要 Gate A，请用选项选择方式让人类决策，不要用开放式追问代替。
