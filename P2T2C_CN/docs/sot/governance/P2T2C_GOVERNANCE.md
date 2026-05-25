@@ -95,7 +95,14 @@ Phases: change_pack, apply_change_pack
 
 规则：
 
-Change Pack 必须以 Admission Summary 开头。它必须判断 `SoT / ADR change required` 和 `Gate A required` 是 Yes 还是 No。Admission decision 必须是以下之一：
+Change Pack 必须以 Admission Summary 开头。它必须判断以下路由字段：
+
+```text
+SoT / ADR change required: Yes or No
+Gate A required: Yes or No
+```
+
+Admission decision 必须是以下之一：
 
 - `READY`
 - `NEEDS_PROPOSAL_REPAIR`
@@ -104,7 +111,7 @@ Change Pack 必须以 Admission Summary 开头。它必须判断 `SoT / ADR chan
 - `ADR_REQUIRED`
 - `OUT_OF_SCOPE`
 
-`READY` 走 Fast Path。如果 `SoT / ADR change required` 为 No，直接生成 CPK，`Truth Patch Candidate` 为 `Not required`，且不需要 Gate A。如果 `SoT / ADR change required` 为 Yes，CPK 可以包含 Truth Patch Candidate，但应用前必须经过 Gate A。
+`READY` 走 Fast Path。无需 SoT 或 ADR 变更时，直接生成 CPK，`Truth Patch Candidate` 为 `Not required`，且不需要 Gate A。需要 SoT 或 ADR 变更时，CPK 可以包含 Truth Patch Candidate，但应用前必须经过 Gate A。
 
 非 `READY` 走 Blocked Path，且必须包含：
 

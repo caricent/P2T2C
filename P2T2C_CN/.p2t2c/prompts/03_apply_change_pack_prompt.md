@@ -5,7 +5,7 @@
 前置条件：
 
 - Change Pack 的 `Admission decision` 必须是 `READY`。
-- Change Pack 的 `SoT / ADR change required` 必须是 Yes。
+- Change Pack 必须表明需要 SoT 或 ADR 变更，且对应路由字段值为 Yes。
 - Change Pack 的 `Gate A required` 必须是 Yes。
 - Gate A 必须从 Change Pack 的决策选项中明确选择 `Approve and apply Truth Patch`。
 - Change Pack 不得包含未解决的 `Blocking Brief`。

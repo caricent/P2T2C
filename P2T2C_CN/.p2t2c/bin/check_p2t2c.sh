@@ -170,11 +170,28 @@ managed_doc_globs=(
   ".p2t2c/templates"
 )
 
+managed_docs_match_perl() {
+  local regex="$1"
+  perl -MFile::Find -CSD -e '
+    my $regex = shift @ARGV;
+    my $re = qr($regex);
+    my $found = 0;
+    find({ wanted => sub {
+      return if $found || !-f $_;
+      open my $fh, "<:encoding(UTF-8)", $_ or return;
+      while (my $line = <$fh>) {
+        if ($line =~ $re) { $found = 1; last; }
+      }
+    }, no_chdir => 1 }, @ARGV);
+    exit($found ? 0 : 1);
+  ' "$regex" "${managed_doc_globs[@]}" 2>/dev/null
+}
+
 if [[ "$language" == "en-US" ]]; then
   check_phrase "P2T2C_README.md" "Human workflow"
   check_phrase "P2T2C_README.md" "English-only"
   check_phrase "P2T2C_AGENTS.md" "This is the only AI entrypoint"
-  if grep -rqP "\\p{Han}" "${managed_doc_globs[@]}" 2>/dev/null; then
+  if managed_docs_match_perl '\p{Han}'; then
     echo "ERROR: English release root contains CJK text in managed docs"
     missing=1
   fi
@@ -182,7 +199,7 @@ elif [[ "$language" == "zh-CN" ]]; then
   check_phrase "P2T2C_README.md" "人类工作流"
   check_phrase "P2T2C_README.md" "中文单语"
   check_phrase "P2T2C_AGENTS.md" "AI 操作入口"
-  if grep -rqP " / .*\\p{Han}" "${managed_doc_globs[@]}" 2>/dev/null; then
+  if managed_docs_match_perl ' / .*\p{Han}'; then
     echo "ERROR: Chinese release root contains same-line bilingual pairings"
     missing=1
   fi

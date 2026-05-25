@@ -70,7 +70,7 @@ Truth Patch Candidate: Not generated
 Reason: Admission decision is not READY.
 ```
 
-如果 `SoT / ADR change required` 为 No，写：
+如果不需要 SoT 或 ADR 变更，写：
 
 ```text
 Truth Patch Candidate: Not required
@@ -78,7 +78,7 @@ Gate A required: No
 Reason: Existing SoT / ADR already cover the SP.
 ```
 
-如果 `SoT / ADR change required` 为 Yes，写 `Gate A required: Yes`，填写下方 Truth Patch Candidate，并在第 4 节给出 Gate A 选项。
+如果需要 SoT 或 ADR 变更，写 `Gate A required: Yes`，填写下方 Truth Patch Candidate，并在第 4 节给出 Gate A 选项。
 
 #### 需要更新的 SoT 文件
 

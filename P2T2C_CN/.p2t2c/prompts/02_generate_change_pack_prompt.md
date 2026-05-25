@@ -22,10 +22,10 @@
 处理规则：
 
 - 必须先填写 `Admission Summary`，判断 Proposal 是否可以进入 Truth。
-- 必须明确判断 `SoT / ADR change required` 是 Yes 还是 No。
+- 必须明确判断是否需要 SoT 或 ADR 变更，并填写对应路由字段。
 - Admission decision 只能是：`READY`、`NEEDS_PROPOSAL_REPAIR`、`CONFLICTS_WITH_TRUTH`、`CONFLICTS_WITH_IMPLEMENTED_TRUTH`、`ADR_REQUIRED`、`OUT_OF_SCOPE`。
-- 如果 decision 是 `READY` 且 `SoT / ADR change required` 为 No，走 Fast Path，写 `Truth Patch Candidate: Not required`，设置 `Gate A required: No`，并直接生成 CPK。
-- 如果 decision 是 `READY` 且 `SoT / ADR change required` 为 Yes，生成 Truth Patch Candidate 并设置 `Gate A required: Yes`；在修改任何 Truth 或 ADR 文件前，必须让人类选择 Gate A 选项。
+- 如果 decision 是 `READY` 且不需要 SoT 或 ADR 变更，走 Fast Path，写 `Truth Patch Candidate: Not required`，设置 `Gate A required: No`，并直接生成 CPK。
+- 如果 decision 是 `READY` 且需要 SoT 或 ADR 变更，生成 Truth Patch Candidate 并设置 `Gate A required: Yes`；在修改任何 Truth 或 ADR 文件前，必须让人类选择 Gate A 选项。
 - 如果 decision 不是 `READY`，禁止生成可应用 Truth Patch Candidate；必须写 `Truth Patch Candidate: Not generated`，并只输出一个统一 `Blocking Brief`。
 - 阻塞时不要同时展开多套 Repair、Conflict、ADR 模板。
 - 人类问题必须是可决策选项，最多列出 5 个高影响问题。
