@@ -1,6 +1,6 @@
 # Prompt 02 — 生成 Change Pack（不改文件）
 
-目标：根据 Submit Proposal 生成 Change Pack；如需要 Gate A，用明确选项让人类决策。
+目标：根据 Submit Proposal 生成 Change Pack。如果 SP 不需要变更 SoT 或 ADR，走 Fast Path 并直接生成 CPK；如果需要变更 SoT 或 ADR，在 CPK 中用明确 Gate A 选项让人类决策。
 
 先读取 `P2T2C_AGENTS.md`，并按其中的 Required Reading 完成基础读取。
 
@@ -22,12 +22,14 @@
 处理规则：
 
 - 必须先填写 `Admission Summary`，判断 Proposal 是否可以进入 Truth。
+- 必须明确判断 `SoT / ADR change required` 是 Yes 还是 No。
 - Admission decision 只能是：`READY`、`NEEDS_PROPOSAL_REPAIR`、`CONFLICTS_WITH_TRUTH`、`CONFLICTS_WITH_IMPLEMENTED_TRUTH`、`ADR_REQUIRED`、`OUT_OF_SCOPE`。
-- 如果 decision 是 `READY`，走 Fast Path，生成 Truth Patch Candidate 和 Execution Pack Summary。
+- 如果 decision 是 `READY` 且 `SoT / ADR change required` 为 No，走 Fast Path，写 `Truth Patch Candidate: Not required`，设置 `Gate A required: No`，并直接生成 CPK。
+- 如果 decision 是 `READY` 且 `SoT / ADR change required` 为 Yes，生成 Truth Patch Candidate 并设置 `Gate A required: Yes`；在修改任何 Truth 或 ADR 文件前，必须让人类选择 Gate A 选项。
 - 如果 decision 不是 `READY`，禁止生成可应用 Truth Patch Candidate；必须写 `Truth Patch Candidate: Not generated`，并只输出一个统一 `Blocking Brief`。
 - 阻塞时不要同时展开多套 Repair、Conflict、ADR 模板。
 - 人类问题必须是可决策选项，最多列出 5 个高影响问题。
-- 生成 Change Pack 后如需要 Gate A，必须让人类从一组明确选项中选择一项。界面支持选项选择时直接使用选项；否则列出选项并等待人类选择。
+- 如需要 Gate A，必须让人类从一组明确选项中选择一项。界面支持选项选择时直接使用选项；否则列出选项并等待人类选择。
 
 禁止：
 

@@ -1,12 +1,12 @@
 # Prompt 04 — 生成执行包
 
-目标：基于已确认并应用的 Truth，生成 `spec.md`、`plan.md`、`tasks.md`。
+目标：基于 CPK 和当前已接受 Truth，生成 `spec.md`、`plan.md`、`tasks.md`。
 
 先读取 `P2T2C_AGENTS.md`，并按其中的 Required Reading 完成基础读取。
 
 前置条件：
 
-- 相关 Change Pack 必须已通过 Gate A 并应用。
+- CPK 因不需要 SoT 或 ADR 变更而写明 `Gate A required: No`，或相关 Change Pack 已通过 Gate A 并应用。
 - 相关 SoT、ADR 必须是当前权威来源。
 - 不得从未应用的 proposal 或参考资料生成业务规则。
 
@@ -14,6 +14,7 @@
 
 本阶段额外读取：
 
+- 相关 CPK
 - 相关 SP
 - 相关项目 ADR、SoT
 - `.p2t2c/templates/execution/spec.md`

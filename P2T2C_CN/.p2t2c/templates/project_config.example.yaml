@@ -23,7 +23,7 @@ technology_stack:
 p2t2c:
   default_mode: "single_path_exception_gated"
   human_gates:
-    gate_a: "Apply Change Pack"
+    gate_a: "Apply SoT/ADR changes"
     gate_b: "Resolve Truth Drift"
   closure_decisions:
     - "CLOSE"

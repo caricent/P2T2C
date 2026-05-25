@@ -2,6 +2,13 @@
 
 All notable changes to P2T2C are documented here.
 
+## 0.10.1 - 2026-05-24
+
+- Refined Gate A routing after SP-to-CPK generation: SPs that do not require SoT/ADR changes stay on Fast Path and generate CPK directly, while SPs that require SoT/ADR changes enter Gate A with explicit human decision options.
+- Added `SoT / ADR change required` and `Gate A required` routing fields to the Change Pack template and updated prompts 02/03/04 so execution docs can proceed without Gate A only when existing SoT/ADR already cover the SP.
+- Renamed the Gate A label in manifests and project config templates to applying SoT/ADR changes.
+- Applied the change to both English and Chinese release roots; bumped both to `0.10.1` with migration note `0.10.0-to-0.10.1.md`.
+
 ## 0.10.0 - 2026-05-24
 
 - Allowed AI-assisted Submit Proposal drafting to create or update `docs/submit_proposals/SP-*.md` before Gate A; pre-Gate-A write restrictions now explicitly apply to Truth, ADRs, execution docs, code, tests, and database files instead of the SP draft itself.

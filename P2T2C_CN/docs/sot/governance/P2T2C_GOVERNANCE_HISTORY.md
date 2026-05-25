@@ -48,9 +48,9 @@ Status: Active
 Source: Template maintainers；维护者更新 2026-05-24
 Supersedes: previous unnumbered admission/gate section
 Superseded by: None
-Migration required: Yes, 模板版本 `0.10.0`
+Migration required: Yes, 模板版本 `0.10.1`
 
-理由: Admission Summary + 人类关卡防止 AI 自行决定冲突或静默改 Truth。Gate A 现在使用明确选项选择，且 SP 草拟允许在 Gate A 前发生，因为提案文件是输入而不是 Truth 变更。
+理由: Admission Summary + 人类关卡防止 AI 自行决定冲突或静默改 Truth。Gate A 现在使用明确选项选择，且 SP 草拟允许在 Gate A 前发生，因为提案文件是输入而不是 Truth 变更。无需 SoT/ADR 变更时仍快速生成 CPK；Gate A 仅保留给 SoT/ADR 变更。
 
 下游投射:
 
@@ -59,6 +59,7 @@ Migration required: Yes, 模板版本 `0.10.0`
 - `.p2t2c/prompts/03_apply_change_pack_prompt.md`
 - `docs/submit_proposals/SP_TEMPLATE.md`
 - `docs/submit_proposals/README.md`
+- `.p2t2c/prompts/04_generate_execution_pack_prompt.md`
 
 ### RULE-GOV-004
 

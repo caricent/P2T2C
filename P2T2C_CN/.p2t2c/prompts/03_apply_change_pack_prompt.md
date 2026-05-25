@@ -1,10 +1,12 @@
 # Prompt 03 — 应用已确认的 Change Pack
 
-仅在 Gate A 已由人类通过选项确认后使用。
+仅当 Change Pack 需要变更 SoT 或 ADR，且 Gate A 已由人类通过选项确认后使用。`Gate A required` 为 No 时跳过本 prompt。
 
 前置条件：
 
 - Change Pack 的 `Admission decision` 必须是 `READY`。
+- Change Pack 的 `SoT / ADR change required` 必须是 Yes。
+- Change Pack 的 `Gate A required` 必须是 Yes。
 - Gate A 必须从 Change Pack 的决策选项中明确选择 `Approve and apply Truth Patch`。
 - Change Pack 不得包含未解决的 `Blocking Brief`。
 - 如存在 `Truth Patch Candidate: Not generated`，必须暂停，不能应用 SoT 或 ADR 变更。

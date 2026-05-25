@@ -1,6 +1,6 @@
 # Prompt 02 — Generate Change Pack (No File Changes)
 
-Goal: generate a Change Pack from a Submit Proposal and present Gate A as explicit human decision options when Gate A is needed.
+Goal: generate a Change Pack from a Submit Proposal. If the SP does not require SoT or ADR changes, use Fast Path and generate the CPK directly. If it requires SoT or ADR changes, include Gate A as explicit human decision options.
 
 First read `P2T2C_AGENTS.md`, then complete the Required Reading listed there.
 
@@ -22,12 +22,14 @@ The Change Pack must include:
 Rules:
 
 - Fill `Admission Summary` first and decide whether the Proposal may enter Truth.
+- Explicitly classify `SoT / ADR change required` as Yes or No.
 - Admission decision must be one of: `READY`, `NEEDS_PROPOSAL_REPAIR`, `CONFLICTS_WITH_TRUTH`, `CONFLICTS_WITH_IMPLEMENTED_TRUTH`, `ADR_REQUIRED`, `OUT_OF_SCOPE`.
-- If decision is `READY`, use Fast Path and generate Truth Patch Candidate plus Execution Pack Summary.
+- If decision is `READY` and `SoT / ADR change required` is No, use Fast Path, write `Truth Patch Candidate: Not required`, set `Gate A required: No`, and generate the CPK directly.
+- If decision is `READY` and `SoT / ADR change required` is Yes, generate a Truth Patch Candidate and set `Gate A required: Yes`; ask the human to choose a Gate A option before any Truth or ADR file is modified.
 - If decision is not `READY`, do not generate an applicable Truth Patch Candidate; write `Truth Patch Candidate: Not generated` and output one unified `Blocking Brief`.
 - Do not expand multiple Repair / Conflict / ADR templates at the same time when blocked.
 - Human questions must be decision options; list at most 5 high-impact questions.
-- If Gate A is needed after the Change Pack, ask the human to choose exactly one bounded option. Use selectable options when the interface supports them; otherwise list the options and wait for the human choice.
+- If Gate A is needed, ask the human to choose exactly one bounded option. Use selectable options when the interface supports them; otherwise list the options and wait for the human choice.
 
 Forbidden:
 

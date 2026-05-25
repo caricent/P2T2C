@@ -1,4 +1,4 @@
-version: "0.10.0"
+version: "0.10.1"
 workflow: "P2T2C Exception-Gated Workflow"
 upgrade_model: "ai_readable_safe_upgrade"
 language: "zh-CN"

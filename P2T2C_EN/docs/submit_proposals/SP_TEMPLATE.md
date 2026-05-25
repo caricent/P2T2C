@@ -94,4 +94,4 @@ Please generate a Change Pack from this SP.
 
 Creating or updating this `SP-*.md` file is allowed before Gate A. Before Gate A, do not modify Truth, ADRs, execution docs, code, tests, or database files.
 
-If Gate A is needed after the Change Pack, present a bounded option choice for the human decision instead of an open-ended question.
+If this SP does not require SoT or ADR changes, generate the CPK through Fast Path directly. If it requires SoT or ADR changes, enter Gate A and present a bounded option choice for the human decision instead of an open-ended question.

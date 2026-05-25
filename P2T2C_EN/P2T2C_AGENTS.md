@@ -7,7 +7,7 @@ P2T2C means **Proposal-to-Truth-to-Code**.
 Abbreviations: SP = Submit Proposal (the human-authored proposal, filename `SP-YYYYMMDD-...`); CPK = Change Pack (the AI-generated candidate pack). They no longer share the CP abbreviation.
 
 ```text
-Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
+Proposal -> Change Pack -> Gate A when SoT/ADR changes are needed -> Truth Patch if needed + Execution Pack -> Coding -> Acceptance -> Closure Report
 ```
 
 Default behavior: proceed. Stop only for gates, conflicts, missing Truth, failed checks, or Truth Drift.
@@ -42,8 +42,8 @@ Drafting or updating `docs/submit_proposals/SP-*.md` is allowed before Gate A. A
 |---|---|---|---|
 | Initialize repository | `bootstrap` | `.p2t2c/prompts/01_bootstrap_repository_prompt.md` | Yes, skeleton only |
 | Generate Change Pack | `change_pack` | `.p2t2c/prompts/02_generate_change_pack_prompt.md` | No |
-| Apply Change Pack | `apply_change_pack` | `.p2t2c/prompts/03_apply_change_pack_prompt.md` | Yes, only after Gate A |
-| Generate Execution Pack | `execution_pack` | `.p2t2c/prompts/04_generate_execution_pack_prompt.md` | Yes |
+| Apply Change Pack | `apply_change_pack` | `.p2t2c/prompts/03_apply_change_pack_prompt.md` | Yes, only when CPK requires SoT/ADR changes and Gate A approves |
+| Generate Execution Pack | `execution_pack` | `.p2t2c/prompts/04_generate_execution_pack_prompt.md` | Yes, after CPK; Gate A only if SoT/ADR changes are required |
 | Execute single task | `single_task` | `.p2t2c/prompts/05_execute_single_task_prompt.md` | Yes, one task only |
 | Acceptance and Closure | `acceptance` | `.p2t2c/prompts/06_acceptance_and_closure_prompt.md` | Yes, execution docs only unless Truth Drift pauses |
 | Install and upgrade | `install_upgrade` | see section 7 | Workflow harness only |
@@ -52,7 +52,7 @@ Stage-specific reads:
 
 - Change Pack: current SP, related SoT / ADR, `.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
 - Apply Change Pack: approved Change Pack, related SoT / ADR, truth templates, `docs/sot/manifest.yaml`
-- Execution Pack: related SP / SoT / ADR, `.p2t2c/templates/execution/spec.md`, `.p2t2c/templates/execution/plan.md`, `.p2t2c/templates/execution/tasks.md`
+- Execution Pack: related CPK / SP / SoT / ADR, `.p2t2c/templates/execution/spec.md`, `.p2t2c/templates/execution/plan.md`, `.p2t2c/templates/execution/tasks.md`
 - Single Task: feature `spec.md`, `plan.md`, `tasks.md`, related SoT / ADR
 - Acceptance: feature `spec.md`, `plan.md`, `tasks.md`, related SoT / ADR, current code changes, Closure template
 - Install / upgrade: `P2T2C_README.md`, install or upgrade script, `.p2t2c/ownership.yaml`
@@ -61,10 +61,11 @@ Stage-specific reads:
 
 ## 3. Gates
 
-Gate A: human confirmation through an explicit option choice.
+Gate A: human confirmation through an explicit option choice, required only when a CPK needs SoT or ADR changes.
 
-- After generating a Change Pack, AI must present a bounded Gate A option list when Gate A is needed and wait for the human choice.
-- `READY` proposals may apply the Truth Patch and generate execution docs only after the human chooses `Approve and apply Truth Patch`.
+- If an SP does not require SoT or ADR changes, AI must use Fast Path and generate the CPK directly. Gate A is not required for CPK generation or for execution docs that only project existing Truth.
+- If an SP requires SoT or ADR changes, AI must present a bounded Gate A option list and wait for the human choice before applying those changes.
+- `READY` proposals with SoT/ADR changes may apply the Truth Patch and generate execution docs only after the human chooses `Approve and apply Truth Patch`.
 - Non-`READY` proposals must stay in Blocked Path and use option choices for repair, conflict resolution, ADR handling, rejection, or split.
 - If the Change Pack says `Truth Patch Candidate: Not generated`, do not apply Truth changes.
 

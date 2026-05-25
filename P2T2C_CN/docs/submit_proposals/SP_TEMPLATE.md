@@ -81,4 +81,4 @@ UI；如无，写 None}
 
 在 Gate A 之前，可以创建或更新本 `SP-*.md` 文件。除此之外，不要修改 Truth、ADR、执行文档、代码、测试或数据库文件。
 
-生成 Change Pack 后如需要 Gate A，请用选项选择方式让人类决策，不要用开放式追问代替。
+如果本 SP 不需要变更 SoT 或 ADR，直接走 Fast Path 生成 CPK。如果需要变更 SoT 或 ADR，进入 Gate A，并用选项选择方式让人类决策，不要用开放式追问代替。

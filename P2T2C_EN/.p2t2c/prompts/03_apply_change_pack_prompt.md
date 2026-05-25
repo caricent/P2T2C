@@ -1,10 +1,12 @@
 # Prompt 03 — Apply Approved Change Pack
 
-Use only after Gate A has been confirmed by a human option choice.
+Use only when a Change Pack requires SoT or ADR changes and Gate A has been confirmed by a human option choice. Skip this prompt when `Gate A required` is No.
 
 Prerequisites:
 
 - Change Pack `Admission decision` must be `READY`.
+- Change Pack `SoT / ADR change required` must be Yes.
+- Change Pack `Gate A required` must be Yes.
 - Gate A must explicitly choose `Approve and apply Truth Patch` from the Change Pack's decision options.
 - Change Pack must not contain an unresolved `Blocking Brief`.
 - If `Truth Patch Candidate: Not generated` exists, stop and do not apply SoT / ADR changes.

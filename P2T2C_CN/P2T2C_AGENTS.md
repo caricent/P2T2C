@@ -7,7 +7,7 @@ P2T2C 表示 **Proposal-to-Truth-to-Code**。
 缩写约定：SP = Submit Proposal（人类提交的提案，文件名 `SP-YYYYMMDD-...`）；CPK = Change Pack（AI 生成的候选包）。两者不再共用 CP 缩写。
 
 ```text
-Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
+Proposal -> Change Pack -> 需要 SoT/ADR 变更时进入 Gate A -> 如需要则 Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
 ```
 
 默认行为：继续推进。仅在关卡、冲突、缺失 Truth、检查失败或 Truth Drift 时暂停。
@@ -41,8 +41,8 @@ Gate A 之前允许草拟或更新 `docs/submit_proposals/SP-*.md`。SP 是提�
 |---|---|---|---|
 | 初始化仓库 | `bootstrap` | `.p2t2c/prompts/01_bootstrap_repository_prompt.md` | 是，仅骨架 |
 | 生成 Change Pack | `change_pack` | `.p2t2c/prompts/02_generate_change_pack_prompt.md` | 否 |
-| 应用 Change Pack | `apply_change_pack` | `.p2t2c/prompts/03_apply_change_pack_prompt.md` | 是，仅 Gate A 后 |
-| 生成执行包 | `execution_pack` | `.p2t2c/prompts/04_generate_execution_pack_prompt.md` | 是 |
+| 应用 Change Pack | `apply_change_pack` | `.p2t2c/prompts/03_apply_change_pack_prompt.md` | 是，仅 CPK 需要 SoT/ADR 变更且 Gate A 批准后 |
+| 生成执行包 | `execution_pack` | `.p2t2c/prompts/04_generate_execution_pack_prompt.md` | 是，CPK 后；仅 SoT/ADR 变更需要 Gate A |
 | 执行单个任务 | `single_task` | `.p2t2c/prompts/05_execute_single_task_prompt.md` | 是，仅一个任务 |
 | 验收与收口 | `acceptance` | `.p2t2c/prompts/06_acceptance_and_closure_prompt.md` | 是，仅执行文档，除非 Truth Drift 暂停 |
 | 安装与升级 | `install_upgrade` | 见第 7 节 | 仅工作流外壳 |
@@ -51,7 +51,7 @@ Gate A 之前允许草拟或更新 `docs/submit_proposals/SP-*.md`。SP 是提�
 
 - Change Pack：当前 SP、相关 SoT、ADR、`.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
 - Apply Change Pack：已批准 Change Pack、相关 SoT、ADR、truth templates、`docs/sot/manifest.yaml`
-- Execution Pack：相关 SP、SoT、ADR、`.p2t2c/templates/execution/spec.md`、`.p2t2c/templates/execution/plan.md`、`.p2t2c/templates/execution/tasks.md`
+- Execution Pack：相关 CPK、SP、SoT、ADR、`.p2t2c/templates/execution/spec.md`、`.p2t2c/templates/execution/plan.md`、`.p2t2c/templates/execution/tasks.md`
 - Single Task：feature `spec.md`、`plan.md`、`tasks.md`、相关 SoT、ADR
 - Acceptance：feature `spec.md`、`plan.md`、`tasks.md`、相关 SoT、ADR、当前代码变更、Closure template
 - Install、upgrade：`P2T2C_README.md`、install 或 upgrade script、`.p2t2c/ownership.yaml`
@@ -60,10 +60,11 @@ Gate A 之前允许草拟或更新 `docs/submit_proposals/SP-*.md`。SP 是提�
 
 ## 3. 关卡
 
-Gate A：通过明确选项选择让人类确认。
+Gate A：通过明确选项选择让人类确认；仅当 CPK 需要变更 SoT 或 ADR 时需要。
 
-- AI 生成 Change Pack 后，如需要 Gate A，必须给出一组选项并等待人类选择。
-- `READY` 提案只有在人类选择 `Approve and apply Truth Patch` 后，才可应用 Truth Patch 并生成执行文档。
+- 如果 SP 不需要变更 SoT 或 ADR，AI 必须走 Fast Path 并直接生成 CPK。CPK 生成本身不需要 Gate A，只投射现有 Truth 的执行文档也不需要 Gate A。
+- 如果 SP 需要变更 SoT 或 ADR，AI 必须给出一组 Gate A 选项并等待人类选择，然后才能应用这些变更。
+- 需要 SoT/ADR 变更的 `READY` 提案，只有在人类选择 `Approve and apply Truth Patch` 后，才可应用 Truth Patch 并生成执行文档。
 - 非 `READY` 提案必须停留在 Blocked Path，并用选项选择处理修补、冲突解决、ADR、拒绝或拆分。
 - 如果 Change Pack 写有 `Truth Patch Candidate: Not generated`，不得应用 Truth 变更。
 

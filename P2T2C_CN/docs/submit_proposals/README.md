@@ -20,5 +20,6 @@ SP-YYYYMMDD-short-title.md
 1. 复制 `SP_TEMPLATE.md` 为 `SP-YYYYMMDD-short-title.md`，或让 AI 基于模板创建该 SP 文件。
 2. 写清最终需求和非目标。
 3. 让 AI 生成 Change Pack，并先做 Admission Summary。
-4. 如需要 Gate A，AI 必须给出明确决策选项并等待人类选择，之后才可修改 Truth 或执行文档。
-5. 如果 Change Pack 走 Blocked Path，先修补 Proposal、解决冲突或处理 ADR。
+4. 如果 SP 不需要变更 SoT 或 ADR，AI 走 Fast Path 并直接生成 CPK。
+5. 如果 SP 需要变更 SoT 或 ADR，AI 必须进入 Gate A，给出明确决策选项并等待人类选择，之后才可修改 Truth 或 ADR。
+6. 如果 Change Pack 走 Blocked Path，先修补 Proposal、解决冲突或处理 ADR。

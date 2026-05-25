@@ -7,7 +7,7 @@ Abbreviations: SP = Submit Proposal (the human-authored proposal, filename `SP-Y
 P2T2C helps developers collaborate with AI without letting requirements, authoritative Truth, implementation plans, code changes, and acceptance results drift apart. It keeps AI productive while preventing it from changing business rules without confirmation or Truth support.
 
 ```text
-Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
+Proposal -> Change Pack -> Gate A when SoT/ADR changes are needed -> Truth Patch if needed + Execution Pack -> Coding -> Acceptance -> Closure Report
 ```
 
 Default behavior: AI keeps moving. It pauses only for explicit gates, conflicts, missing Truth, failed acceptance, or Truth Drift.
@@ -59,10 +59,11 @@ P2T2C checks passed.
 
 1. Write or ask AI to draft a Submit Proposal as `docs/submit_proposals/SP-YYYYMMDD-...md`.
 2. Ask AI to generate a Change Pack from the SP.
-3. Review Gate A by choosing one of the options AI presents: approve and apply the Truth Patch, revise, reject, split, resolve the proposal, or handle ADR work.
-4. Let AI generate `spec.md`, `plan.md`, and `tasks.md`.
-5. Let AI execute one task at a time.
-6. Review the Closure Report only if it reports Truth Drift.
+3. If the CPK does not require SoT or ADR changes, continue directly to execution docs.
+4. If the CPK requires SoT or ADR changes, review Gate A by choosing one of AI's options: approve and apply the Truth Patch, revise, reject, split, resolve the proposal, or handle ADR work.
+5. Let AI generate `spec.md`, `plan.md`, and `tasks.md`.
+6. Let AI execute one task at a time.
+7. Review the Closure Report only if it reports Truth Drift.
 
 Gate B is only needed when Closure Decision is:
 

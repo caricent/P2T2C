@@ -1,11 +1,10 @@
 # Prompt 04 — Generate Execution Pack
 
-Goal: generate `spec.md / plan.md / tasks.md` from confirmed and applied Truth.
+Goal: generate `spec.md / plan.md / tasks.md` from a CPK and the current accepted Truth.
 
 Prerequisites:
 
-- Gate A has been confirmed.
-- Change Pack Truth Patch has been applied.
+- Either the CPK says `Gate A required: No` because no SoT or ADR changes are required, or Gate A has been confirmed and the Change Pack Truth Patch has been applied.
 - Current Truth / ADR already defines the rules required by this feature.
 
 First read `P2T2C_AGENTS.md`, then complete the Required Reading listed there.
@@ -14,6 +13,7 @@ Governance reading (RULE-GOV-012): this stage's phase token is `execution_pack`.
 
 Additional reads for this stage:
 
+- Related CPK
 - Related SP
 - Related ADR
 - `.p2t2c/templates/execution/spec.md`
@@ -40,6 +40,6 @@ Requirements:
 
 Must stop:
 
-- Truth Patch has not been applied.
+- CPK requires SoT or ADR changes but the Truth Patch has not been applied.
 - Execution docs require a new rule not defined by SoT / ADR.
 - SP, Truth, and ADR conflict.

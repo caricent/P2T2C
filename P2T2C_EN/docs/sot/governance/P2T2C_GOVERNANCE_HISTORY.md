@@ -45,12 +45,12 @@ Downstream projections:
 ### RULE-GOV-003
 
 Status: Active
-Source: Template maintainers; maintainer update on 2026-05-24
+Source: Template maintainers; maintainer updates on 2026-05-24
 Supersedes: previous unnumbered admission/gate section
 Superseded by: None
-Migration required: Yes, template version `0.10.0`
+Migration required: Yes, template version `0.10.1`
 
-Rationale: An Admission Summary plus human gates keeps the AI from deciding conflicts or silently changing Truth. Gate A now uses explicit option choices, and SP drafting is allowed before Gate A because proposal files are inputs rather than Truth changes.
+Rationale: An Admission Summary plus human gates keeps the AI from deciding conflicts or silently changing Truth. Gate A now uses explicit option choices, and SP drafting is allowed before Gate A because proposal files are inputs rather than Truth changes. CPK generation remains fast when no SoT/ADR change is required; Gate A is reserved for SoT/ADR changes.
 
 Downstream projections:
 
@@ -59,6 +59,7 @@ Downstream projections:
 - `.p2t2c/prompts/03_apply_change_pack_prompt.md`
 - `docs/submit_proposals/SP_TEMPLATE.md`
 - `docs/submit_proposals/README.md`
+- `.p2t2c/prompts/04_generate_execution_pack_prompt.md`
 
 ### RULE-GOV-004
 

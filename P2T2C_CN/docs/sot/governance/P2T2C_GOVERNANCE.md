@@ -26,7 +26,7 @@ Phases: all
 P2T2C 使用单一路径：
 
 ```text
-Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
+Proposal -> Change Pack -> 需要 SoT/ADR 变更时进入 Gate A -> 如需要则 Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
 ```
 
 默认行为是继续推进。AI 只在关卡、冲突、缺失 Truth、检查失败或 Truth Drift 时暂停。
@@ -46,8 +46,8 @@ Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> A
 |---|---|---|
 | Proposal | SP | 人类拥有最终意图。 |
 | Change Pack（CPK） | Admission Summary、Impact Review、Fast Path 或 Blocked Path | AI 分析，不改文件。 |
-| Gate A | Apply、revise、stop、split 或 reject | 人类通过明确选项决策。 |
-| Truth Patch | SoT、ADR、manifest updates | 仅在 Gate A 后。 |
+| Gate A | Apply、revise、stop、split 或 reject | 仅 SoT/ADR 变更需要；人类通过明确选项决策。 |
+| Truth Patch | SoT、ADR、manifest updates | 仅在需要且 Gate A 后。 |
 | Execution Pack | `spec.md`、`plan.md`、`tasks.md` | 将已接受 Truth 投射为可执行工作。 |
 | Coding | Code 和 task Actual results | AI 一次只执行一个任务。 |
 | Acceptance | Build、test、lint、governance checks | 失败即停线。 |
@@ -95,7 +95,7 @@ Phases: change_pack, apply_change_pack
 
 规则：
 
-Change Pack 必须以 Admission Summary 开头。Admission decision 必须是以下之一：
+Change Pack 必须以 Admission Summary 开头。它必须判断 `SoT / ADR change required` 和 `Gate A required` 是 Yes 还是 No。Admission decision 必须是以下之一：
 
 - `READY`
 - `NEEDS_PROPOSAL_REPAIR`
@@ -104,7 +104,7 @@ Change Pack 必须以 Admission Summary 开头。Admission decision 必须是以
 - `ADR_REQUIRED`
 - `OUT_OF_SCOPE`
 
-`READY` 走 Fast Path，可以包含 Truth Patch Candidate 和 Execution Pack Summary。
+`READY` 走 Fast Path。如果 `SoT / ADR change required` 为 No，直接生成 CPK，`Truth Patch Candidate` 为 `Not required`，且不需要 Gate A。如果 `SoT / ADR change required` 为 Yes，CPK 可以包含 Truth Patch Candidate，但应用前必须经过 Gate A。
 
 非 `READY` 走 Blocked Path，且必须包含：
 
@@ -112,25 +112,26 @@ Change Pack 必须以 Admission Summary 开头。Admission decision 必须是以
 Truth Patch Candidate: Not generated
 ```
 
-应用 Truth Patch 前必须有 Gate A。只有 Closure Decision 为以下值时才需要 Gate B：
+应用任何 SoT 或 ADR 变更前必须有 Gate A。当现有 SoT/ADR 已定义所需规则时，生成 CPK 或执行文档不需要 Gate A。只有 Closure Decision 为以下值时才需要 Gate B：
 
 ```text
 HUMAN_TRUTH_DECISION_REQUIRED
 ```
 
-Gate A 前允许草拟或更新 `docs/submit_proposals/SP-*.md`。Gate A 控制 Truth、ADR、执行文档、代码、测试和数据库变更，不控制提案草拟本身。
+Gate A 前允许草拟或更新 `docs/submit_proposals/SP-*.md`。Gate A 控制 SoT 和 ADR 变更，不控制提案草拟，也不控制不修改 SoT/ADR 的 CPK 生成。
 
 Gate A 确认必须来自 Change Pack 的 Gate A 决策选项。开放式追问不能替代明确选项选择。
 
 验证：
 
 - Blocked Path 提供单一 Blocking Brief 和人类决策选项。
-- Change Pack 提供有限 Gate A 决策选项，并在应用前记录已选择的选项。
+- Change Pack 记录是否需要 SoT/ADR 变更以及是否需要 Gate A。
+- Change Pack 提供有限 Gate A 决策选项，并在应用 SoT/ADR 变更前记录已选择的选项。
 - AI 不自行决定冲突、不自行接受 ADR、不静默废止旧 Truth。
 
 停线条件：
 
-- 应用 Truth 前缺失 Gate A 选项选择。
+- 应用 SoT 或 ADR 变更前缺失 Gate A 选项选择。
 - 需要 Gate B 但没有人类决策。
 
 ---

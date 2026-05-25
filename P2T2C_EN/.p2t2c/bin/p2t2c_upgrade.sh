@@ -100,6 +100,7 @@ GOVERNANCE_MANAGED=(
   ".p2t2c/migrations/0.8.0-to-0.8.1.md"
   ".p2t2c/migrations/0.8.1-to-0.9.0.md"
   ".p2t2c/migrations/0.9.0-to-0.10.0.md"
+  ".p2t2c/migrations/0.10.0-to-0.10.1.md"
 )
 
 ALL_MANAGED=(

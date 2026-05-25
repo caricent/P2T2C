@@ -7,7 +7,7 @@ P2T2C 表示 **Proposal-to-Truth-to-Code**。
 P2T2C 帮助开发者与 AI 协作开发软件，同时避免需求、权威 Truth、实施计划、代码变更和验收结果相互脱节。它让 AI 保持推进能力，但防止 AI 在缺少确认或 Truth 支撑时自行改变业务规则。
 
 ```text
-Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
+Proposal -> Change Pack -> 需要 SoT/ADR 变更时进入 Gate A -> 如需要则 Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
 ```
 
 默认行为：AI 持续推进。只有在明确关卡、冲突、缺失 Truth、验收失败或 Truth Drift 时暂停。
@@ -59,10 +59,11 @@ P2T2C checks passed.
 
 1. 在 `docs/submit_proposals/SP-YYYYMMDD-...md` 编写或让 AI 草拟 Submit Proposal。
 2. 让 AI 基于 SP 生成 Change Pack。
-3. 通过 AI 给出的选项审查 Gate A：批准并应用 Truth Patch，或修订、拒绝、拆分、解决提案、处理 ADR。
-4. 让 AI 生成 `spec.md`、`plan.md` 和 `tasks.md`。
-5. 让 AI 一次执行一个 task。
-6. 仅在 Closure Report 报告 Truth Drift 时审查它。
+3. 如果 CPK 不需要变更 SoT 或 ADR，直接继续生成执行文档。
+4. 如果 CPK 需要变更 SoT 或 ADR，通过 AI 给出的选项审查 Gate A：批准并应用 Truth Patch，或修订、拒绝、拆分、解决提案、处理 ADR。
+5. 让 AI 生成 `spec.md`、`plan.md` 和 `tasks.md`。
+6. 让 AI 一次执行一个 task。
+7. 仅在 Closure Report 报告 Truth Drift 时审查它。
 
 只有当 Closure Decision 为以下值时才需要 Gate B：
 

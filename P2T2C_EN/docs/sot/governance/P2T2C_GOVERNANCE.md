@@ -26,7 +26,7 @@ Rule:
 P2T2C uses one path:
 
 ```text
-Proposal -> Change Pack -> Gate A -> Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
+Proposal -> Change Pack -> Gate A when SoT/ADR changes are needed -> Truth Patch if needed + Execution Pack -> Coding -> Acceptance -> Closure Report
 ```
 
 Default behavior is to proceed. AI pauses only for gates, conflicts, missing Truth, failed checks, or Truth Drift.
@@ -46,8 +46,8 @@ Stop-the-line if:
 |---|---|---|
 | Proposal| SP | Human owns final intent.|
 | Change Pack (CPK)| Admission Summary, Impact Review, Fast Path or Blocked Path | AI analyzes; no file changes.|
-| Gate A | Apply, revise, stop, split, or reject | Human decides through explicit options.|
-| Truth Patch | SoT / ADR / manifest updates | Only after Gate A.|
+| Gate A | Apply, revise, stop, split, or reject | Required only for SoT/ADR changes; human decides through explicit options.|
+| Truth Patch | SoT / ADR / manifest updates | Only when needed and only after Gate A.|
 | Execution Pack| `spec.md`, `plan.md`, `tasks.md` | Projects accepted Truth into executable work.|
 | Coding| Code and task Actual results | AI executes one task at a time.|
 | Acceptance| Build, test, lint, governance checks | Failures stop the line.|
@@ -95,7 +95,7 @@ Phases: change_pack, apply_change_pack
 
 Rule:
 
-Change Pack must start with Admission Summary. Admission decision must be one of:
+Change Pack must start with Admission Summary. It must classify `SoT / ADR change required` and `Gate A required` as Yes or No. Admission decision must be one of:
 
 - `READY`
 - `NEEDS_PROPOSAL_REPAIR`
@@ -104,7 +104,7 @@ Change Pack must start with Admission Summary. Admission decision must be one of
 - `ADR_REQUIRED`
 - `OUT_OF_SCOPE`
 
-`READY` uses Fast Path and may include a Truth Patch Candidate and Execution Pack Summary.
+`READY` uses Fast Path. If `SoT / ADR change required` is No, the CPK is generated directly, `Truth Patch Candidate` is `Not required`, and Gate A is not required. If `SoT / ADR change required` is Yes, the CPK may include a Truth Patch Candidate, but Gate A is required before applying it.
 
 Any non-`READY` decision uses Blocked Path and must include:
 
@@ -112,25 +112,26 @@ Any non-`READY` decision uses Blocked Path and must include:
 Truth Patch Candidate: Not generated
 ```
 
-Gate A is required before applying a Truth Patch. Gate B is required only when Closure Decision is:
+Gate A is required before applying any SoT or ADR change. It is not required to generate a CPK or execution docs when existing SoT/ADR already define the required rules. Gate B is required only when Closure Decision is:
 
 ```text
 HUMAN_TRUTH_DECISION_REQUIRED
 ```
 
-Drafting or updating `docs/submit_proposals/SP-*.md` before Gate A is allowed. Gate A controls Truth, ADR, execution docs, code, test, and database changes, not proposal drafting.
+Drafting or updating `docs/submit_proposals/SP-*.md` before Gate A is allowed. Gate A controls SoT and ADR changes, not proposal drafting or CPK generation that does not change SoT/ADR.
 
 Gate A confirmation must be collected as an explicit option choice from the Change Pack's Gate A decision list. An open-ended question is not sufficient.
 
 Validation:
 
 - Blocked Path provides a single Blocking Brief with human decision options.
-- Change Pack provides a bounded Gate A decision list and records the selected option before application.
+- Change Pack records whether SoT/ADR changes and Gate A are required.
+- Change Pack provides a bounded Gate A decision list and records the selected option before applying SoT/ADR changes.
 - AI does not decide conflicts, accept ADRs, or silently retire old Truth.
 
 Stop-the-line if:
 
-- Gate A option selection is missing before Truth changes.
+- Gate A option selection is missing before SoT or ADR changes.
 - Gate B is needed and no human decision exists.
 
 ---
