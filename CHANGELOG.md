@@ -2,6 +2,13 @@
 
 All notable changes to P2T2C are documented here.
 
+## 0.11.0 - 2026-05-29
+
+- Added single_task acceptance self-reporting: every task records `Acceptance scope:` and any retried or stopped failure records a triage label plus retry count.
+- Added R1/R2/R3 to Prompt 05 for task-chain acceptance merging, environment-failure single retry discipline, and four-label failure triage.
+- Added `RULE-GOV-013` to both release roots and let `check_p2t2c.sh` generate phase maps that include it for `single_task` and `acceptance`.
+- Updated execution task templates, migration notes, install/upgrade file lists, checksums, and locks for the `0.11.0` release.
+
 ## 0.10.1 - 2026-05-24
 
 - Refined Gate A routing after SP-to-CPK generation: SPs that do not require SoT/ADR changes stay on Fast Path and generate CPK directly, while SPs that require SoT/ADR changes enter Gate A with explicit human decision options.

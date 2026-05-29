@@ -2,7 +2,7 @@
 
 Status: Active
 Owner: Project maintainers
-Last updated: 2026-05-22
+Last updated: 2026-05-29
 
 ## AI 阅读契约
 
@@ -386,6 +386,36 @@ Stop-the-line if:
 
 - 某 Active 规则缺少 `Phases`，或 `Phases` 含未知 token。
 - Active 层 Rule Block 重新引入 lifecycle 元数据。
+
+### RULE-GOV-013: single_task 自报告纪律
+
+Status: Active
+Phases: single_task, acceptance
+
+Rule:
+
+single_task 阶段的 task 完成记录必须显式说明 acceptance 覆盖范围，并在失败后留下可审计的 triage 记录。
+
+- 每个 task 完成报告和 `tasks.md` 对应 task 必须声明 `Acceptance scope:`，取值为 `single`、`chain-midpoint` 或 `chain-endpoint covering NNN.x-NNN.y`。
+- 链路合并的判定规则、边界和默认值由 `.p2t2c/prompts/05_execute_single_task_prompt.md` 的 R1 承载，不进入本 Rule。
+- 任一 Acceptance、build、test、lint 或 governance check 失败后被重试或停线时，task Actual 必须记录 triage 分类标签和重试次数。
+- triage 分类和处置由 `.p2t2c/prompts/05_execute_single_task_prompt.md` 的 R2/R3 承载；项目栈关键字和工具路径由项目自有 `AGENTS.md` 或等价入口扩展。
+
+Rationale:
+
+Acceptance 合并会降低命令调用次数，但如果不记录合并范围，后续 Closure 无法判断某个 task 是单独验收还是由链路终点覆盖。失败 triage 标签和重试次数让环境性失败、断言失败和崩溃处置可审计，同时避免把项目栈关键字固化进治理 Truth。
+
+Validation:
+
+- `tasks.md` 中每个 task 出现 `Acceptance scope:`。
+- 失败后被重试或停线的 task Actual 包含 `compile_error`、`unit_assertion`、`sandbox_environment` 或 `runtime_crash` 之一，以及重试次数。
+- `make check` 生成的 phase map 在 `single_task` 与 `acceptance` 中包含 `RULE-GOV-013`。
+
+Stop-the-line if:
+
+- task 缺失 `Acceptance scope:`。
+- 失败后重试或停线但 Actual 缺失 triage 分类或重试次数。
+- 实施要求把项目特定关键字或 triage 工具路径写入本 Rule。
 
 ---
 

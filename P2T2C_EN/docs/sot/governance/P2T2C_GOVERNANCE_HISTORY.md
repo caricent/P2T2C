@@ -2,7 +2,7 @@
 
 Status: Reference
 Owner: Project maintainers
-Last updated: 2026-05-24
+Last updated: 2026-05-29
 
 This file holds the lifecycle metadata for the rules in `P2T2C_GOVERNANCE.md` (`Source`, `Supersedes`, `Superseded by`, `Migration required`, rationale, downstream projections), plus any `Superseded`/`Deprecated` rule in full.
 
@@ -192,6 +192,22 @@ Downstream projections:
 - `docs/sot/manifest.yaml`
 - `P2T2C_AGENTS.md`
 - `.p2t2c/prompts/02_generate_change_pack_prompt.md` through `06_acceptance_and_closure_prompt.md`
+
+### RULE-GOV-013
+
+Status: Active
+Source: Maintainer decision on 2026-05-29
+Supersedes: None
+Superseded by: None
+Migration required: Yes, template version `0.11.0`
+
+Rationale: Task-chain acceptance merging and failure triage change when acceptance commands run and how failures are handled. Making `Acceptance scope:`, triage labels, and retry counts a self-reporting contract keeps Closure auditable without putting project-stack keywords into governance.
+
+Downstream projections:
+
+- `.p2t2c/prompts/05_execute_single_task_prompt.md`
+- `.p2t2c/templates/execution/tasks.md`
+- `.p2t2c/bin/check_p2t2c.sh`
 
 ---
 

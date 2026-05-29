@@ -32,8 +32,15 @@ Acceptance:
 
 每条验收步骤标注其所验收的 Truth 规则标识（RULE-GOV-011），与 `spec.md` 中的 EARS 标签一致。
 
+Acceptance scope: `single`
+
 - [ ] `{command}` — Verifies: `{RULE-...}` | Expected: {expected} | Actual: {运行后回填}
 - [ ] Behavior: {预期行为} — Verifies: `{RULE-...}` | Actual: {检查后回填}
+
+Failure Actual 示例：
+
+- `Actual: Fail (unit_assertion, retries: 1) -> fixed by {change}; re-ran {command}; Pass`
+- `Actual: Fail (sandbox_environment, retries: 1) -> re-ran {command}; Pass`
 
 - {如发现 Execution Doc Drift 或 Truth Drift，记录并暂停或留到 Closure。}
 
@@ -45,6 +52,8 @@ Acceptance:
 
 - [ ] 所有 tasks 已完成。
 - [ ] 所有 task Actual 结果已填写。
-- [ ] feature-level build/test/check 已通过。
+- [ ] 所有 task 均声明 `Acceptance scope:`。
+- [ ] 如有失败后重试或停线，相关 task Actual 已记录 triage 分类标签与重试次数。
+- [ ] 项目定义的 feature-level closure command 已通过。
 - [ ] 已生成 Closure Report。
 - [ ] Closure Decision 是以下之一：`CLOSE`、`BACKFILL_EXECUTION_DOCS`、`HUMAN_TRUTH_DECISION_REQUIRED`。

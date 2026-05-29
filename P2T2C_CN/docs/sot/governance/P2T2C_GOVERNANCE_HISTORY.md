@@ -2,7 +2,7 @@
 
 Status: Reference
 Owner: Project maintainers
-Last updated: 2026-05-24
+Last updated: 2026-05-29
 
 本文件保存 `P2T2C_GOVERNANCE.md` 中各规则的 lifecycle 元数据（`Source`、`Supersedes`、`Superseded by`、`Migration required`、理由、下游投射），以及已 `Superseded`/`Deprecated` 的整条规则。
 
@@ -192,6 +192,22 @@ Migration required: Yes, 模板版本 `0.9.0`
 - `docs/sot/manifest.yaml`
 - `P2T2C_AGENTS.md`
 - `.p2t2c/prompts/02_generate_change_pack_prompt.md` 至 `06_acceptance_and_closure_prompt.md`
+
+### RULE-GOV-013
+
+Status: Active
+Source: 维护者决策 2026-05-29
+Supersedes: None
+Superseded by: None
+Migration required: Yes, 模板版本 `0.11.0`
+
+理由: task 链路合并和失败 triage 会改变验收命令的执行时机与失败处置路径。把 `Acceptance scope:`、triage 标签和重试次数作为自报告契约，可以在不把项目栈关键字写入治理层的前提下保持 Closure 可审计。
+
+下游投射:
+
+- `.p2t2c/prompts/05_execute_single_task_prompt.md`
+- `.p2t2c/templates/execution/tasks.md`
+- `.p2t2c/bin/check_p2t2c.sh`
 
 ---
 

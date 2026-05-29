@@ -1,4 +1,4 @@
-version: "0.10.1"
+version: "0.11.0"
 workflow: "P2T2C Exception-Gated Workflow"
 upgrade_model: "ai_readable_safe_upgrade"
 language: "en-US"
@@ -32,6 +32,6 @@ policy:
   managed_docs_language: "English-only inside this release root"
 
 compatibility:
-  new_proposals_after_upgrade: "Use the upgraded P2T2C workflow."
+  new_proposals_after_upgrade: "Use the P2T2C 0.11.0 workflow, recording Acceptance scope and failure triage labels in the single_task phase."
   historical_specs_tasks_closures: "Remain valid historical records."
   reopened_truth_changes: "Require a new Change Pack under the upgraded workflow."

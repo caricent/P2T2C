@@ -39,8 +39,15 @@ Acceptance:
 
 Each acceptance step names the Truth rule identifier it accepts (RULE-GOV-011), matching the EARS tags in `spec.md`.
 
+Acceptance scope: `single`
+
 - [ ] `{command}` — Verifies: `{RULE-...}` | Expected: {expected} | Actual: {fill after run}
 - [ ] Behavior: {expected behavior} — Verifies: `{RULE-...}` | Actual: {fill after check}
+
+Failure Actual examples:
+
+- `Actual: Fail (unit_assertion, retries: 1) -> fixed by {change}; re-ran {command}; Pass`
+- `Actual: Fail (sandbox_environment, retries: 1) -> re-ran {command}; Pass`
 
 Drift notes:
 
@@ -52,8 +59,8 @@ Drift notes:
 
 - [ ] All tasks Done.
 - [ ] All task Actual results filled.
-- [ ] Feature-level build/test/check passed.
+- [ ] Every task declares `Acceptance scope:`.
+- [ ] Any retried or stopped failure has a triage label and retry count in task Actual.
+- [ ] Project-defined feature-level closure command passed.
 - [ ] Closure Report generated.
 - [ ] Closure Decision is one of: `CLOSE`, `BACKFILL_EXECUTION_DOCS`, `HUMAN_TRUTH_DECISION_REQUIRED`.
-
-- [ ] feature-level build
