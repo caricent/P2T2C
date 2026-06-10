@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.12.0 - 2026-06-10
+
+- Replaced the seven-stage per-task workflow with five-stage risk routing: Intent Admission, Risk Routing and Truth, Work Batch Execution, Verification and Repair, and Drift and Closure.
+- Added R0/R1/R2 contracts, persistent `docs/change_packs/CPK-*`, compact R1/R2 execution trios, and mandatory `docs/closure/CR-*` verification summaries.
+- Retired current-workflow requirements for code Rule anchors, per-line EARS Rule tags, phase maps, per-task Actual results, and `Acceptance scope`.
+- Added CPK/spec/CR contract validation, Gate A pending enforcement, bounded repair guidance, release-root parity checks, and the `0.11.0-to-0.12.0` migration.
+
 All notable changes to P2T2C are documented here.
 
 ## 0.11.0 - 2026-05-29

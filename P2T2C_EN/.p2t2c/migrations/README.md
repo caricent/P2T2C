@@ -1,5 +1,7 @@
 # P2T2C Template Migrations
 
+Latest migration: `0.11.0-to-0.12.0.md`, introducing the five-stage risk-routed workflow.
+
 This directory records P2T2C workflow template migrations.
 
 Migration files explain how an older project can safely adopt a newer P2T2C release without modifying project-owned business files.

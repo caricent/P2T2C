@@ -1,82 +1,26 @@
+---
+artifact: execution_spec
+change_pack: docs/change_packs/CPK-YYYYMMDD-short-title.md
+---
+
 # Spec {NNN}: {Feature Name}
 
-Status: Draft | Approved | Implemented
-Last updated: {YYYY-MM-DD}
-Source SP: `{docs/submit_proposals/SP-...}`
-Related ADR: `{docs/adr/ADR-... | None}`
+## Goals and Non-goals
 
----
+- Goal:
+- Non-goal:
 
-## 0. Truth References
+## Truth References
 
-This spec only projects the Truth listed below. It does not add business rules.
-
-| Truth file | Rule IDs / Sections |
+| Truth / ADR | Related rule or decision |
 |---|---|
-| `{docs/sot/...}` | `{RULE-...}` |
+| `{path}` | `{RULE-ID or section}` |
 
-Stop-the-line if:
+## Acceptance Behavior
 
-- Implementation requires rules outside Truth references.
-- Spec conflicts with SoT.
-- Acceptance criteria require behavior not defined by SoT.
+- When {condition}, the system shall {behavior}.
+- The system shall not {prohibited behavior}.
 
----
+## Boundaries
 
-## 1. Background and Goal
-
-### User Story
-
-As a {role}, I want to {behavior}, so that {value}.
-
-### Trigger
-
-{Why do this now?}
-
-### Non-goals
-
-- {What this spec will not do.}
-
----
-
-## 2. Functional Description
-
-{Describe behavior grouped by capability.}
-
----
-
-## 3. Parameters
-
-| Parameter | Allowed values | Default | Description | Truth source |
-|---|---|---|---|---|
-| {name} | {values} | {default} | {desc} | {RULE-ID} |
-
----
-
-## 4. Acceptance Criteria (EARS)
-
-Each statement ends with the Truth rule identifier(s) it verifies (RULE-GOV-011). Every tagged identifier must also appear in section 0 Truth References.
-
-- When {trigger}, the system shall {expected behavior}. [RULE-...]
-- While {state}, the system shall {continuous behavior}. [RULE-...]
-- The system shall not {forbidden behavior}. [RULE-...]
-
----
-
-## 5. Domain Design
-
-Reference or fill in based on project type:
-
-- backend
-- frontend
-- mobile
-- ai
-- data
-
----
-
-## 6. Truth Drift Watchlist
-
-Stop during implementation if any of the following appears:
-
-- {Boundary that may cause Truth Drift}
+- Return to Intent Admission for a new semantic boundary, Truth conflict, or high-risk concern.

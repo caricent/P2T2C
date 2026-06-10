@@ -6,6 +6,8 @@ Last updated: 2026-05-29
 
 本文件保存 `P2T2C_GOVERNANCE.md` 中各规则的 lifecycle 元数据（`Source`、`Supersedes`、`Superseded by`、`Migration required`、理由、下游投射），以及已 `Superseded`/`Deprecated` 的整条规则。
 
+> 0.12.0 起，本文件仅作为只读历史参考。当前治理不再要求 Active/History 双向 lifecycle 图，也不再由 `make check` 校验双向替代关系。`RULE-GOV-010`、`RULE-GOV-011`、`RULE-GOV-012`、`RULE-GOV-013` 已退出当前工作流；替代关系记录在 `0.11.0-to-0.12.0.md` 和 Git 历史中。
+
 默认不读取（见 `docs/sot/manifest.yaml` 的 `forbidden_default_reads`）。仅在历史审计、对比、迁移或冲突排查时读取。
 
 `make check` 会把本文件与 Active 层合并，对完整 lifecycle 图运行 RULE-GOV-009 完整性校验。

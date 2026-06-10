@@ -1,23 +1,16 @@
 # 执行文档
 
-这里存放 P2T2C 的执行文档。
-
-每个功能一个目录：
+R1/R2 在这里保存精简执行三件套：
 
 ```text
-specs/001-feature-name/
+specs/{NNN-feature}/
   spec.md
   plan.md
   tasks.md
 ```
 
-规则：
-
-- `spec.md` must cite Truth.
-- `plan.md` states strategy only; it must not contain full implementation code.
-- `tasks.md` must include acceptance commands and Actual backfill locations.
-
-- `spec.md` 必须引用 Truth。
-- `plan.md` 只写策略，不写完整代码。
-- `tasks.md` 必须包含验收命令和 Actual 回填位置。
-- Acceptance 后必须生成 Closure Report。
+- `spec.md` 必须在 front matter 中引用对应 `docs/change_packs/CPK-*.md`。
+- `plan.md` 记录实现策略、影响范围和风险。
+- `tasks.md` 记录一个可整体验收工作批次内的多个相关 Task 和批次级验收。
+- R0 不创建执行文档。
+- 不要求逐 Task Actual、`Acceptance scope` 或逐条 Rule ID 标签。

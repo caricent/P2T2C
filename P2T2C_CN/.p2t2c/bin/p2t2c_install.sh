@@ -68,6 +68,8 @@ INSTALL_FILES=(
   "docs/adr/README.md"
   "docs/submit_proposals/SP_TEMPLATE.md"
   "docs/submit_proposals/README.md"
+  "docs/change_packs/CPK_TEMPLATE.md"
+  "docs/change_packs/README.md"
   "docs/closure/README.md"
   "docs/reference/README.md"
   "docs/sot/governance/P2T2C_GOVERNANCE.md"
@@ -90,15 +92,14 @@ INSTALL_FILES=(
   ".p2t2c/migrations/0.9.0-to-0.10.0.md"
   ".p2t2c/migrations/0.10.0-to-0.10.1.md"
   ".p2t2c/migrations/0.10.1-to-0.11.0.md"
+  ".p2t2c/migrations/0.11.0-to-0.12.0.md"
   ".p2t2c/migrations/README.md"
-  ".p2t2c/prompts/01_bootstrap_repository_prompt.md"
-  ".p2t2c/prompts/02_generate_change_pack_prompt.md"
-  ".p2t2c/prompts/03_apply_change_pack_prompt.md"
-  ".p2t2c/prompts/04_generate_execution_pack_prompt.md"
-  ".p2t2c/prompts/05_execute_single_task_prompt.md"
-  ".p2t2c/prompts/06_acceptance_and_closure_prompt.md"
+  ".p2t2c/prompts/01_intent_admission_prompt.md"
+  ".p2t2c/prompts/02_risk_routing_and_truth_prompt.md"
+  ".p2t2c/prompts/03_execute_work_batch_prompt.md"
+  ".p2t2c/prompts/04_verify_and_repair_prompt.md"
+  ".p2t2c/prompts/05_drift_and_closure_prompt.md"
   ".p2t2c/templates/adr/ADR_TEMPLATE.md"
-  ".p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md"
   ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md"
   ".p2t2c/templates/execution/plan.md"
   ".p2t2c/templates/execution/spec.md"
@@ -113,7 +114,7 @@ MANAGED_LOCK_FILES=("${INSTALL_FILES[@]}")
 
 is_denied() {
   case "$1" in
-    src/*|tests/*|database/*|package.json|docs/adr/ADR-*.md|docs/submit_proposals/SP-*.md|docs/closure/CR-*.md|specs/*/*)
+    src/*|tests/*|database/*|package.json|docs/adr/ADR-*.md|docs/submit_proposals/SP-*.md|docs/change_packs/CPK-*.md|docs/closure/CR-*.md|specs/*/*)
       return 0
       ;;
     *)

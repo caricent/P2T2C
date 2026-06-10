@@ -1,86 +1,46 @@
 # 模板升级包 — P2T2C {from-version} -> {to-version}
 
-Source release: `{path or URL}`
-
----
+状态：Draft | Applied | Blocked
+来源发行根：`{path or URL}`
 
 ## 升级摘要
 
-governance 能力。}
-
----
+{本次工作流、模板或治理能力变化。}
 
 ## 兼容性
 
-| Item | Decision |
-|---|---|
-| New SPs after upgrade | Use upgraded P2T2C workflow |
-| Existing specs、tasks | Leave unchanged |
-| Historical Closure Reports | Leave unchanged |
-| Project-owned Truth、ADR | Do not modify |
-
 | 项目 | 决策 |
 |---|---|
-| 升级后的新 SP | 使用升级后的 P2T2C 工作流 |
-| 现有 specs、tasks | 保持不变 |
-| 历史 Closure Reports | 保持不变 |
+| 升级后的新工作 | 使用升级后的风险路由工作流 |
+| 历史 SP、CPK、spec、task、CR | 保持不变 |
 | 项目拥有的 Truth、ADR | 不修改 |
 
----
+## 受管文件动作
 
-## 待更新文件
+| 文件 | 动作 |
+|---|---|
+| `{path}` | Update / Create / Remove when lock matches |
 
-| File | Ownership | Action |
-|---|---|---|
-| `{path}` | core-managed / governance-managed | Update / Create |
+## 需人工审查
 
----
-
-## 需人工审查文件
-
-| File | Reason |
+| 文件 | 原因 |
 |---|---|
 | `{path}` | Local modification / conflict |
 
----
+## 项目拥有文件不变
 
-## 项目 Truth 不变
+升级不得修改项目业务 Truth、ADR 实例、SP 实例、CPK 实例、spec、代码、测试、数据库文件或历史 CR。
 
-升级绝不能修改：
-
-- `docs/sot/product/**`
-- `docs/sot/data/**`
-- `docs/sot/api/**`
-- `docs/sot/client/**`
-- `docs/sot/server/**`
-- `docs/sot/ai/**`
-- `docs/sot/testing/**`
-- `docs/adr/**`
-- `specs/**`
-- `src/**`
-- `tests/**`
-
----
-
-## 验证命令
+## 验证
 
 ```bash
 bash .p2t2c/bin/check_p2t2c.sh
-```
-
-模板源包可选：
-
-```bash
 shasum -a 256 -c .p2t2c/CHECKSUMS.sha256
 ```
 
----
+## 收口
 
-## 升级收口
-
-决策: CLOSE | MANUAL_CONFLICT_RESOLUTION_REQUIRED
-
-回滚命令：
+决策：CLOSE | MANUAL_CONFLICT_RESOLUTION_REQUIRED
 
 ```bash
 bash .p2t2c/bin/p2t2c_upgrade.sh --rollback .p2t2c/upgrade/{upgrade-id}

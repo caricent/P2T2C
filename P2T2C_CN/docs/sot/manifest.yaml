@@ -1,27 +1,40 @@
-workflow: P2T2C Exception-Gated Workflow
+workflow: P2T2C Risk-Routed Workflow
 language: zh-CN
 supported_languages:
   - zh-CN
 language_policy: monolingual_release_root
 status: template
+
 truth_root: docs/sot
 proposal_root: docs/submit_proposals
+change_pack_root: docs/change_packs
 adr_root: docs/adr
 spec_root: specs
+closure_root: docs/closure
 reference_root: docs/reference
 
 canonical_entries:
   human: P2T2C_README.md
   ai: P2T2C_AGENTS.md
 
+risk_levels:
+  - R0
+  - R1
+  - R2
+
+workflow_stages:
+  - intent_admission
+  - risk_routing_truth
+  - work_batch_execution
+  - verification_repair
+  - drift_closure
+
 human_gates:
-  gate_a: Apply SoT/ADR changes
+  gate_a: Decide unresolved R2 semantics
   gate_b: Resolve Truth Drift
 
 closure_decisions:
   - CLOSE
-  - BACKFILL_EXECUTION_DOCS
-  - HUMAN_TRUTH_DECISION_REQUIRED
 
 truth_documents:
   governance:
@@ -29,26 +42,6 @@ truth_documents:
   governance_history:
     - docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md
   project_specific: []
-
-# RULE-GOV-012: phase-scoped reading. AI reads only the rules a phase needs.
-# The phase->rule map is derived from each rule's `Phases` field by
-# `make check` and written to the generated map below; never hand-maintained.
-phases:
-  - bootstrap
-  - change_pack
-  - apply_change_pack
-  - execution_pack
-  - single_task
-  - acceptance
-  - install_upgrade
-  - all
-phase_rule_map: .p2t2c/generated/phase_rules.txt
-
-notes:
-  language_policy: "受管工作流文档在本发行根内保持中文单语。"
-  project_specific_truth: "只有当项目在某个领域已有当前规则时，才在 docs/sot/** 下添加真实 SoT 文件。"
-  placeholder_domain_sot: "不随模板发布空的领域 SoT 占位文件。"
-  phase_scoped_reading: "AI 按 phase token 从 phase_rule_map 读取治理规则子集，不通读 governance 全文。"
 
 forbidden_default_reads:
   - docs/reference/

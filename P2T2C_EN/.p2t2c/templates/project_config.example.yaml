@@ -1,19 +1,15 @@
 project:
   name: "YourProject"
-  description: "Replace with your project description"
-  workflow: "P2T2C Exception-Gated Workflow"
+  description: "Replace with project description"
+  workflow: "P2T2C Risk-Routed Workflow"
   language: "en-US"
-  supported_languages:
-    - "en-US"
   language_policy: "monolingual_release_root"
-  language_note: "This project uses the English P2T2C release root."
 
 roots:
-  truth: "docs/sot"
   proposals: "docs/submit_proposals"
-  adr: "docs/adr"
+  change_packs: "docs/change_packs"
   specs: "specs"
-  reference: "docs/reference"
+  closures: "docs/closure"
 
 technology_stack:
   backend: "TBD"
@@ -24,30 +20,22 @@ technology_stack:
   testing: "TBD"
 
 p2t2c:
-  default_mode: "single_path_exception_gated"
+  default_mode: "risk_routed"
+  risk_levels:
+    - "R0"
+    - "R1"
+    - "R2"
   human_gates:
-    gate_a: "Apply SoT/ADR changes"
+    gate_a: "Decide unresolved R2 semantics"
     gate_b: "Resolve Truth Drift"
   closure_decisions:
     - "CLOSE"
-    - "BACKFILL_EXECUTION_DOCS"
-    - "HUMAN_TRUTH_DECISION_REQUIRED"
-  stop_the_line_conditions:
-    - "Proposal ambiguous"
-    - "Proposal conflicts with Truth"
-    - "Proposal conflicts with implemented Truth"
-    - "ADR required"
-    - "AI must invent a new rule"
-    - "Plan invalid during coding"
-    - "Acceptance failed"
-    - "Code leads or changes Truth"
+  autonomous_repair:
+    same_failure_fix_rounds: 2
+    environment_retry_count: 1
 
 agent_policy:
   default_forbidden_reads:
     - "docs/reference"
   business_rules_allowed_only_in:
     - "docs/sot"
-  coding_requires:
-    - "spec.md"
-    - "plan.md"
-    - "tasks.md"

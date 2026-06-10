@@ -8,7 +8,7 @@ This file holds the lifecycle metadata for the rules in `P2T2C_GOVERNANCE.md` (`
 
 Not read by default (see `forbidden_default_reads` in `docs/sot/manifest.yaml`). Consult only for historical audit, comparison, migration, or conflict triage.
 
-`make check` merges this file with the Active layer and runs the RULE-GOV-009 integrity scan over the full lifecycle graph.
+Starting with 0.12.0, this file is read-only historical reference. Current governance no longer requires an Active/History bidirectional lifecycle graph or validates bidirectional supersession in `make check`. `RULE-GOV-010`, `RULE-GOV-011`, `RULE-GOV-012`, and `RULE-GOV-013` have left the current workflow; their replacement is recorded in `0.11.0-to-0.12.0.md` and Git history.
 
 ---
 

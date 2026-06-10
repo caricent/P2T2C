@@ -1,5 +1,5 @@
-version: "0.11.0"
-workflow: "P2T2C Exception-Gated Workflow"
+version: "0.12.0"
+workflow: "P2T2C Risk-Routed Workflow"
 upgrade_model: "ai_readable_safe_upgrade"
 language: "en-US"
 supported_languages:
@@ -20,9 +20,10 @@ canonical_entries:
   ai: "P2T2C_AGENTS.md"
 
 policy:
+  default_mode: "risk_routed"
+  risk_levels: "R0,R1,R2"
+  workflow_stages: "intent_admission,risk_routing_truth,work_batch_execution,verification_repair,drift_closure"
   dry_run_required: true
-  default_source: "local_release_path"
-  network_download: false
   project_owned_files_are_read_only: true
   conflicts_stop_apply: true
   obsolete_managed_files_removed_when_lock_matches: true
@@ -32,6 +33,6 @@ policy:
   managed_docs_language: "English-only inside this release root"
 
 compatibility:
-  new_proposals_after_upgrade: "Use the P2T2C 0.11.0 workflow, recording Acceptance scope and failure triage labels in the single_task phase."
-  historical_specs_tasks_closures: "Remain valid historical records."
-  reopened_truth_changes: "Require a new Change Pack under the upgraded workflow."
+  new_work_after_upgrade: "New work uses the 0.12.0 risk-routed workflow."
+  historical_artifacts: "Historical SPs, CPKs, specs, tasks, and CRs remain valid without forced migration."
+  project_truth: "Upgrade must not modify project-owned Truth or ADRs."

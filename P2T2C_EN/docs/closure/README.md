@@ -1,23 +1,11 @@
 # Closure Reports
 
-A Closure Report is the closing document after Acceptance.
-
-It answers three questions:
-
-1. Did acceptance pass?
-2. Does code match spec / plan / tasks?
-3. Does code lead or violate Truth?
-
-The decision must be exactly one of:
+Every completed R0, R1, and R2 change creates:
 
 ```text
-CLOSE
-BACKFILL_EXECUTION_DOCS
-HUMAN_TRUTH_DECISION_REQUIRED
+CR-YYYYMMDD-short-title.md
 ```
 
-Suggested location for actual Closure Reports:
+A CR uses YAML front matter to record risk, CPK, execution pack, Truth Drift, and the `CLOSE` decision. Its body records actual verification commands, results, reasons for skipped checks, and remaining risks.
 
-```text
-docs/closure/CR-YYYYMMDD-feature-name.md
-```
+AI automatically backfills Execution Doc Drift. Truth Drift must be resolved through Gate B before closing with `CLOSE`.

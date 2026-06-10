@@ -1,97 +1,26 @@
 # SP-{YYYYMMDD}-{short-title}
 
-Status: Draft | Accepted | Rejected | Implemented
-Owner: {name}
-Created at: {YYYY-MM-DD}
-Proposal type: Idea | Requirement | Decision | Correction | Implementation Request | Experiment
+## Intent
 
----
+{Describe the goal in one sentence.}
 
-## 1. One-line Requirement
+## Final Requirements
 
-{Describe in one sentence what should be added or changed.}
+- {Clear rule or outcome}
 
----
+## Non-goals
 
-## 2. Background
+- {What this change will not do}
 
-Why now? What is the current problem?
+## Known Constraints and Open Decisions
 
----
+- Related Truth / ADR: None
+- Human choices required: None
 
-## 3. Final Requirement
+## Initial Acceptance
 
-Write final rules, not multiple vague alternatives.
+- When {condition}, the system shall {outcome}.
 
-- {rule 1}
-- {rule 2}
-- {rule 3}
+## AI Handling Request
 
----
-
-## 4. Non-goals
-
-Explicitly out of scope:
-
-- {non-goal 1}
-- {non-goal 2}
-
----
-
-## 5. Assumptions and Open Decisions
-
-Known assumptions:
-
-- {known assumption; write None if empty}
-
-Open decisions:
-
-- {human decision needed; write None if empty}
-
-Known affected Rule IDs:
-
-- {affected RULE-ID; write None if empty}
-
-Known implementation impact:
-
-- {affected code}
-
----
-
-## 6. Initial Impact Review
-
-| Area | Impact | Notes |
-|---|---|---|
-| Product | Yes/No |  |
-| Architecture | Yes/No |  |
-| Data | Yes/No |  |
-| API | Yes/No |  |
-| Client | Yes/No |  |
-| Server | Yes/No |  |
-| AI / Prompt | Yes/No |  |
-| Testing | Yes/No |  |
-| Security / Privacy | Yes/No |  |
-
----
-
-## 7. Known Conflicts with Existing Truth
-
-- {write None if empty}
-
----
-
-## 8. Initial Acceptance Criteria
-
-- When {trigger}, the system shall {expected behavior}.
-- The system shall not {forbidden behavior}.
-- Counterexample: {behavior that must not be accepted or happen; write None if empty}
-
----
-
-## 9. AI Handling Request
-
-Please generate a Change Pack from this SP.
-
-Creating or updating this `SP-*.md` file is allowed before Gate A. Before Gate A, do not modify Truth, ADRs, execution docs, code, tests, or database files.
-
-If this SP does not require SoT or ADR changes, generate the CPK through Fast Path directly. If it requires SoT or ADR changes, enter Gate A and present a bounded option choice for the human decision instead of an open-ended question.
+Enter Intent Admission and Risk Routing. Only undecided R2 semantics require Gate A.

@@ -1,47 +1,38 @@
-ownership_model: "P2T2C safe upgrade ownership"
 language_policy: "English-only language-specific release root"
 
 core_managed:
-  description: "P2T2C core templates, prompts, execution templates, and scripts. Internal assets live under .p2t2c except user-copyable entry templates. Safe to auto-upgrade when not locally modified."
+  description: "Internal prompts, templates, and scripts; safely upgradeable when unmodified."
   paths:
     - ".p2t2c/prompts/**"
     - ".p2t2c/templates/**"
-    - ".p2t2c/templates/adr/ADR_TEMPLATE.md"
-    - ".p2t2c/templates/execution/**"
-    - ".p2t2c/bin/check_p2t2c.sh"
-    - ".p2t2c/bin/p2t2c_install.sh"
-    - ".p2t2c/bin/p2t2c_upgrade.sh"
+    - ".p2t2c/bin/**"
     - "docs/submit_proposals/SP_TEMPLATE.md"
+    - "docs/change_packs/CPK_TEMPLATE.md"
 
 governance_managed:
-  description: "P2T2C governance, entrypoints, metadata, and template docs. Upgrade only when unchanged since last lock."
+  description: "P2T2C governance, entries, metadata, and directory guidance; upgradeable when unmodified."
   paths:
     - "P2T2C_AGENTS.md"
+    - "P2T2C_README.md"
     - ".p2t2c/CHECKSUMS.sha256"
     - ".p2t2c/VERSION"
-    - "P2T2C_README.md"
     - ".p2t2c/P2T2C_LICENSE.md"
     - ".p2t2c/templates/project_config.example.yaml"
-    - "docs/adr/README.md"
-    - "docs/submit_proposals/README.md"
-    - "docs/closure/README.md"
-    - "docs/reference/README.md"
-    - "docs/sot/governance/P2T2C_GOVERNANCE.md"
-    - "docs/sot/manifest.yaml"
-    - "specs/README.md"
     - ".p2t2c/manifest.yaml"
     - ".p2t2c/ownership.yaml"
     - ".p2t2c/migrations/**"
-
-obsolete_managed:
-  description: "Former P2T2C-managed files removed when their lock hash proves they were not locally modified."
-  sources:
-    - ".p2t2c/migrations/0.2.0-to-0.3.0.md"
-    - ".p2t2c/migrations/0.5.0-to-0.6.0.md"
-    - ".p2t2c/migrations/0.6.0-to-0.7.0.md"
+    - "docs/adr/README.md"
+    - "docs/submit_proposals/README.md"
+    - "docs/change_packs/README.md"
+    - "docs/closure/README.md"
+    - "docs/reference/README.md"
+    - "docs/sot/governance/P2T2C_GOVERNANCE.md"
+    - "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md"
+    - "docs/sot/manifest.yaml"
+    - "specs/README.md"
 
 project_owned:
-  description: "Project business truth, implementation, and historical artifacts. Upgrade scripts must never write these paths unless removing an unchanged obsolete template placeholder listed by migration."
+  description: "Upgrade must not write project business Truth, artifact instances, implementation, or tests."
   paths:
     - "docs/sot/product/**"
     - "docs/sot/data/**"
@@ -52,6 +43,7 @@ project_owned:
     - "docs/sot/testing/**"
     - "docs/adr/ADR-*.md"
     - "docs/submit_proposals/SP-*.md"
+    - "docs/change_packs/CPK-*.md"
     - "docs/closure/CR-*.md"
     - "specs/**"
     - "src/**"

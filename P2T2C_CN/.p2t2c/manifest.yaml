@@ -1,5 +1,5 @@
-version: "0.11.0"
-workflow: "P2T2C Exception-Gated Workflow"
+version: "0.12.0"
+workflow: "P2T2C Risk-Routed Workflow"
 upgrade_model: "ai_readable_safe_upgrade"
 language: "zh-CN"
 supported_languages:
@@ -20,9 +20,10 @@ canonical_entries:
   ai: "P2T2C_AGENTS.md"
 
 policy:
+  default_mode: "risk_routed"
+  risk_levels: "R0,R1,R2"
+  workflow_stages: "intent_admission,risk_routing_truth,work_batch_execution,verification_repair,drift_closure"
   dry_run_required: true
-  default_source: "local_release_path"
-  network_download: false
   project_owned_files_are_read_only: true
   conflicts_stop_apply: true
   obsolete_managed_files_removed_when_lock_matches: true
@@ -32,6 +33,6 @@ policy:
   managed_docs_language: "本发行根内使用中文单语受管文档"
 
 compatibility:
-  new_proposals_after_upgrade: "升级后的新提案使用 P2T2C 0.11.0 工作流，并在 single_task 阶段记录 Acceptance scope 与失败 triage 标签。"
-  historical_specs_tasks_closures: "历史 spec、task 和 Closure Report 仍是有效历史记录。"
-  reopened_truth_changes: "重新打开的 Truth 变更必须在升级后的工作流下创建新的 Change Pack。"
+  new_work_after_upgrade: "新工作使用 0.12.0 风险路由工作流。"
+  historical_artifacts: "历史 SP、CPK、spec、task 和 CR 保持有效，不强制迁移。"
+  project_truth: "升级不得修改项目拥有的 Truth 或 ADR。"

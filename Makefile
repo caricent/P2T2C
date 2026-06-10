@@ -1,12 +1,15 @@
-.PHONY: check check-en check-cn checksums
+.PHONY: check check-en check-cn check-parity checksums
 
-check: check-en check-cn
+check: check-en check-cn check-parity
 
 check-en:
 	$(MAKE) -C P2T2C_EN check
 
 check-cn:
 	$(MAKE) -C P2T2C_CN check
+
+check-parity:
+	bash scripts/check_release_parity.sh
 
 checksums:
 	cd P2T2C_EN && shasum -a 256 -c .p2t2c/CHECKSUMS.sha256

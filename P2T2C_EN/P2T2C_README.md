@@ -1,30 +1,35 @@
-# P2T2C Workflow Template
+# P2T2C Risk-Routed Workflow
 
-P2T2C means **Proposal-to-Truth-to-Code**.
-
-Abbreviations: SP = Submit Proposal (the human-authored proposal, filename `SP-YYYYMMDD-...`); CPK = Change Pack (the AI-generated candidate pack). They no longer share the CP abbreviation.
-
-P2T2C helps developers collaborate with AI without letting requirements, authoritative Truth, implementation plans, code changes, and acceptance results drift apart. It keeps AI productive while preventing it from changing business rules without confirmation or Truth support.
+P2T2C means **Proposal-to-Truth-to-Code**. It lets AI continue by default while concentrating human decisions on undecided semantics and Truth Drift.
 
 ```text
-Proposal -> Change Pack -> Gate A when SoT/ADR changes are needed -> Truth Patch if needed + Execution Pack -> Coding -> Acceptance -> Closure Report
+Intent Admission
+  -> Risk Routing and Truth
+  -> Work Batch Execution
+  -> Verification and Repair
+  -> Drift and Closure
 ```
 
-Default behavior: AI keeps moving. It pauses only for explicit gates, conflicts, missing Truth, failed acceptance, or Truth Drift.
+The AI entry point is `P2T2C_AGENTS.md`.
 
-Language policy: this release root is English-only for managed workflow documents. Use `../P2T2C_CN/` for the Chinese release. Stable workflow tokens, paths, commands, status values, CLI flags, and shell runtime output remain English.
+## Risk Levels
 
-For AI agents, the only operational entry is:
+| Level | Applies to | Persistent artifacts |
+|---|---|---|
+| R0 | Refactoring, tests, docs, CI, restoring existing behavior | `CR-*` |
+| R1 | Implementing behavior already covered by Truth | `CPK-*`, compact trio, `CR-*` |
+| R2 | Changing Truth, ADRs, external contracts, data semantics, security, permissions, or irreversible operations | Complete `CPK-*`, Truth Patch, compact trio, `CR-*` |
 
-```text
-P2T2C_AGENTS.md
-```
+`SP-*` is an optional intent input, not a requirement for every task. R1/R2 CPKs live in `docs/change_packs/`; execution docs live in `specs/{NNN-feature}/`; every completed change creates a CR in `docs/closure/`.
 
----
+## Human Gates
 
-## 1. First Setup
+- Gate A: only for undecided R2 semantics. Do not request duplicate approval when the current instruction already decides them.
+- Gate B: only when implementation changes, extends, or violates Truth.
 
-Install from the English P2T2C release root into a target project:
+The first verification failure does not immediately stop work. AI diagnoses and repairs within the agreed boundary, pausing only for new decisions, dangerous operations, external permissions, or repeated failure.
+
+## First Install
 
 ```bash
 cd /path/to/P2T2C_EN
@@ -32,119 +37,33 @@ make p2t2c-install-dry-run TARGET=/path/to/project
 make p2t2c-install TARGET=/path/to/project
 ```
 
-Then enter the target project and create the project config:
+Then copy and edit project configuration:
 
 ```bash
-cd /path/to/project
 cp .p2t2c/templates/project_config.example.yaml .p2t2c/project_config.yaml
-```
-
-Edit `.p2t2c/project_config.yaml` and fill in the project name, description, language, and technology stack.
-
-Then run:
-
-```bash
 bash .p2t2c/bin/check_p2t2c.sh
 ```
 
-Expected result:
+## Upgrade
 
-```text
-P2T2C checks passed.
-```
-
----
-
-## 2. Human workflow
-
-1. Write or ask AI to draft a Submit Proposal as `docs/submit_proposals/SP-YYYYMMDD-...md`.
-2. Ask AI to generate a Change Pack from the SP.
-3. If the CPK does not require SoT or ADR changes, continue directly to execution docs.
-4. If the CPK requires SoT or ADR changes, review Gate A by choosing one of AI's options: approve and apply the Truth Patch, revise, reject, split, resolve the proposal, or handle ADR work.
-5. Let AI generate `spec.md`, `plan.md`, and `tasks.md`.
-6. Let AI execute one task at a time.
-7. Review the Closure Report only if it reports Truth Drift.
-
-Gate B is only needed when Closure Decision is:
-
-```text
-HUMAN_TRUTH_DECISION_REQUIRED
-```
-
----
-
-## 3. Install into Another Project
-
-Use this only for a project that has never used P2T2C.
-
-Dry-run first:
+From the target project root, invoke the new release script:
 
 ```bash
-make p2t2c-install-dry-run TARGET=/path/to/project
-```
-
-After reviewing the output:
-
-```bash
-make p2t2c-install TARGET=/path/to/project
-```
-
-Install copies missing workflow harness files only. It does not overwrite existing files, rewrite business documents, infer Truth, or edit source code.
-
----
-
-## 4. Upgrade an Existing P2T2C Project
-
-Run upgrade commands from the target project root, but invoke the upgrade script from this release root.
-
-Dry-run first:
-
-```bash
-cd /path/to/project
 /path/to/P2T2C_EN/.p2t2c/bin/p2t2c_upgrade.sh --dry-run --source /path/to/P2T2C_EN
-```
-
-After reviewing the output:
-
-```bash
 /path/to/P2T2C_EN/.p2t2c/bin/p2t2c_upgrade.sh --apply --source /path/to/P2T2C_EN
 ```
 
-Rollback an applied upgrade:
+Upgrade changes only unmodified managed workflow files and preserves project-owned Truth, ADRs, SPs, CPKs, specs, code, tests, and historical CRs.
 
-```bash
-make p2t2c-rollback UPGRADE=.p2t2c/upgrade/{upgrade-id}
-```
-
-Projects that maintain their own Makefile aliases may continue using those aliases; new installs do not create a root-level Makefile.
-
-Upgrade scripts may update workflow, template, prompt, governance, and metadata files when unchanged since the last lock. They must not modify project-owned Truth, ADRs, specs, source code, tests, database files, or historical Closure Reports.
-
----
-
-## 5. Directory Map
-
-After installation, P2T2C keeps `P2T2C_README.md` and `P2T2C_AGENTS.md` at the project root as entry files, and exposes only `docs/` and `specs/` as daily work surfaces. Prompts, templates, scripts, checksums, license, and migration notes live under hidden `.p2t2c/`.
+## Directories
 
 | Path | Responsibility |
 |---|---|
-| `P2T2C_README.md` | Human entry |
-| `P2T2C_AGENTS.md` | AI operational entry |
-| `.p2t2c/P2T2C_LICENSE.md` | MIT license notice for standalone release-root copies |
-| `.p2t2c/templates/project_config.example.yaml` | Project config template |
-| `.p2t2c/CHECKSUMS.sha256` | Release file checksums |
-| `.p2t2c/` | Template metadata, ownership, and lock state |
-| `.p2t2c/bin/` | Check, install, upgrade, rollback |
-| `docs/submit_proposals/` | Proposal templates and SPs |
-| `docs/adr/` | Accepted architectural or policy decision records |
-| `docs/sot/` | Current project Truth |
-| `docs/sot/governance/P2T2C_GOVERNANCE.md` | Canonical P2T2C governance Truth |
-| `docs/closure/` | Closure Reports |
-| `docs/reference/` | Historical reference only; not read by default |
-| `.p2t2c/templates/execution/` | Spec / Plan / Tasks templates |
-| `specs/` | Feature execution documents |
-| `.p2t2c/templates/` | Reusable P2T2C artifact templates |
-| `.p2t2c/prompts/` | Stage prompts for AI agents |
-| `.p2t2c/migrations/` | Template migration notes |
-
-Business rules belong in `docs/sot/`. ADRs explain why decisions were made. Specs, plans, tasks, prompts, tests, and code must not become the only source of a business rule.
+| `P2T2C_AGENTS.md` | AI entry point |
+| `docs/sot/**` | Current business Truth |
+| `docs/adr/**` | Decision reasons and consequences |
+| `docs/submit_proposals/**` | Optional SP input |
+| `docs/change_packs/**` | R1/R2 CPKs |
+| `specs/**` | R1/R2 compact execution trio |
+| `docs/closure/**` | CRs for every completed change |
+| `.p2t2c/**` | Prompts, internal templates, scripts, and upgrade metadata |

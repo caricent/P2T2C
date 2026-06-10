@@ -1,64 +1,25 @@
 # Plan {NNN}: {Feature Name}
 
 Based on: `spec.md`
-Generated at: {YYYY-MM-DD}
 
----
+## Implementation Strategy
 
-## 1. Implementation Strategy
+{One sentence describing the overall strategy.}
 
-{One sentence describing the strategy, for example: data layer before UI, mock loop before real integration.}
+## Impact
 
----
-
-## 2. Phase Breakdown
-
-```text
-Phase 1: {phase name} - {one-sentence goal}
-Phase 2: {phase name} - {one-sentence goal}
-Phase 3: {phase name} - {one-sentence goal}
-```
-
----
-
-## 3. Key Technical Decisions
-
-| Decision | Reason | Truth / Spec Reference |
+| Module or file | Action | Responsibility |
 |---|---|---|
-| {decision} | {reason} | {link} |
+| `{path}` | Add / Modify |  |
 
----
-
-## 4. Data Flow
-
-Use pseudocode or a flow diagram. Do not write full implementation code.
-
-```text
-input -> module -> output
-```
-
----
-
-## 5. Files Involved
-
-| File | Action | Responsibility |
-|---|---|---|
-| `{path}` | Add / Modify | {responsibility} |
-
----
-
-## 6. Risks and Fallbacks
+## Risks and Handling
 
 | Risk | Handling |
 |---|---|
-| {risk} | {handling} |
+|  |  |
 
----
+## Verification Strategy
 
-## 7. Test Strategy
-
-| Level | Tool / Command | Coverage |
+| Check | Command or step | Coverage |
 |---|---|---|
-| Unit | {command} | {coverage} |
-| Integration | {command} | {coverage} |
-| E2E / Manual | {steps} | {coverage} |
+| Build / Test / Lint / Typecheck / Governance |  |  |

@@ -1,21 +1,28 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-missing=0
+errors=0
+
+error() {
+  echo "ERROR: $*" >&2
+  errors=1
+}
 
 required=(
   "P2T2C_AGENTS.md"
+  "P2T2C_README.md"
   ".p2t2c/CHECKSUMS.sha256"
   ".p2t2c/VERSION"
   ".p2t2c/manifest.yaml"
   ".p2t2c/ownership.yaml"
   ".p2t2c/lock.sha256"
-  "P2T2C_README.md"
   ".p2t2c/P2T2C_LICENSE.md"
   ".p2t2c/templates/project_config.example.yaml"
   "docs/adr/README.md"
   "docs/submit_proposals/SP_TEMPLATE.md"
   "docs/submit_proposals/README.md"
+  "docs/change_packs/CPK_TEMPLATE.md"
+  "docs/change_packs/README.md"
   "docs/closure/README.md"
   "docs/reference/README.md"
   "docs/sot/governance/P2T2C_GOVERNANCE.md"
@@ -26,26 +33,13 @@ required=(
   ".p2t2c/bin/p2t2c_install.sh"
   ".p2t2c/bin/p2t2c_upgrade.sh"
   ".p2t2c/migrations/README.md"
-  ".p2t2c/migrations/0.1.0-to-0.2.0.md"
-  ".p2t2c/migrations/0.2.0-to-0.3.0.md"
-  ".p2t2c/migrations/0.3.0-to-0.4.0.md"
-  ".p2t2c/migrations/0.4.0-to-0.5.0.md"
-  ".p2t2c/migrations/0.5.0-to-0.6.0.md"
-  ".p2t2c/migrations/0.6.0-to-0.7.0.md"
-  ".p2t2c/migrations/0.7.0-to-0.8.0.md"
-  ".p2t2c/migrations/0.8.0-to-0.8.1.md"
-  ".p2t2c/migrations/0.8.1-to-0.9.0.md"
-  ".p2t2c/migrations/0.9.0-to-0.10.0.md"
-  ".p2t2c/migrations/0.10.0-to-0.10.1.md"
-  ".p2t2c/migrations/0.10.1-to-0.11.0.md"
-  ".p2t2c/prompts/01_bootstrap_repository_prompt.md"
-  ".p2t2c/prompts/02_generate_change_pack_prompt.md"
-  ".p2t2c/prompts/03_apply_change_pack_prompt.md"
-  ".p2t2c/prompts/04_generate_execution_pack_prompt.md"
-  ".p2t2c/prompts/05_execute_single_task_prompt.md"
-  ".p2t2c/prompts/06_acceptance_and_closure_prompt.md"
+  ".p2t2c/migrations/0.11.0-to-0.12.0.md"
+  ".p2t2c/prompts/01_intent_admission_prompt.md"
+  ".p2t2c/prompts/02_risk_routing_and_truth_prompt.md"
+  ".p2t2c/prompts/03_execute_work_batch_prompt.md"
+  ".p2t2c/prompts/04_verify_and_repair_prompt.md"
+  ".p2t2c/prompts/05_drift_and_closure_prompt.md"
   ".p2t2c/templates/adr/ADR_TEMPLATE.md"
-  ".p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md"
   ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md"
   ".p2t2c/templates/execution/spec.md"
   ".p2t2c/templates/execution/plan.md"
@@ -56,24 +50,27 @@ required=(
   ".p2t2c/templates/upgrade/TEMPLATE_UPGRADE_PACK_TEMPLATE.md"
 )
 
-for f in "${required[@]}"; do
-  if [[ ! -f "$f" ]]; then
-    echo "ERROR: missing required file: $f"
-    missing=1
-  fi
+for file in "${required[@]}"; do
+  [[ -f "$file" ]] || error "missing required file: $file"
 done
 
 check_phrase() {
   local file="$1" phrase="$2"
-  if [[ -f "$file" ]] && ! grep -q -- "$phrase" "$file"; then
-    echo "ERROR: $file missing phrase: $phrase"
-    missing=1
-  fi
+  [[ -f "$file" ]] || return
+  grep -q -- "$phrase" "$file" || error "$file missing phrase: $phrase"
 }
+
+check_phrase ".p2t2c/VERSION" "0.12.0"
+check_phrase ".p2t2c/manifest.yaml" 'version: "0.12.0"'
+check_phrase ".p2t2c/manifest.yaml" 'risk_levels: "R0,R1,R2"'
+check_phrase "docs/sot/manifest.yaml" "change_pack_root: docs/change_packs"
+check_phrase "docs/sot/manifest.yaml" "intent_admission"
+check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-009"
+check_phrase "docs/change_packs/CPK_TEMPLATE.md" "artifact: change_pack"
+check_phrase ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md" "artifact: closure_report"
 
 obsolete_list() {
   local migration="$1"
-  [[ -f "$migration" ]] || return 0
   awk '
     /BEGIN_OBSOLETE_MANAGED/ { in_list=1; next }
     /END_OBSOLETE_MANAGED/ { in_list=0; next }
@@ -83,305 +80,160 @@ obsolete_list() {
 
 managed_lock_hash() {
   local rel="$1"
-  local lock_file=".p2t2c/lock.sha256"
-  [[ -f "$lock_file" ]] || return 0
-  awk -v path="$rel" '$2 == path {print $1}' "$lock_file" | tail -n 1
+  awk -v path="$rel" '$2 == path {print $1}' .p2t2c/lock.sha256 2>/dev/null | tail -n 1
 }
 
-for migration in ".p2t2c/migrations/0.2.0-to-0.3.0.md" ".p2t2c/migrations/0.5.0-to-0.6.0.md" ".p2t2c/migrations/0.6.0-to-0.7.0.md" ".p2t2c/migrations/0.8.0-to-0.8.1.md"; do
+for migration in .p2t2c/migrations/*.md; do
+  [[ -f "$migration" ]] || continue
   while IFS= read -r obsolete; do
-    [[ -z "$obsolete" ]] && continue
-    locked_hash="$(managed_lock_hash "$obsolete" || true)"
-    if [[ -n "$locked_hash" && -e "$obsolete" ]]; then
-      echo "ERROR: obsolete file still exists: $obsolete"
-      missing=1
-    fi
-    if [[ "$obsolete" == */* ]]; then
-      matches="$(grep -rnF --exclude-dir=.git --exclude-dir=migrations --exclude-dir=reference -e "$obsolete" . || true)"
-      matches="$(printf "%s\n" "$matches" | grep -v -- ".p2t2c/$obsolete" || true)"
-      if [[ -n "$matches" ]]; then
-        echo "ERROR: obsolete file is referenced outside migration notes: $obsolete"
-        missing=1
-      fi
+    [[ -n "$obsolete" ]] || continue
+    if [[ -n "$(managed_lock_hash "$obsolete")" && -e "$obsolete" ]]; then
+      error "obsolete locked managed file still exists: $obsolete"
     fi
   done < <(obsolete_list "$migration")
 done
 
-# SP and ADR instance files are project-owned artifacts. They are valid in
-# installed projects, so the shared checker must not reject them.
+language="$(awk -F': *' '$1 == "language" {print $2; exit}' docs/sot/manifest.yaml 2>/dev/null || true)"
+case "$language" in
+  en-US)
+    check_phrase "P2T2C_README.md" "Risk-Routed Workflow"
+    check_phrase "P2T2C_AGENTS.md" "AI Entry Point"
+    if perl -MFile::Find -CSD -e '
+      my $found=0; find({wanted=>sub{return if $found || !-f $_; open my $f,"<:encoding(UTF-8)",$_ or return; while(<$f>){if(/\p{Han}/){$found=1;last}}},no_chdir=>1}, @ARGV); exit($found?0:1)
+    ' P2T2C_AGENTS.md P2T2C_README.md docs .p2t2c/prompts .p2t2c/templates 2>/dev/null; then
+      error "English release root contains CJK text in managed docs"
+    fi
+    ;;
+  zh-CN)
+    check_phrase "P2T2C_README.md" "风险路由工作流"
+    check_phrase "P2T2C_AGENTS.md" "AI 操作入口"
+    ;;
+  *)
+    error "unknown docs/sot/manifest.yaml language: $language"
+    ;;
+esac
 
-language="unknown"
-if [[ -f "docs/sot/manifest.yaml" ]]; then
-  language="$(awk -F': *' '$1 == "language" {print $2; exit}' docs/sot/manifest.yaml)"
-fi
-
-check_phrase ".p2t2c/VERSION" "0.11.0"
-check_phrase "docs/sot/manifest.yaml" "language_policy: monolingual_release_root"
-check_phrase ".p2t2c/manifest.yaml" "version: \"0.11.0\""
-check_phrase ".p2t2c/manifest.yaml" "language_policy: \"monolingual_release_root\""
-check_phrase ".p2t2c/P2T2C_LICENSE.md" "MIT License"
-check_phrase ".p2t2c/P2T2C_LICENSE.md" "Copyright (c) 2026 Caricent"
-check_phrase ".p2t2c/P2T2C_LICENSE.md" "jasonbaoly"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-006"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-007"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-009"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-010"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-011"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-012"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-013"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "Phases:"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md" "Superseded by"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md" "RULE-GOV-005"
-check_phrase "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md" "RULE-GOV-013"
-check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "--dry-run"
-check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "--rollback"
-check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.8.0-to-0.8.1.md"
-check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.8.1-to-0.9.0.md"
-check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.9.0-to-0.10.0.md"
-check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.10.0-to-0.10.1.md"
-check_phrase ".p2t2c/bin/p2t2c_upgrade.sh" "0.10.1-to-0.11.0.md"
-check_phrase ".p2t2c/bin/p2t2c_install.sh" "--target"
-check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.8.0-to-0.8.1.md"
-check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.8.1-to-0.9.0.md"
-check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.9.0-to-0.10.0.md"
-check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.10.0-to-0.10.1.md"
-check_phrase ".p2t2c/bin/p2t2c_install.sh" "0.10.1-to-0.11.0.md"
-check_phrase ".p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md" "Truth Patch Candidate: Not generated"
-check_phrase ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md" "Closure Decision"
-check_phrase ".p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md" "Supersedes"
-check_phrase ".p2t2c/templates/execution/tasks.md" "Closure Report"
-check_phrase ".p2t2c/templates/project_config.example.yaml" "monolingual_release_root"
-check_phrase ".p2t2c/migrations/0.4.0-to-0.5.0.md" "monolingual_release_root"
-check_phrase ".p2t2c/migrations/0.6.0-to-0.7.0.md" ".p2t2c"
-
-managed_doc_globs=(
-  "P2T2C_AGENTS.md"
-  "P2T2C_README.md"
-  ".p2t2c/P2T2C_LICENSE.md"
-  ".p2t2c/templates/project_config.example.yaml"
-  ".p2t2c/manifest.yaml"
-  ".p2t2c/ownership.yaml"
-  "docs/adr/README.md"
-  "docs/submit_proposals/README.md"
-  "docs/submit_proposals/SP_TEMPLATE.md"
-  "docs/closure/README.md"
-  "docs/reference/README.md"
-  "docs/sot/manifest.yaml"
-  "docs/sot/governance/P2T2C_GOVERNANCE.md"
-  "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md"
-  "specs/README.md"
-  ".p2t2c/migrations"
-  ".p2t2c/prompts"
-  ".p2t2c/templates"
-)
-
-managed_docs_match_perl() {
-  local regex="$1"
-  perl -MFile::Find -CSD -e '
-    my $regex = shift @ARGV;
-    my $re = qr($regex);
-    my $found = 0;
-    find({ wanted => sub {
-      return if $found || !-f $_;
-      open my $fh, "<:encoding(UTF-8)", $_ or return;
-      while (my $line = <$fh>) {
-        if ($line =~ $re) { $found = 1; last; }
-      }
-    }, no_chdir => 1 }, @ARGV);
-    exit($found ? 0 : 1);
-  ' "$regex" "${managed_doc_globs[@]}" 2>/dev/null
+frontmatter_value() {
+  local file="$1" key="$2"
+  awk -v key="$key" '
+    NR == 1 && $0 == "---" { in_fm=1; next }
+    in_fm && $0 == "---" { exit }
+    in_fm && index($0, key ":") == 1 {
+      value=$0; sub("^[^:]+:[[:space:]]*", "", value); gsub(/^"|"$/, "", value); print value; exit
+    }
+  ' "$file"
 }
 
-if [[ "$language" == "en-US" ]]; then
-  check_phrase "P2T2C_README.md" "Human workflow"
-  check_phrase "P2T2C_README.md" "English-only"
-  check_phrase "P2T2C_AGENTS.md" "This is the only AI entrypoint"
-  if managed_docs_match_perl '\p{Han}'; then
-    echo "ERROR: English release root contains CJK text in managed docs"
-    missing=1
-  fi
-elif [[ "$language" == "zh-CN" ]]; then
-  check_phrase "P2T2C_README.md" "人类工作流"
-  check_phrase "P2T2C_README.md" "中文单语"
-  check_phrase "P2T2C_AGENTS.md" "AI 操作入口"
-  if managed_docs_match_perl ' / .*\p{Han}'; then
-    echo "ERROR: Chinese release root contains same-line bilingual pairings"
-    missing=1
-  fi
-else
-  echo "ERROR: unknown docs/sot/manifest.yaml language: $language"
-  missing=1
-fi
+has_frontmatter() {
+  [[ "$(head -n 1 "$1" 2>/dev/null || true)" == "---" ]]
+}
 
-# --- RULE-GOV-009: SoT rule identifier integrity ---------------------------
-# Scans docs/sot/**/*.md (Active layer + *_HISTORY.md) for Rule Blocks.
-# RULE-GOV-012 splits each rule across two files: the Active layer carries
-# Status/Phases, the HISTORY layer carries lifecycle metadata. The same
-# RULE-ID therefore legitimately appears once per layer; fields are MERGED
-# per ID across files (last non-empty value wins). A genuine duplicate is
-# two Rule Blocks sharing an ID *within the same file*, which is flagged.
-# Validates:
-#   - no duplicate RULE-ID within a single file
-#   - bidirectional Supersedes / Superseded by links
-#   - no dangling lifecycle references
-#   - no superseded-yet-Active rule
-sot_report="$(
-  find docs/sot -type f -name '*.md' 2>/dev/null | sort | while IFS= read -r f; do
-    [[ -n "$f" ]] && awk -v fn="$f" '{print fn "\t" $0}' "$f" && printf '\n'
-  done | awk -F'\t' '
-    function body(line,   s) { s = line; return s }
-    function flush() {
-      if (cur != "") {
-        key = cur SUBSEP headfile
-        if (key in seen_in_file) { print "ERROR: duplicate RULE-ID within " headfile ": " cur }
-        seen_in_file[key] = 1
-        seen[cur] = 1
-        if (cur_status   != "") status[cur] = cur_status
-        if (cur_sup      != "") sup[cur]    = cur_sup
-        if (cur_supby    != "") supby[cur]  = cur_supby
-      }
-      cur = ""; cur_status = ""; cur_sup = ""; cur_supby = ""
-    }
-    { curfile = $1; line = $2 }
-    line ~ /^###[[:space:]]+RULE-[A-Z]+-[0-9]+/ {
-      flush()
-      headfile = curfile
-      match(line, /RULE-[A-Z]+-[0-9]+/); cur = substr(line, RSTART, RLENGTH)
-      next
-    }
-    cur != "" && line ~ /^Status:/        { s = line; sub(/^Status:[[:space:]]*/, "", s); cur_status = s; next }
-    cur != "" && line ~ /^Supersedes:/    { s = line; sub(/^Supersedes:[[:space:]]*/, "", s); gsub(/`/, "", s); cur_sup = s; next }
-    cur != "" && line ~ /^Superseded by:/ { s = line; sub(/^Superseded by:[[:space:]]*/, "", s); gsub(/`/, "", s); cur_supby = s; next }
-    END {
-      flush()
-      for (r in seen) {
-        if (!(r in sup))   sup[r] = "None"
-        if (!(r in supby)) supby[r] = "None"
-        # dangling + bidirectional for Superseded by
-        if (supby[r] != "" && supby[r] != "None") {
-          n = split(supby[r], t, /[,[:space:]]+/)
-          for (i = 1; i <= n; i++) {
-            id = t[i]; if (id !~ /^RULE-/) continue
-            if (!(id in seen)) { print "ERROR: " r " Superseded by references missing RULE-ID: " id; continue }
-            if (sup[id] !~ ("(^|[, ])" r "([, ]|$)")) print "ERROR: broken link: " r " Superseded by " id " but " id " does not Supersede " r
-          }
-        }
-        # dangling + bidirectional for Supersedes
-        if (sup[r] != "" && sup[r] != "None") {
-          n = split(sup[r], t, /[,[:space:]]+/)
-          for (i = 1; i <= n; i++) {
-            id = t[i]; if (id !~ /^RULE-/) continue
-            if (!(id in seen)) { print "ERROR: " r " Supersedes references missing RULE-ID: " id; continue }
-            if (supby[id] !~ ("(^|[, ])" r "([, ]|$)")) print "ERROR: broken link: " r " Supersedes " id " but " id " is not Superseded by " r
-          }
-        }
-        # superseded-yet-Active
-        if (supby[r] != "" && supby[r] != "None" && status[r] ~ /Active/)
-          print "ERROR: " r " is Superseded by " supby[r] " but still Status: Active"
-      }
-    }
-  '
+validate_cpk() {
+  local file="$1" base id artifact risk source truth_change gate_a status
+  base="$(basename "$file" .md)"
+  artifact="$(frontmatter_value "$file" artifact)"
+  id="$(frontmatter_value "$file" id)"
+  risk="$(frontmatter_value "$file" risk)"
+  source="$(frontmatter_value "$file" source)"
+  truth_change="$(frontmatter_value "$file" truth_change)"
+  gate_a="$(frontmatter_value "$file" gate_a)"
+  status="$(frontmatter_value "$file" status)"
+
+  [[ "$artifact" == "change_pack" ]] || error "$file artifact must be change_pack"
+  [[ "$id" == "$base" ]] || error "$file id must match filename: $base"
+  [[ "$source" =~ ^(user_instruction|issue_path|sp_path)$ ]] || error "$file source must be user_instruction, issue_path, or sp_path"
+  [[ "$status" =~ ^(ready|blocked|applied)$ ]] || error "$file has invalid status: $status"
+
+  case "$risk" in
+    R1)
+      [[ "$truth_change" == "false" ]] || error "$file R1 must use truth_change: false"
+      [[ "$gate_a" == "not_required" ]] || error "$file R1 must use gate_a: not_required"
+      ;;
+    R2)
+      [[ "$truth_change" == "true" ]] || error "$file R2 must use truth_change: true"
+      [[ "$gate_a" =~ ^(satisfied|pending)$ ]] || error "$file R2 gate_a must be satisfied or pending"
+      if [[ "$gate_a" == "pending" && "$status" == "applied" ]]; then
+        error "$file cannot be applied while gate_a is pending"
+      fi
+      ;;
+    *)
+      error "$file risk must be R1 or R2"
+      ;;
+  esac
+}
+
+while IFS= read -r file; do
+  has_frontmatter "$file" && validate_cpk "$file"
+done < <(find docs/change_packs -maxdepth 1 -type f -name 'CPK-*.md' 2>/dev/null | sort)
+
+validate_spec() {
+  local file="$1" artifact cpk gate_a
+  artifact="$(frontmatter_value "$file" artifact)"
+  [[ "$artifact" == "execution_spec" ]] || return
+  cpk="$(frontmatter_value "$file" change_pack)"
+  [[ "$cpk" == docs/change_packs/CPK-*.md ]] || error "$file must reference a docs/change_packs/CPK-*.md path"
+  [[ -f "$cpk" ]] || { error "$file references missing CPK: $cpk"; return; }
+  gate_a="$(frontmatter_value "$cpk" gate_a)"
+  [[ "$gate_a" != "pending" ]] || error "$file cannot execute while referenced CPK gate_a is pending"
+  [[ -f "$(dirname "$file")/plan.md" ]] || error "$file is missing sibling plan.md"
+  [[ -f "$(dirname "$file")/tasks.md" ]] || error "$file is missing sibling tasks.md"
+}
+
+while IFS= read -r file; do
+  has_frontmatter "$file" && validate_spec "$file"
+done < <(find specs -mindepth 2 -maxdepth 2 -type f -name spec.md 2>/dev/null | sort)
+
+path_exists() {
+  [[ -f "$1" || -d "$1" ]]
+}
+
+validate_cr() {
+  local file="$1" base artifact id risk cpk execution drift decision
+  base="$(basename "$file" .md)"
+  artifact="$(frontmatter_value "$file" artifact)"
+  id="$(frontmatter_value "$file" id)"
+  risk="$(frontmatter_value "$file" risk)"
+  cpk="$(frontmatter_value "$file" change_pack)"
+  execution="$(frontmatter_value "$file" execution_pack)"
+  drift="$(frontmatter_value "$file" truth_drift)"
+  decision="$(frontmatter_value "$file" decision)"
+
+  [[ "$artifact" == "closure_report" ]] || error "$file artifact must be closure_report"
+  [[ "$id" == "$base" ]] || error "$file id must match filename: $base"
+  [[ "$risk" =~ ^R[012]$ ]] || error "$file risk must be R0, R1, or R2"
+  [[ "$drift" =~ ^(none|resolved)$ ]] || error "$file truth_drift must be none or resolved"
+  [[ "$decision" == "CLOSE" ]] || error "$file decision must be CLOSE"
+
+  if [[ "$risk" == "R0" ]]; then
+    [[ "$cpk" == "none" ]] || error "$file R0 change_pack must be none"
+    [[ "$execution" == "none" ]] || error "$file R0 execution_pack must be none"
+  else
+    [[ "$cpk" == docs/change_packs/CPK-*.md && -f "$cpk" ]] || error "$file $risk must reference an existing CPK"
+    [[ "$execution" != "none" ]] || error "$file $risk must reference an execution_pack"
+    path_exists "$execution" || error "$file references missing execution_pack: $execution"
+  fi
+
+  grep -Eq '^## (Verification Evidence|验证证据)$' "$file" || error "$file missing verification evidence section"
+  grep -Eq '^## (Remaining Risks|剩余风险)$' "$file" || error "$file missing remaining risks section"
+  grep -Eq '^\| `[^`]+` \| (Pass|Fail|Not run)' "$file" || error "$file must record at least one actual verification command and result"
+}
+
+while IFS= read -r file; do
+  has_frontmatter "$file" && validate_cr "$file"
+done < <(find docs/closure -maxdepth 1 -type f -name 'CR-*.md' 2>/dev/null | sort)
+
+duplicate_rules="$(
+  find docs/sot -type f -name '*.md' ! -name '*_HISTORY.md' 2>/dev/null \
+    | sort \
+    | xargs grep -hE '^###[[:space:]]+RULE-[A-Z]+-[0-9]+|^##[[:space:]]+RULE-[A-Z]+-[0-9]+' 2>/dev/null \
+    | grep -oE 'RULE-[A-Z]+-[0-9]+' \
+    | sort | uniq -d || true
 )"
-if [[ -n "$sot_report" ]]; then
-  printf "%s\n" "$sot_report"
-  missing=1
-fi
+[[ -z "$duplicate_rules" ]] || error "duplicate current Rule IDs: $(printf '%s' "$duplicate_rules" | paste -sd, -)"
 
-# --- RULE-GOV-010: code-to-Truth back-reference anchors (soft) -------------
-# Only runs when a project src/ tree exists; the empty template root skips it.
-if [[ -d "src" ]]; then
-  active_ids="$(
-    find docs/sot -type f -name '*.md' 2>/dev/null | sort | while IFS= read -r f; do
-      [[ -n "$f" ]] && cat "$f" && printf '\n'
-    done | awk '
-      /^###[[:space:]]+RULE-[A-Z]+-[0-9]+/ { match($0, /RULE-[A-Z]+-[0-9]+/); cur = substr($0, RSTART, RLENGTH); next }
-      cur != "" && /^Status:/ { if ($0 ~ /Active/) print cur; cur = "" }
-    '
-  )"
-  while IFS= read -r line; do
-    [[ -z "$line" ]] && continue
-    loc="${line%:*}"
-    id="$(printf "%s" "$line" | grep -o 'RULE-[A-Z]\+-[0-9]\+')"
-    [[ -z "$id" ]] && continue
-    if ! printf "%s\n" "$active_ids" | grep -qx -- "$id"; then
-      echo "ERROR: code anchor references missing or non-Active RULE-ID: $id ($loc)"
-      missing=1
-    fi
-  done < <(grep -rnE "Implements:[[:space:]]*RULE-[A-Z]+-[0-9]+" src 2>/dev/null \
-            | grep -oE '^[^:]*:[0-9]*:.*RULE-[A-Z]+-[0-9]+' || true)
-fi
-
-# --- RULE-GOV-012: phase-scoped reading map (auto-generated) ---------------
-# Parses the `Phases:` field of every Active rule, validates tokens against
-# the known phase list, ensures every phase is covered by >=1 rule, and
-# regenerates the phase->rule map that prompts read from. The map is derived,
-# never hand-maintained: adding a rule with a Phases line updates it here.
-known_phases="bootstrap change_pack apply_change_pack execution_pack single_task acceptance install_upgrade all"
-gov_active="docs/sot/governance/P2T2C_GOVERNANCE.md"
-
-if [[ -f "$gov_active" ]]; then
-  phase_report="$(
-    awk -v known="$known_phases" '
-      BEGIN { n = split(known, k, /[[:space:]]+/); for (i=1;i<=n;i++) known_set[k[i]] = 1 }
-      function finalize_rule() {
-        # Called when the current rule block ends (next heading or EOF).
-        # An Active rule MUST carry a Phases line; flag if it did not.
-        if (cur != "" && cur_status ~ /Active/ && !saw_phases)
-          print "ERR\tmissing Phases for Active rule: " cur
-      }
-      /^###[[:space:]]+RULE-[A-Z]+-[0-9]+/ {
-        finalize_rule()
-        match($0, /RULE-[A-Z]+-[0-9]+/); cur = substr($0, RSTART, RLENGTH)
-        cur_status = ""; saw_phases = 0; next
-      }
-      cur != "" && /^Status:/ { s=$0; sub(/^Status:[[:space:]]*/,"",s); cur_status=s; next }
-      cur != "" && /^Phases:/ { s=$0; sub(/^Phases:[[:space:]]*/,"",s); saw_phases=1
-        if (cur_status ~ /Active/) {
-          if (s == "") { print "ERR\tempty Phases for Active rule: " cur; next }
-          m = split(s, p, /[,[:space:]]+/)
-          for (j=1;j<=m;j++) {
-            tok=p[j]; if (tok=="") continue
-            if (!(tok in known_set)) { print "ERR\tunknown phase token \"" tok "\" in " cur }
-            else { print "MAP\t" tok "\t" cur; covered[tok]=1; if (tok=="all") has_all=1 }
-          }
-        }
-        next
-      }
-      END {
-        finalize_rule()
-        np = split(known, kk, /[[:space:]]+/)
-        # A phase counts as covered if a specific rule names it OR an `all`
-        # rule exists (an `all` rule applies to every phase by definition).
-        for (i=1;i<=np;i++) if (kk[i] != "all" && !(kk[i] in covered) && !has_all)
-          print "ERR\tphase has no rule coverage: " kk[i]
-      }
-    ' "$gov_active"
-  )"
-
-  phase_errs="$(printf "%s\n" "$phase_report" | awk -F'\t' '$1=="ERR"{print $2}')"
-  if [[ -n "$phase_errs" ]]; then
-    while IFS= read -r e; do [[ -n "$e" ]] && echo "ERROR: RULE-GOV-012: $e"; done <<< "$phase_errs"
-    missing=1
-  fi
-
-  mkdir -p .p2t2c/generated
-  generated_map=".p2t2c/generated/phase_rules.txt"
-  all_ids="$(printf "%s\n" "$phase_report" | awk -F'\t' '$1=="MAP" && $2=="all" {print $3}' | sort -u)"
-  {
-    echo "# Auto-generated by check_p2t2c.sh (RULE-GOV-012). Do not edit by hand."
-    echo "# Maps each workflow phase to the Active governance rules an AI must"
-    echo "# read in that phase. Rules tagged 'all' are folded into every phase."
-    for ph in $known_phases; do
-      [[ "$ph" == "all" ]] && continue
-      ids="$( { printf "%s\n" "$phase_report" | awk -F'\t' -v p="$ph" '$1=="MAP" && $2==p {print $3}'; printf "%s\n" "$all_ids"; } | sort -u | sed '/^$/d' | paste -sd, - )"
-      echo "${ph}: ${ids}"
-    done
-  } > "$generated_map"
-fi
-
-if [[ $missing -eq 0 ]]; then
+if [[ "$errors" -eq 0 ]]; then
   echo "P2T2C checks passed."
 else
   echo "P2T2C checks failed."
 fi
-exit $missing
+exit "$errors"

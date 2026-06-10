@@ -1,23 +1,11 @@
 # 收口报告
 
-Closure Report 是 Acceptance 后的收口文件。
-
-它回答三件事：
-
-1. 验收是否通过？
-2. 代码是否符合 spec、plan、tasks？
-3. 代码是否领先或违反 Truth？
-
-结论只能是：
+所有完成的 R0、R1、R2 工作都在这里创建：
 
 ```text
-CLOSE
-BACKFILL_EXECUTION_DOCS
-HUMAN_TRUTH_DECISION_REQUIRED
+CR-YYYYMMDD-short-title.md
 ```
 
-建议将实际 Closure Report 放在：
+CR 使用 YAML front matter 记录风险等级、CPK、执行包、Truth Drift 和 `CLOSE` 决策，并在正文记录实际验证命令、结果、未运行原因和剩余风险。
 
-```text
-docs/closure/CR-YYYYMMDD-feature-name.md
-```
+Execution Doc Drift 由 AI 自动回填。Truth Drift 必须先通过 Gate B 解决，之后才能以 `CLOSE` 收口。

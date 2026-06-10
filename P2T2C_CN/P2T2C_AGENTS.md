@@ -1,131 +1,88 @@
 # P2T2C_AGENTS.md — P2T2C AI 操作入口
 
-这是本发行根唯一的 AI 操作入口。
+这是本发行根唯一的 P2T2C AI 操作入口。
 
-P2T2C 表示 **Proposal-to-Truth-to-Code**。
-
-缩写约定：SP = Submit Proposal（人类提交的提案，文件名 `SP-YYYYMMDD-...`）；CPK = Change Pack（AI 生成的候选包）。两者不再共用 CP 缩写。
+P2T2C 表示 **Proposal-to-Truth-to-Code**。默认行为是持续推进；只有出现未决定的语义、Truth 冲突、危险操作、外部权限、重复验证失败或 Truth Drift 时暂停。
 
 ```text
-Proposal -> Change Pack -> 需要 SoT/ADR 变更时进入 Gate A -> 如需要则 Truth Patch + Execution Pack -> Coding -> Acceptance -> Closure Report
+意图准入 -> 风险路由与 Truth -> 工作批次执行 -> 验证与自主修复 -> 漂移检查与收口
 ```
 
-默认行为：继续推进。仅在关卡、冲突、缺失 Truth、检查失败或 Truth Drift 时暂停。
+## 1. 基础读取
 
-语言策略：本发行根内的受管工作流文档为中文单语。英文发行版位于 `../P2T2C_EN/`。稳定工作流 token、状态值、文件路径、命令名、CLI 参数和 shell 脚本运行时输出保持英文。
-
----
-
-## 1. 必读顺序
-
-任何任务都按以下顺序读取：
+开始任务时读取：
 
 1. `P2T2C_AGENTS.md`
-2. `.p2t2c/project_config.yaml`；如果缺失，读取 `.p2t2c/templates/project_config.example.yaml`
-3. 治理 Truth 的**阶段子集**，而非整份文件（见下）
-4. 下方列出的阶段额外输入
+2. `.p2t2c/project_config.yaml`；缺失时读取示例
+3. `docs/sot/manifest.yaml`
+4. 与当前意图直接相关的 SoT、ADR、代码和测试
 
-治理按需阅读（RULE-GOV-012）：不要通读 `docs/sot/governance/P2T2C_GOVERNANCE.md` 全文。先确定当前阶段，再查 `.p2t2c/generated/phase_rules.txt`（由 `make check` 自动生成）中该阶段对应的 Rule 标识，只读这些 Rule Block。阶段与 token 的对应见第 2 节表格。
+默认不读 `docs/reference/**` 和治理历史。只有历史审计、迁移或冲突排查时读取。
 
-默认不要读取 `docs/reference/`，也不要读取 `docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md`。只有当用户明确要求历史审计、对比、迁移背景或冲突排查时才读取它们。
+## 2. 五阶段 Prompt
 
----
+| 阶段 | Prompt | 主要输出 |
+|---|---|---|
+| 意图准入 | `.p2t2c/prompts/01_intent_admission_prompt.md` | 清晰、无冲突的意图摘要 |
+| 风险路由与 Truth | `.p2t2c/prompts/02_risk_routing_and_truth_prompt.md` | R0，或持久化 `CPK-*` |
+| 工作批次执行 | `.p2t2c/prompts/03_execute_work_batch_prompt.md` | 代码；R1/R2 的精简三件套 |
+| 验证与自主修复 | `.p2t2c/prompts/04_verify_and_repair_prompt.md` | 实际验证证据 |
+| 漂移检查与收口 | `.p2t2c/prompts/05_drift_and_closure_prompt.md` | `CR-*` 或 Gate B |
 
-## 2. 阶段 Prompt、Phase token 与允许写入
+## 3. 风险路由
 
-`Phase token` 列用于在 `.p2t2c/generated/phase_rules.txt` 中查出该阶段需读取的治理 Rule 子集。
+- `R0`：重构、测试、文档、CI 调整，或恢复 Truth 已定义的行为。不创建 CPK 和执行文档。
+- `R1`：实现现有 Truth 已覆盖的行为。创建紧凑 `docs/change_packs/CPK-*.md`，不得修改 Truth。
+- `R2`：修改 Truth、ADR、外部契约、持久数据语义、安全、隐私、权限或不可逆操作。创建完整 CPK。
 
-Gate A 之前允许草拟或更新 `docs/submit_proposals/SP-*.md`。SP 是提案输入，不是 Truth 变更。
+R1/R2 在 `specs/{NNN-feature}/` 中使用精简 `spec.md`、`plan.md`、`tasks.md`。一个工作批次可以包含多个相关 Task。
 
-| 任务 | Phase token | Prompt | 文件写入 |
-|---|---|---|---|
-| 初始化仓库 | `bootstrap` | `.p2t2c/prompts/01_bootstrap_repository_prompt.md` | 是，仅骨架 |
-| 生成 Change Pack | `change_pack` | `.p2t2c/prompts/02_generate_change_pack_prompt.md` | 否 |
-| 应用 Change Pack | `apply_change_pack` | `.p2t2c/prompts/03_apply_change_pack_prompt.md` | 是，仅 CPK 需要 SoT/ADR 变更且 Gate A 批准后 |
-| 生成执行包 | `execution_pack` | `.p2t2c/prompts/04_generate_execution_pack_prompt.md` | 是，CPK 后；仅 SoT/ADR 变更需要 Gate A |
-| 执行单个任务 | `single_task` | `.p2t2c/prompts/05_execute_single_task_prompt.md` | 是，仅一个任务 |
-| 验收与收口 | `acceptance` | `.p2t2c/prompts/06_acceptance_and_closure_prompt.md` | 是，仅执行文档，除非 Truth Drift 暂停 |
-| 安装与升级 | `install_upgrade` | 见第 7 节 | 仅工作流外壳 |
+所有完成的 R0/R1/R2 工作都必须生成 `docs/closure/CR-*.md`。
 
-阶段额外读取：
+## 4. 人类关卡
 
-- Change Pack：当前 SP、相关 SoT、ADR、`.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
-- Apply Change Pack：已批准 Change Pack、相关 SoT、ADR、truth templates、`docs/sot/manifest.yaml`
-- Execution Pack：相关 CPK、SP、SoT、ADR、`.p2t2c/templates/execution/spec.md`、`.p2t2c/templates/execution/plan.md`、`.p2t2c/templates/execution/tasks.md`
-- Single Task：feature `spec.md`、`plan.md`、`tasks.md`、相关 SoT、ADR
-- Acceptance：feature `spec.md`、`plan.md`、`tasks.md`、相关 SoT、ADR、当前代码变更、Closure template
-- Install、upgrade：`P2T2C_README.md`、install 或 upgrade script、`.p2t2c/ownership.yaml`
+Gate A 只控制尚未决定的 R2 语义：
 
----
+- 当前用户指令已经明确决定完整语义时，记录 `gate_a: satisfied`，不要重复确认。
+- 尚未决定时记录 `gate_a: pending`，提供明确选项并暂停。
+- `gate_a: pending` 时不得应用 Truth Patch 或进入执行阶段。
 
-## 3. 关卡
+Gate B 只在 Truth Drift 时触发：
 
-Gate A：通过明确选项选择让人类确认；仅当 CPK 需要变更 SoT 或 ADR 时需要。
+1. 修正实现，使其符合 Truth。
+2. 接受实现并更新 Truth。
+3. 创建或更新意图、SP、ADR 后重新评估。
 
-- 如果 SP 不需要变更 SoT 或 ADR，AI 必须走 Fast Path 并直接生成 CPK。CPK 生成本身不需要 Gate A，只投射现有 Truth 的执行文档也不需要 Gate A。
-- 如果 SP 需要变更 SoT 或 ADR，AI 必须给出一组 Gate A 选项并等待人类选择，然后才能应用这些变更。
-- 需要 SoT/ADR 变更的 `READY` 提案，只有在人类选择 `Approve and apply Truth Patch` 后，才可应用 Truth Patch 并生成执行文档。
-- 非 `READY` 提案必须停留在 Blocked Path，并用选项选择处理修补、冲突解决、ADR、拒绝或拆分。
-- 如果 Change Pack 写有 `Truth Patch Candidate: Not generated`，不得应用 Truth 变更。
+## 5. Truth 边界与来源优先级
 
-Gate B：Closure 中发现 Truth Drift 后的人类决策。
+业务规则只能放在 `docs/sot/**`。ADR 解释决策原因。CPK、spec、plan、tasks、测试、代码注释和聊天不能成为业务规则的唯一来源。
 
-允许的 Gate B 决策：
+来源优先级：
 
-1. 修代码，使代码符合 Truth。
-2. 接受代码并更新 Truth。
-3. 创建或更新 SP、ADR 后再决策。
+1. 当前任务中人类明确确认的决策
+2. 已接受 SP、ADR
+3. 当前 `docs/sot/**`
+4. 当前 CPK 与执行文档
+5. 当前代码与测试
+6. `docs/reference/**`
 
----
+低优先级来源与高优先级来源冲突时暂停。
 
-## 4. 停线条件
+## 6. 验证与暂停边界
 
-发生以下任一情况时，暂停并询问人类：
+运行项目适用的 Build、Test、Lint、Typecheck 和 Governance 检查。首次失败先诊断修复；同一失败最多两轮修复，环境性失败允许一次原样重试。
 
-- Proposal 不清晰，且无法从 Truth 安全推导。
-- Proposal 与当前 SoT、ADR 冲突。
-- Proposal 与 Active 且已实现的 Truth 冲突，且没有人类解决方案。
-- 需要新增或修改 ADR。
-- 继续执行会发明 Proposal、已接受 SP、ADR 或 SoT 未定义的业务规则。
-- 实现需要 Truth 未定义的新表、字段、接口、页面、状态、权限、AI 职责、同步对象或工作流。
-- 编码使关键 Plan 假设失效。
-- build、test、lint 或 governance check 失败。
-- 代码领先、改变、扩展或违反 Truth。
+仅在以下情况暂停：
 
----
-
-## 5. 来源优先级
-
-按以下顺序使用来源：
-
-1. 当前任务中人类明确确认的决策。
-2. 已接受 SP、ADR。
-3. 当前 `docs/sot/**` Truth。
-4. `specs/**` 执行文档。
-5. 当前代码。
-6. `docs/reference/**` 历史参考，仅在明确要求时使用。
-
-如果低优先级来源与高优先级来源冲突，必须暂停并报告冲突。
-
----
-
-## 6. 禁止动作
-
-- 不要把业务规则写入 `P2T2C_AGENTS.md`、`.agents/rules/`、prompt、测试、代码注释或导航文件。
-- 不要让 Spec、Plan、Tasks 覆盖 SoT。
-- 不要只通过修改 prompt、测试或代码来改变业务规则。
-- 不要在 Acceptance 后静默更新 Truth。
-- 不要把 `docs/reference/**` 当作当前实现依据。
-
----
+- 存在会改变结果的关键歧义或 Truth/ADR 冲突。
+- 需要尚未决定的业务、架构、安全、权限或数据语义。
+- 需要危险操作或外部权限。
+- 同一验证失败超过自主修复上限。
+- 代码改变、扩展或违反 Truth。
 
 ## 7. 安装与升级安全
 
-安装不是 Truth 摄取。不得重写现有项目文档，也不得从旧文档推断 SoT。
-
-升级不是产品 SP。升级只能更新 P2T2C 工作流外壳，不得编辑项目拥有的 Truth、ADR、spec、代码、测试、数据库文件、package manifest 或历史 Closure Report。
-
-升级任务应优先在目标项目根目录下调用本发行根中的升级脚本，避免使用旧目标项目中的过期迁移逻辑。
+安装和升级只更新 P2T2C 工作流外壳，不得重写项目拥有的 Truth、ADR、SP、CPK 实例、spec、代码、测试、数据库文件或历史 CR。
 
 应用前必须先运行 dry-run：
 

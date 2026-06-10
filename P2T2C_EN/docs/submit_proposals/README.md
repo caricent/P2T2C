@@ -1,25 +1,15 @@
 # Submit Proposals
 
-This directory is the Proposal entrypoint for P2T2C.
+`SP-*` is an optional persistent intent input for long-lived discussion, multi-person collaboration, or explicit requirement boundaries. A clear user instruction or Issue can enter Intent Admission directly; do not create an SP only for process compliance.
 
-## When to Create a SP
-
-- Add a feature.
-- Adjust requirements.
-- Modify business rules.
-- Modify architecture / data / AI / permissions / sync / testing criteria.
-
-## Naming
+Naming:
 
 ```text
 SP-YYYYMMDD-short-title.md
 ```
 
-## Workflow
+An SP is not Truth. Risk routing decides the next path:
 
-1. Copy `SP_TEMPLATE.md` to `SP-YYYYMMDD-short-title.md`, or ask AI to create that SP file from the template.
-2. Write final requirements and non-goals clearly.
-3. Ask AI to generate a Change Pack and start with Admission Summary.
-4. If the SP does not require SoT or ADR changes, AI uses Fast Path and generates the CPK directly.
-5. If the SP requires SoT or ADR changes, AI must enter Gate A, present explicit decision options, and wait for the human choice before modifying Truth or ADRs.
-6. If the Change Pack uses Blocked Path, repair the Proposal, resolve the conflict, or handle the ADR first.
+- R0: implement directly.
+- R1: create a compact CPK.
+- R2: create a complete CPK and invoke Gate A only for undecided semantics.

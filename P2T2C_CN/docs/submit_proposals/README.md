@@ -1,25 +1,15 @@
 # 提交提案
 
-这里是 P2T2C 的 Proposal 入口。
+`SP-*` 是可选的持久化意图输入，适用于需要长期讨论、多人协作或明确需求边界的工作。清晰的用户指令或 Issue 可以直接进入意图准入阶段，不必仅为流程创建 SP。
 
-## 何时创建 SP
-
-- 新增功能。
-- 调整需求。
-- 修改业务规则。
-- 修改架构、数据、AI、权限、同步或测试口径。
-
-## 命名
+命名：
 
 ```text
 SP-YYYYMMDD-short-title.md
 ```
 
-## 工作方式
+SP 不等于 Truth。后续由风险路由决定：
 
-1. 复制 `SP_TEMPLATE.md` 为 `SP-YYYYMMDD-short-title.md`，或让 AI 基于模板创建该 SP 文件。
-2. 写清最终需求和非目标。
-3. 让 AI 生成 Change Pack，并先做 Admission Summary。
-4. 如果 SP 不需要变更 SoT 或 ADR，AI 走 Fast Path 并直接生成 CPK。
-5. 如果 SP 需要变更 SoT 或 ADR，AI 必须进入 Gate A，给出明确决策选项并等待人类选择，之后才可修改 Truth 或 ADR。
-6. 如果 Change Pack 走 Blocked Path，先修补 Proposal、解决冲突或处理 ADR。
+- R0：直接实现。
+- R1：创建紧凑 CPK。
+- R2：创建完整 CPK，并仅对尚未决定的语义触发 Gate A。

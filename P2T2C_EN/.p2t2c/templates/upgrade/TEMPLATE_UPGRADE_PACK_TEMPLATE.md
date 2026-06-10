@@ -1,83 +1,46 @@
-# Template Upgrade Pack — P2T2C {from-version} -> {to-version}
+# Template Upgrade Pack - P2T2C {from-version} -> {to-version}
 
 Status: Draft | Applied | Blocked
-Generated at: {YYYY-MM-DD}
 Source release: `{path or URL}`
 
----
+## Upgrade Summary
 
-## 1. Upgrade Summary
+{Workflow, template, or governance capability changes in this upgrade.}
 
-{What P2T2C workflow / template / governance capability changes in this upgrade.}
-
----
-
-## 2. Compatibility
+## Compatibility
 
 | Item | Decision |
 |---|---|
-| New SPs after upgrade | Use upgraded P2T2C workflow |
-| Existing specs / tasks | Leave unchanged |
-| Historical Closure Reports | Leave unchanged |
-| Project-owned Truth / ADR | Do not modify |
+| New work after upgrade | Use the upgraded risk-routed workflow |
+| Historical SPs, CPKs, specs, tasks, and CRs | Leave unchanged |
+| Project-owned Truth and ADRs | Do not modify |
 
+## Managed File Actions
+
+| File | Action |
 |---|---|
+| `{path}` | Update / Create / Remove when lock matches |
 
----
-
-## 3. Files to Update
-
-| File | Ownership | Action |
-|---|---|---|
-| `{path}` | core-managed / governance-managed | Update / Create |
-
----
-
-## 4. Files to Review Manually
+## Manual Review
 
 | File | Reason |
 |---|---|
 | `{path}` | Local modification / conflict |
 
----
+## Project-owned Files Untouched
 
-## 5. Project Truth Untouched
+Upgrade must not modify project business Truth, ADR instances, SP instances, CPK instances, specs, code, tests, database files, or historical CRs.
 
-The upgrade MUST NOT modify:
-
-- `docs/sot/product/**`
-- `docs/sot/data/**`
-- `docs/sot/api/**`
-- `docs/sot/client/**`
-- `docs/sot/server/**`
-- `docs/sot/ai/**`
-- `docs/sot/testing/**`
-- `docs/adr/**`
-- `specs/**`
-- `src/**`
-- `tests/**`
-
----
-
-## 6. Validation Commands
+## Validation
 
 ```bash
 bash .p2t2c/bin/check_p2t2c.sh
-```
-
-Optional for template source packages:
-
-```bash
 shasum -a 256 -c .p2t2c/CHECKSUMS.sha256
 ```
 
----
-
-## 7. Upgrade Closure
+## Closure
 
 Decision: CLOSE | MANUAL_CONFLICT_RESOLUTION_REQUIRED
-
-Rollback command:
 
 ```bash
 bash .p2t2c/bin/p2t2c_upgrade.sh --rollback .p2t2c/upgrade/{upgrade-id}
