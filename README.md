@@ -23,6 +23,12 @@ Risk levels:
 
 Gate A controls only undecided R2 semantics. Gate B controls Truth Drift. Every completed R0/R1/R2 change creates a `CR-*` with actual verification evidence and remaining risks.
 
+## Execution Method Layer
+
+P2T2C remains the control layer for risk, Truth, gates, and closure. Release `0.13.0` adds a native method layer for design refinement, risk-aware TDD, root-cause debugging, independent review, and workspace isolation. These methods never replace Truth or add an external plugin dependency.
+
+New installs enable the balanced profile by default. Existing projects stay in advisory compatibility mode until they add a `methodology` section to `.p2t2c/project_config.yaml`.
+
 ## Release Roots
 
 - `P2T2C_EN/`: English release root

@@ -6,6 +6,8 @@
 - R1 创建紧凑 CPK，且不得修改 Truth。
 - R2 创建完整 CPK；只有尚未决定的语义才需要 Gate A。
 
+新的 CPK 模板使用 `schema_version: 2`，并声明 `methodology_profile`。启用方法层时，CPK 还需记录方法检查点。
+
 命名：
 
 ```text

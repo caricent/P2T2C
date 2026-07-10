@@ -22,5 +22,6 @@ bash scripts/release_smoke_test.sh
 - Keep workflow Truth in each release root under `docs/sot/**`.
 - Do not make prompts, specs, tests, or code comments the only source of workflow rules.
 - Update checksums and `.p2t2c/lock.sha256` whenever managed release-root files change.
+- When bumping `.p2t2c/VERSION`, update root `CHANGELOG.md` in the same change and keep both release roots on the same version.
 - Preserve English-only managed workflow docs in `P2T2C_EN/`.
 - Preserve Chinese-only managed workflow docs in `P2T2C_CN/`, except stable workflow tokens, paths, commands, status values, CLI flags, shell output, and legal license text.

@@ -6,6 +6,8 @@
 - R1 creates a compact CPK and must not change Truth.
 - R2 creates a complete CPK; only undecided semantics require Gate A.
 
+New CPK templates use `schema_version: 2` and declare `methodology_profile`. Method-enabled work also records method checkpoints in the CPK.
+
 Naming:
 
 ```text

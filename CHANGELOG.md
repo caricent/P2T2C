@@ -1,13 +1,20 @@
 # Changelog
 
+All notable changes to P2T2C are documented here.
+
+## 0.13.0 - 2026-07-10
+
+- Added a native Truth-governed execution method layer: design refinement, risk-aware TDD, root-cause debugging, independent review, and workspace isolation.
+- Added `RULE-GOV-014` and `RULE-GOV-015`, optional `methodology` project config with required/advisory enforcement, and schema_version 2 CPK/CR templates with method evidence plus `verification_policy: fresh_pass`.
+- Wired method skills into prompts, install/upgrade managed paths, release smoke tests, and the `0.12.0-to-0.13.0` migration while keeping historical projects compatible in advisory mode.
+- Recorded Superpowers methodology attribution without adding an upstream plugin dependency.
+
 ## 0.12.0 - 2026-06-10
 
 - Replaced the seven-stage per-task workflow with five-stage risk routing: Intent Admission, Risk Routing and Truth, Work Batch Execution, Verification and Repair, and Drift and Closure.
 - Added R0/R1/R2 contracts, persistent `docs/change_packs/CPK-*`, compact R1/R2 execution trios, and mandatory `docs/closure/CR-*` verification summaries.
 - Retired current-workflow requirements for code Rule anchors, per-line EARS Rule tags, phase maps, per-task Actual results, and `Acceptance scope`.
 - Added CPK/spec/CR contract validation, Gate A pending enforcement, bounded repair guidance, release-root parity checks, and the `0.11.0-to-0.12.0` migration.
-
-All notable changes to P2T2C are documented here.
 
 ## 0.11.0 - 2026-05-29
 

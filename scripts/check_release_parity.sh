@@ -15,6 +15,13 @@ en_version="$(tr -d '[:space:]' < "$en/.p2t2c/VERSION")"
 cn_version="$(tr -d '[:space:]' < "$cn/.p2t2c/VERSION")"
 [[ "$en_version" == "$cn_version" ]] || error "release versions differ: EN=$en_version CN=$cn_version"
 
+changelog="$repo_root/CHANGELOG.md"
+if [[ ! -f "$changelog" ]]; then
+  error "missing root CHANGELOG.md"
+elif ! grep -Eq "^## ${en_version}( |$)" "$changelog"; then
+  error "CHANGELOG.md missing release heading for $en_version"
+fi
+
 for rel in .p2t2c/bin/check_p2t2c.sh .p2t2c/bin/p2t2c_install.sh .p2t2c/bin/p2t2c_upgrade.sh; do
   cmp -s "$en/$rel" "$cn/$rel" || error "script behavior differs: $rel"
 done
