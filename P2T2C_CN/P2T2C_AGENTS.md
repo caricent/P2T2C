@@ -29,7 +29,21 @@ P2T2C 表示 **Proposal-to-Truth-to-Code**。默认行为是持续推进；只�
 | 验证与自主修复 | `.p2t2c/prompts/04_verify_and_repair_prompt.md` | 实际验证证据 |
 | 漂移检查与收口 | `.p2t2c/prompts/05_drift_and_closure_prompt.md` | `CR-*` 或 Gate B |
 
-## 3. 风险路由
+## 3. 执行方法层
+
+P2T2C 是风险、Truth、关卡和收口的控制层。可选方法层只说明已获准工作批次如何执行，绝不定义业务行为或覆盖 Truth。
+
+风险路由后按需读取 `.p2t2c/skills/` 中的方法：
+
+- `design-refinement`：存在会影响结果的意图歧义时。
+- `risk-aware-tdd`：可自动化的 R1/R2 行为。
+- `root-cause-debugging`：修复验证失败之前。
+- `independent-review`：收口 R1 生产代码或任何 R2 变更之前。
+- `workspace-isolation`：R2、并行或明确要求隔离的工作之前。
+
+存在时使用 `methodology` 配置。缺少配置的历史项目处于兼容性 advisory 模式；不得仅因 CPK、spec 或 CR 早于本方法层而使其失败。
+
+## 4. 风险路由
 
 - `R0`：重构、测试、文档、CI 调整，或恢复 Truth 已定义的行为。不创建 CPK 和执行文档。
 - `R1`：实现现有 Truth 已覆盖的行为。创建紧凑 `docs/change_packs/CPK-*.md`，不得修改 Truth。
@@ -39,7 +53,7 @@ R1/R2 在 `specs/{NNN-feature}/` 中使用精简 `spec.md`、`plan.md`、`tasks.
 
 所有完成的 R0/R1/R2 工作都必须生成 `docs/closure/CR-*.md`。
 
-## 4. 人类关卡
+## 5. 人类关卡
 
 Gate A 只控制尚未决定的 R2 语义：
 
@@ -53,7 +67,7 @@ Gate B 只在 Truth Drift 时触发：
 2. 接受实现并更新 Truth。
 3. 创建或更新意图、SP、ADR 后重新评估。
 
-## 5. Truth 边界与来源优先级
+## 6. Truth 边界与来源优先级
 
 业务规则只能放在 `docs/sot/**`。ADR 解释决策原因。CPK、spec、plan、tasks、测试、代码注释和聊天不能成为业务规则的唯一来源。
 
@@ -68,9 +82,9 @@ Gate B 只在 Truth Drift 时触发：
 
 低优先级来源与高优先级来源冲突时暂停。
 
-## 6. 验证与暂停边界
+## 7. 验证与暂停边界
 
-运行项目适用的 Build、Test、Lint、Typecheck 和 Governance 检查。首次失败先诊断修复；同一失败最多两轮修复，环境性失败允许一次原样重试。
+运行项目适用的 Build、Test、Lint、Typecheck 和 Governance 检查。修复失败前先复现、调查根因、对比可工作模式并写出一个可验证假设；同一失败最多两轮修复，环境性失败允许一次原样重试。没有新鲜验证证据不得声明完成。
 
 仅在以下情况暂停：
 
@@ -80,7 +94,7 @@ Gate B 只在 Truth Drift 时触发：
 - 同一验证失败超过自主修复上限。
 - 代码改变、扩展或违反 Truth。
 
-## 7. 安装与升级安全
+## 8. 安装与升级安全
 
 安装和升级只更新 P2T2C 工作流外壳，不得重写项目拥有的 Truth、ADR、SP、CPK 实例、spec、代码、测试、数据库文件或历史 CR。
 

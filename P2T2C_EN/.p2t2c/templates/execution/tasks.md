@@ -16,6 +16,12 @@ One batch may contain multiple related tasks serving the same goal and accepted 
 |---|---|
 | `{command}` |  |
 
+## Batch Method Checkpoints
+
+- RED evidence or exemption:
+- Root-cause record required when repair occurs.
+- Independent review required: Yes / No
+
 ## Batch Boundary
 
 - Excludes:

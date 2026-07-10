@@ -16,7 +16,8 @@ Actions:
 1. Summarize the goal, non-goals, and acceptance outcome.
 2. Check ambiguity, Truth/ADR conflicts, and impact.
 3. Identify product, architecture, security, permission, or data semantics that require a human choice.
-4. Continue directly to risk routing when intent is clear and conflict-free.
+4. For a material ambiguity, use `skills/design-refinement/SKILL.md` and present goal, non-goals, acceptance behaviors, options, and a recommendation. Keep the decision in the current instruction, optional SP, or R2 CPK; do not create a parallel design artifact.
+5. Continue directly to risk routing when intent is clear and conflict-free.
 
 Pause only when:
 

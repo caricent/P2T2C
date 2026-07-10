@@ -29,7 +29,21 @@ Do not read `docs/reference/**` or governance history by default. Read them only
 | Verification and Repair | `.p2t2c/prompts/04_verify_and_repair_prompt.md` | Actual verification evidence |
 | Drift and Closure | `.p2t2c/prompts/05_drift_and_closure_prompt.md` | `CR-*` or Gate B |
 
-## 3. Risk Routing
+## 3. Execution Method Layer
+
+P2T2C is the control layer for risk, Truth, gates, and closure. The optional method layer explains how to execute a permitted batch; it never defines business behavior or overrides Truth.
+
+Read the applicable method in `.p2t2c/skills/` after risk routing:
+
+- `design-refinement` for a material intent ambiguity.
+- `risk-aware-tdd` for automatable R1/R2 behavior.
+- `root-cause-debugging` before repairing a verification failure.
+- `independent-review` before closing R1 production-code or any R2 change.
+- `workspace-isolation` before R2, parallel, or explicitly isolated work.
+
+Use the `methodology` configuration when present. Missing configuration means advisory compatibility mode for historical projects; do not fail old CPK, spec, or CR artifacts merely because they predate this method layer.
+
+## 4. Risk Routing
 
 - `R0`: refactoring, tests, docs, CI changes, or restoring behavior defined by Truth. No CPK or execution docs.
 - `R1`: implement behavior already covered by current Truth. Create compact `docs/change_packs/CPK-*.md`; do not change Truth.
@@ -39,7 +53,7 @@ R1/R2 use compact `spec.md`, `plan.md`, and `tasks.md` in `specs/{NNN-feature}/`
 
 Every completed R0/R1/R2 change must create `docs/closure/CR-*.md`.
 
-## 4. Human Gates
+## 5. Human Gates
 
 Gate A controls only undecided R2 semantics:
 
@@ -53,7 +67,7 @@ Gate B triggers only for Truth Drift:
 2. Accept implementation and update Truth.
 3. Create or update intent, SP, or ADR, then reassess.
 
-## 5. Truth Boundary and Source Priority
+## 6. Truth Boundary and Source Priority
 
 Business rules belong only in `docs/sot/**`. ADRs explain why. CPK, spec, plan, tasks, tests, code comments, and chat cannot be the only source of a business rule.
 
@@ -68,9 +82,9 @@ Source priority:
 
 Pause when a lower-priority source conflicts with a higher-priority source.
 
-## 6. Verification and Pause Boundary
+## 7. Verification and Pause Boundary
 
-Run applicable Build, Test, Lint, Typecheck, and Governance checks. Diagnose and repair the first failure; allow at most two repair rounds for the same failure and one unchanged retry for a clear environment failure.
+Run applicable Build, Test, Lint, Typecheck, and Governance checks. Before repairing a failure, reproduce and investigate its root cause, compare working patterns, and state one testable hypothesis. Allow at most two repair rounds for the same failure and one unchanged retry for a clear environment failure. Do not claim completion without fresh verification evidence.
 
 Pause only when:
 
@@ -80,7 +94,7 @@ Pause only when:
 - The same verification failure exceeds the autonomous repair limit.
 - Code changes, extends, or violates Truth.
 
-## 7. Install and Upgrade Safety
+## 8. Install and Upgrade Safety
 
 Install and upgrade update only the P2T2C workflow shell. They must not rewrite project-owned Truth, ADRs, SPs, CPK instances, specs, code, tests, database files, or historical CRs.
 

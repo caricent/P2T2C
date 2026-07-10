@@ -23,3 +23,9 @@ Based on: `spec.md`
 | Check | Command or step | Coverage |
 |---|---|---|
 | Build / Test / Lint / Typecheck / Governance |  |  |
+
+## Isolation, Collaboration, and Review
+
+- Isolation and clean baseline:
+- Parallel ownership boundaries:
+- Independent review checkpoint:

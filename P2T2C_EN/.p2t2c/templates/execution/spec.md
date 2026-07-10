@@ -21,6 +21,11 @@ change_pack: docs/change_packs/CPK-YYYYMMDD-short-title.md
 - When {condition}, the system shall {behavior}.
 - The system shall not {prohibited behavior}.
 
+## Behavior and Test Strategy
+
+- Test-first behaviors:
+- Exemptions and alternative evidence:
+
 ## Boundaries
 
 - Return to Intent Admission for a new semantic boundary, Truth conflict, or high-risk concern.

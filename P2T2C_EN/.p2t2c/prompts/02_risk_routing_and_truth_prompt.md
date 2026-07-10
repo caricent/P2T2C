@@ -12,11 +12,12 @@ Actions:
 
 1. Select the risk level and record the reason.
 2. For R1/R2, create a CPK from `docs/change_packs/CPK_TEMPLATE.md`.
-3. For R2, determine whether the current user instruction already decides the complete semantics:
+3. When the project enables a methodology profile, copy it into the new CPK and identify the applicable method checkpoints. This selection cannot alter the risk level, Truth boundary, or Gate A/B requirements.
+4. For R2, determine whether the current user instruction already decides the complete semantics:
    - Decided: use `gate_a: satisfied`; do not request duplicate approval.
    - Undecided: use `gate_a: pending`; pause with explicit decision options.
-4. Apply an R2 Truth Patch only after Gate A is satisfied, then mark the CPK `status: applied`.
-5. R1 must use `truth_change: false` and `gate_a: not_required`.
+5. Apply an R2 Truth Patch only after Gate A is satisfied, then mark the CPK `status: applied`.
+6. R1 must use `truth_change: false` and `gate_a: not_required`.
 
 Prohibited:
 

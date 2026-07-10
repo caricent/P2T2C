@@ -8,6 +8,10 @@ error() {
   errors=1
 }
 
+warning() {
+  echo "WARNING: $*" >&2
+}
+
 required=(
   "P2T2C_AGENTS.md"
   "P2T2C_README.md"
@@ -34,11 +38,17 @@ required=(
   ".p2t2c/bin/p2t2c_upgrade.sh"
   ".p2t2c/migrations/README.md"
   ".p2t2c/migrations/0.11.0-to-0.12.0.md"
+  ".p2t2c/migrations/0.12.0-to-0.13.0.md"
   ".p2t2c/prompts/01_intent_admission_prompt.md"
   ".p2t2c/prompts/02_risk_routing_and_truth_prompt.md"
   ".p2t2c/prompts/03_execute_work_batch_prompt.md"
   ".p2t2c/prompts/04_verify_and_repair_prompt.md"
   ".p2t2c/prompts/05_drift_and_closure_prompt.md"
+  ".p2t2c/skills/design-refinement/SKILL.md"
+  ".p2t2c/skills/risk-aware-tdd/SKILL.md"
+  ".p2t2c/skills/root-cause-debugging/SKILL.md"
+  ".p2t2c/skills/independent-review/SKILL.md"
+  ".p2t2c/skills/workspace-isolation/SKILL.md"
   ".p2t2c/templates/adr/ADR_TEMPLATE.md"
   ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md"
   ".p2t2c/templates/execution/spec.md"
@@ -48,6 +58,7 @@ required=(
   ".p2t2c/templates/truth/SOT_DOCUMENT_TEMPLATE.md"
   ".p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md"
   ".p2t2c/templates/upgrade/TEMPLATE_UPGRADE_PACK_TEMPLATE.md"
+  "docs/reference/SUPERPOWERS_ATTRIBUTION.md"
 )
 
 for file in "${required[@]}"; do
@@ -60,12 +71,14 @@ check_phrase() {
   grep -q -- "$phrase" "$file" || error "$file missing phrase: $phrase"
 }
 
-check_phrase ".p2t2c/VERSION" "0.12.0"
-check_phrase ".p2t2c/manifest.yaml" 'version: "0.12.0"'
+check_phrase ".p2t2c/VERSION" "0.13.0"
+check_phrase ".p2t2c/manifest.yaml" 'version: "0.13.0"'
 check_phrase ".p2t2c/manifest.yaml" 'risk_levels: "R0,R1,R2"'
 check_phrase "docs/sot/manifest.yaml" "change_pack_root: docs/change_packs"
 check_phrase "docs/sot/manifest.yaml" "intent_admission"
 check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-009"
+check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-014"
+check_phrase "docs/sot/governance/P2T2C_GOVERNANCE.md" "RULE-GOV-015"
 check_phrase "docs/change_packs/CPK_TEMPLATE.md" "artifact: change_pack"
 check_phrase ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md" "artifact: closure_report"
 
@@ -124,12 +137,50 @@ frontmatter_value() {
   ' "$file"
 }
 
+methodology_config_value() {
+  local key="$1"
+  [[ -f .p2t2c/project_config.yaml ]] || return 0
+  awk -v key="$key" '
+    /^methodology:[[:space:]]*$/ { in_methodology=1; next }
+    in_methodology && /^[^[:space:]]/ { in_methodology=0 }
+    in_methodology && $0 ~ "^[[:space:]]+" key ":[[:space:]]*" {
+      value=$0; sub("^[^:]+:[[:space:]]*", "", value); gsub(/^\"|\"$/, "", value); print value; exit
+    }
+  ' .p2t2c/project_config.yaml
+}
+
+methodology_enforcement="$(methodology_config_value enforcement)"
+methodology_profile="$(methodology_config_value profile)"
+methodology_tdd="$(methodology_config_value tdd)"
+methodology_debugging="$(methodology_config_value debugging)"
+methodology_r1_review="$(methodology_config_value r1_production_code)"
+methodology_r2_review="$(methodology_config_value r2)"
+methodology_isolation="$(methodology_config_value isolation)"
+methodology_parallel_execution="$(methodology_config_value parallel_execution)"
+if [[ -z "$methodology_enforcement" ]]; then
+  methodology_enforcement="advisory"
+elif [[ ! "$methodology_enforcement" =~ ^(advisory|required)$ ]]; then
+  error ".p2t2c/project_config.yaml methodology.enforcement must be advisory or required"
+fi
+
+if [[ "$methodology_enforcement" == "required" ]]; then
+  [[ "$methodology_profile" == "p2t2c-balanced-v1" ]] || error ".p2t2c/project_config.yaml required methodology.profile must be p2t2c-balanced-v1"
+  [[ "$methodology_tdd" == "risk_aware" ]] || error ".p2t2c/project_config.yaml required methodology.tdd must be risk_aware"
+  [[ "$methodology_debugging" == "root_cause_first" ]] || error ".p2t2c/project_config.yaml required methodology.debugging must be root_cause_first"
+  [[ "$methodology_r1_review" == "required" ]] || error ".p2t2c/project_config.yaml required methodology.review.r1_production_code must be required"
+  [[ "$methodology_r2_review" == "required" ]] || error ".p2t2c/project_config.yaml required methodology.review.r2 must be required"
+  [[ "$methodology_isolation" == "auto" ]] || error ".p2t2c/project_config.yaml required methodology.isolation must be auto"
+  [[ "$methodology_parallel_execution" == "r2_independent_only" ]] || error ".p2t2c/project_config.yaml required methodology.parallel_execution must be r2_independent_only"
+elif [[ -f .p2t2c/project_config.yaml ]]; then
+  warning "methodology enforcement is advisory; set methodology.enforcement: required to enforce method evidence for new declared artifacts"
+fi
+
 has_frontmatter() {
   [[ "$(head -n 1 "$1" 2>/dev/null || true)" == "---" ]]
 }
 
 validate_cpk() {
-  local file="$1" base id artifact risk source truth_change gate_a status
+  local file="$1" base id artifact risk source truth_change gate_a status schema_version methodology_profile production_code_change
   base="$(basename "$file" .md)"
   artifact="$(frontmatter_value "$file" artifact)"
   id="$(frontmatter_value "$file" id)"
@@ -138,11 +189,19 @@ validate_cpk() {
   truth_change="$(frontmatter_value "$file" truth_change)"
   gate_a="$(frontmatter_value "$file" gate_a)"
   status="$(frontmatter_value "$file" status)"
+  schema_version="$(frontmatter_value "$file" schema_version)"
+  methodology_profile="$(frontmatter_value "$file" methodology_profile)"
+  production_code_change="$(frontmatter_value "$file" production_code_change)"
 
   [[ "$artifact" == "change_pack" ]] || error "$file artifact must be change_pack"
   [[ "$id" == "$base" ]] || error "$file id must match filename: $base"
   [[ "$source" =~ ^(user_instruction|issue_path|sp_path)$ ]] || error "$file source must be user_instruction, issue_path, or sp_path"
   [[ "$status" =~ ^(ready|blocked|applied)$ ]] || error "$file has invalid status: $status"
+  [[ -z "$schema_version" || "$schema_version" == "2" ]] || error "$file schema_version must be 2 when declared"
+  [[ -z "$methodology_profile" || "$methodology_profile" == "p2t2c-balanced-v1" ]] || error "$file has unsupported methodology_profile: $methodology_profile"
+  if [[ "$methodology_enforcement" == "required" && "$methodology_profile" == "p2t2c-balanced-v1" && "$risk" == "R1" ]]; then
+    [[ "$production_code_change" =~ ^(true|false)$ ]] || error "$file required-mode R1 must declare production_code_change: true or false"
+  fi
 
   case "$risk" in
     R1)
@@ -188,7 +247,7 @@ path_exists() {
 }
 
 validate_cr() {
-  local file="$1" base artifact id risk cpk execution drift decision
+  local file="$1" base artifact id risk cpk execution drift decision schema_version verification_policy methodology_profile review_required production_code_change
   base="$(basename "$file" .md)"
   artifact="$(frontmatter_value "$file" artifact)"
   id="$(frontmatter_value "$file" id)"
@@ -197,12 +256,15 @@ validate_cr() {
   execution="$(frontmatter_value "$file" execution_pack)"
   drift="$(frontmatter_value "$file" truth_drift)"
   decision="$(frontmatter_value "$file" decision)"
+  schema_version="$(frontmatter_value "$file" schema_version)"
+  verification_policy="$(frontmatter_value "$file" verification_policy)"
 
   [[ "$artifact" == "closure_report" ]] || error "$file artifact must be closure_report"
   [[ "$id" == "$base" ]] || error "$file id must match filename: $base"
   [[ "$risk" =~ ^R[012]$ ]] || error "$file risk must be R0, R1, or R2"
   [[ "$drift" =~ ^(none|resolved)$ ]] || error "$file truth_drift must be none or resolved"
   [[ "$decision" == "CLOSE" ]] || error "$file decision must be CLOSE"
+  [[ -z "$schema_version" || "$schema_version" == "2" ]] || error "$file schema_version must be 2 when declared"
 
   if [[ "$risk" == "R0" ]]; then
     [[ "$cpk" == "none" ]] || error "$file R0 change_pack must be none"
@@ -216,6 +278,37 @@ validate_cr() {
   grep -Eq '^## (Verification Evidence|验证证据)$' "$file" || error "$file missing verification evidence section"
   grep -Eq '^## (Remaining Risks|剩余风险)$' "$file" || error "$file missing remaining risks section"
   grep -Eq '^\| `[^`]+` \| (Pass|Fail|Not run)' "$file" || error "$file must record at least one actual verification command and result"
+  if [[ "$schema_version" == "2" && "$verification_policy" != "fresh_pass" ]]; then
+    error "$file schema_version 2 requires verification_policy: fresh_pass"
+  fi
+  if [[ -n "$verification_policy" ]]; then
+    [[ "$verification_policy" == "fresh_pass" ]] || error "$file verification_policy must be fresh_pass"
+    grep -Eq '^\| `[^`]+` \| Pass \|' "$file" || error "$file fresh_pass closure needs a passing verification command"
+    grep -Eq '^\| `[^`]+` \| Fail \|' "$file" && error "$file fresh_pass closure cannot retain a failed verification command"
+  fi
+
+  methodology_profile=""
+  if [[ "$cpk" == docs/change_packs/CPK-*.md && -f "$cpk" ]]; then
+    methodology_profile="$(frontmatter_value "$cpk" methodology_profile)"
+  fi
+
+  if [[ "$methodology_enforcement" == "required" && "$methodology_profile" == "p2t2c-balanced-v1" ]]; then
+    grep -Eq '^## (Method Evidence|方法证据)$' "$file" || error "$file missing method evidence section"
+    grep -Eq '^- (Test-first: RED .+Fail|测试先行：RED .+Fail|Test-first: Exemption: .+; Alternative evidence: .+|测试先行：豁免：.+；替代证据：.+)' "$file" || error "$file must record RED evidence or an exemption with alternative evidence"
+    grep -Eq '^- (Root-cause repair record:|根因修复记录：).+[^:[:space:]]' "$file" || error "$file missing root-cause repair record"
+    grep -Eq '^- (Isolation and baseline:|隔离与基线：).+[^:[:space:]]' "$file" || error "$file missing isolation and baseline evidence"
+    grep -Eq '^\| `[^`]+` \| Pass \|' "$file" || error "$file required-mode method evidence needs a passing verification command"
+    grep -Eq '^\| `[^`]+` \| Fail \|' "$file" && error "$file cannot CLOSE with a failed verification command"
+
+    review_required=0
+    production_code_change="$(frontmatter_value "$cpk" production_code_change)"
+    if [[ "$risk" == "R2" ]] || [[ "$production_code_change" == "true" && "$methodology_r1_review" == "required" ]]; then
+      review_required=1
+    fi
+    if [[ "$review_required" == "1" ]]; then
+      grep -Eq '^- (Independent review: Pass; Critical: 0; Important: 0;|独立审查：通过；Critical：0；Important：0；)' "$file" || error "$file requires a passing independent review with zero Critical and Important findings"
+    fi
+  fi
 }
 
 while IFS= read -r file; do

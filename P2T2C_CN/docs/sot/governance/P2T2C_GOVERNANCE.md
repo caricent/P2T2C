@@ -2,9 +2,9 @@
 
 Status: Active
 Owner: Project maintainers
-Last updated: 2026-06-10
+Last updated: 2026-07-10
 
-权威范围：P2T2C 风险路由、Truth 边界、人类关卡、工作批次、验证修复、漂移处理、安装升级和双语发行规则。
+权威范围：P2T2C 风险路由、Truth 边界、人类关卡、工作批次、验证修复、漂移处理、执行方法、安装升级和双语发行规则。
 
 ## RULE-GOV-001：五阶段风险路由工作流
 
@@ -171,6 +171,51 @@ Status: Active
 停线条件：
 
 - 当前 Active Truth 出现重复 Rule ID。
+
+## RULE-GOV-014：Truth 治理的执行方法
+
+Status: Active
+
+规则：
+
+P2T2C 是决策、风险、Truth、关卡和收口的控制层。原生执行方法可以澄清意图或规定执行纪律，但不能定义业务行为、替代 Truth、改变来源优先级或绕过 Gate A/B。
+
+- 支持的方法是设计澄清、风险感知 TDD、根因调试、独立审查和工作区隔离。
+- 关键歧义使用设计澄清，决定仍位于当前指令、可选 SP 或 R2 CPK 中；不要求平行设计产物。
+- 可自动化的 R1/R2 行为默认测试先行。生成产物、纯配置、探索性工作和无法合理自动化的情况必须记录豁免和替代证据。
+- 每次验证修复都从根因调查和一个可验证假设开始。同一失败需要第三次修复时，返回架构、Truth、范围或外部环境评估。
+- R1 生产代码变更和所有 R2 变更在收口前经过独立双轮审查。Critical 与 Important 问题阻断收口；Minor 问题必须修复，或作为剩余风险接受。
+- `isolation: auto` 时，存在宿主管理隔离则使用；仅在 R2、并行或明确要求隔离的工作中创建或请求 worktree。并行仅限所有权边界独立的 R2 工作。
+
+验证：
+
+- 启用方法层的 CPK、执行文档和 CR 使用规定的方法检查点。
+- R2 收口记录独立审查结论和新鲜验证证据。
+
+停线条件：
+
+- 方法产物被作为业务规则的唯一来源。
+- 缺少必须的审查、根因调查或方法豁免记录。
+
+## RULE-GOV-015：方法证据兼容性与强制执行
+
+Status: Active
+
+规则：
+
+新安装使用 `methodology.profile: p2t2c-balanced-v1` 和 `methodology.enforcement: required`。既有项目在项目拥有的 `.p2t2c/project_config.yaml` 显式切换到 required 之前保持 advisory 兼容模式。不得仅为本方法层迁移历史 CPK、spec、plan、tasks 或 CR。新的 CPK 和 CR 模板声明 `schema_version: 2`；v2 CR 必须声明 `verification_policy: fresh_pass`，它要求有通过的验证命令且不得保留失败验证命令。
+
+新的方法层 CPK 声明 `methodology_profile: p2t2c-balanced-v1`；required 模式 R1 CPK 还声明 `production_code_change: true|false`。在 required 模式下，其 Closure 必须记录方法证据：`RED ... Fail` 记录或带替代证据的豁免、根因记录、所需独立审查且 Critical/Important 均为零的结论，以及隔离/基线状态。启用方法层的 `CLOSE` 至少需要一条新鲜通过的验证命令，且不得保留失败验证命令。
+
+验证：
+
+- 治理检查仅对已声明方法层且项目配置为 required 的制品强制方法证据。
+- advisory 和历史制品保持有效，同时获得可操作提示。
+
+停线条件：
+
+- required 模式 R2 缺少独立审查或新鲜验证证据却收口。
+- required 模式下启用方法层的制品缺少必须证据。
 
 ## 工作批次与执行文档
 

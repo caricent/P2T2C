@@ -1,6 +1,6 @@
 # P2T2C Template Migrations
 
-Latest migration: `0.11.0-to-0.12.0.md`, introducing the five-stage risk-routed workflow.
+Latest migration: `0.12.0-to-0.13.0.md`, introducing the native execution method layer.
 
 This directory records P2T2C workflow template migrations.
 

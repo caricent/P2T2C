@@ -72,6 +72,7 @@ INSTALL_FILES=(
   "docs/change_packs/README.md"
   "docs/closure/README.md"
   "docs/reference/README.md"
+  "docs/reference/SUPERPOWERS_ATTRIBUTION.md"
   "docs/sot/governance/P2T2C_GOVERNANCE.md"
   "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md"
   "docs/sot/manifest.yaml"
@@ -93,12 +94,18 @@ INSTALL_FILES=(
   ".p2t2c/migrations/0.10.0-to-0.10.1.md"
   ".p2t2c/migrations/0.10.1-to-0.11.0.md"
   ".p2t2c/migrations/0.11.0-to-0.12.0.md"
+  ".p2t2c/migrations/0.12.0-to-0.13.0.md"
   ".p2t2c/migrations/README.md"
   ".p2t2c/prompts/01_intent_admission_prompt.md"
   ".p2t2c/prompts/02_risk_routing_and_truth_prompt.md"
   ".p2t2c/prompts/03_execute_work_batch_prompt.md"
   ".p2t2c/prompts/04_verify_and_repair_prompt.md"
   ".p2t2c/prompts/05_drift_and_closure_prompt.md"
+  ".p2t2c/skills/design-refinement/SKILL.md"
+  ".p2t2c/skills/risk-aware-tdd/SKILL.md"
+  ".p2t2c/skills/root-cause-debugging/SKILL.md"
+  ".p2t2c/skills/independent-review/SKILL.md"
+  ".p2t2c/skills/workspace-isolation/SKILL.md"
   ".p2t2c/templates/adr/ADR_TEMPLATE.md"
   ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md"
   ".p2t2c/templates/execution/plan.md"
@@ -166,6 +173,11 @@ if [[ -f "$target_root/.p2t2c/manifest.yaml" ]]; then
   already_installed=1
 fi
 
+project_config_action="kept existing project configuration"
+if [[ ! -e "$target_root/.p2t2c/project_config.yaml" ]]; then
+  project_config_action="create .p2t2c/project_config.yaml from the required-profile template"
+fi
+
 if [[ "$already_installed" -eq 1 ]]; then
   echo "P2T2C install"
   echo "Mode: $mode"
@@ -214,6 +226,8 @@ print_list "Unchanged" "${unchanged[@]}"
 print_list "Conflicts" "${conflicts[@]}"
 print_list "Skipped denied paths" "${skipped[@]}"
 print_list "Missing from source" "${missing_source[@]}"
+echo
+echo "Project configuration: $project_config_action"
 
 if [[ "$mode" == "dry-run" ]]; then
   exit 0
@@ -228,6 +242,10 @@ for rel in "${installed[@]}"; do
   mkdir -p "$target_root/$(dirname "$rel")"
   cp "$source_root/$rel" "$target_root/$rel"
 done
+
+if [[ ! -e "$target_root/.p2t2c/project_config.yaml" ]]; then
+  cp "$source_root/.p2t2c/templates/project_config.example.yaml" "$target_root/.p2t2c/project_config.yaml"
+fi
 
 write_lock
 
@@ -287,6 +305,9 @@ fi
   echo
   echo "## Validation"
   echo "- $validation"
+  echo
+  echo "## Project configuration"
+  echo "- $project_config_action"
   echo
   echo "## Suggested manual integration"
   echo

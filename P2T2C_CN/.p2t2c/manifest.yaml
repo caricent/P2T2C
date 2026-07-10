@@ -1,4 +1,4 @@
-version: "0.12.0"
+version: "0.13.0"
 workflow: "P2T2C Risk-Routed Workflow"
 upgrade_model: "ai_readable_safe_upgrade"
 language: "zh-CN"
@@ -14,6 +14,7 @@ metadata:
   upgrade_root: ".p2t2c/upgrade"
   internal_asset_root: ".p2t2c"
   script_root: ".p2t2c/bin"
+  skill_root: ".p2t2c/skills"
 
 canonical_entries:
   human: "P2T2C_README.md"
@@ -33,6 +34,6 @@ policy:
   managed_docs_language: "本发行根内使用中文单语受管文档"
 
 compatibility:
-  new_work_after_upgrade: "新工作使用 0.12.0 风险路由工作流。"
+  new_work_after_upgrade: "新工作使用 0.13.0 风险路由工作流，并可选择启用 balanced 方法配置。"
   historical_artifacts: "历史 SP、CPK、spec、task 和 CR 保持有效，不强制迁移。"
   project_truth: "升级不得修改项目拥有的 Truth 或 ADR。"

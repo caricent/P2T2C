@@ -2,9 +2,9 @@
 
 Status: Active
 Owner: Project maintainers
-Last updated: 2026-06-10
+Last updated: 2026-07-10
 
-Authority: P2T2C risk routing, Truth boundaries, human gates, work batches, verification repair, drift handling, install/upgrade safety, and bilingual release rules.
+Authority: P2T2C risk routing, Truth boundaries, human gates, work batches, verification repair, drift handling, execution methods, install/upgrade safety, and bilingual release rules.
 
 ## RULE-GOV-001: Five-stage Risk-routed Workflow
 
@@ -171,6 +171,51 @@ Validation:
 Stop the line if:
 
 - Current Active Truth contains a duplicate Rule ID.
+
+## RULE-GOV-014: Truth-governed Execution Methods
+
+Status: Active
+
+Rule:
+
+P2T2C is the control layer for decision, risk, Truth, gates, and closure. Native execution methods may refine intent or prescribe execution discipline, but cannot define business behavior, replace Truth, alter source priority, or bypass Gate A/B.
+
+- The supported methods are design refinement, risk-aware TDD, root-cause debugging, independent review, and workspace isolation.
+- A material ambiguity uses design refinement and remains in the current instruction, optional SP, or R2 CPK; it does not require a parallel design artifact.
+- Automatable R1/R2 behavior defaults to test-first development. Generated output, pure configuration, exploration, and impractical automation require a recorded exemption and alternative evidence.
+- Every verification repair begins with root-cause investigation and one testable hypothesis. A third repair attempt for the same failure returns for architecture, Truth, scope, or external-environment assessment.
+- R1 production-code changes and all R2 changes receive independent two-pass review before closure. Critical and Important findings block closure; Minor findings are repaired or accepted as a remaining risk.
+- With `isolation: auto`, use host-managed isolation when available; create or request a worktree only for R2, parallel, or explicitly isolated work. Parallel execution is limited to independent R2 ownership boundaries.
+
+Validation:
+
+- Method-enabled CPK, execution docs, and CRs use the documented method checkpoints.
+- R2 closure records an independent review verdict and fresh verification evidence.
+
+Stop the line if:
+
+- A method artifact is used as the sole source of a business rule.
+- A required review, root-cause investigation, or method exemption record is missing.
+
+## RULE-GOV-015: Method Evidence Compatibility and Enforcement
+
+Status: Active
+
+Rule:
+
+New installs use `methodology.profile: p2t2c-balanced-v1` and `methodology.enforcement: required`. Existing projects remain compatible in advisory mode until their project-owned `.p2t2c/project_config.yaml` opts into required enforcement. Historical CPK, spec, plan, tasks, and CR artifacts are never migrated solely for this method layer. New CPK and CR templates declare `schema_version: 2`; a v2 CR must declare `verification_policy: fresh_pass`, which requires a passing verification command and cannot retain a failed one.
+
+New method-enabled CPKs declare `methodology_profile: p2t2c-balanced-v1`; required-mode R1 CPKs also declare `production_code_change: true|false`. In required mode, their closure records Method Evidence: a `RED ... Fail` record or an exemption with alternative evidence, root-cause record, required independent review result with zero Critical and Important findings, and isolation/baseline state. A method-enabled `CLOSE` requires at least one fresh passing verification command and no failed verification command.
+
+Validation:
+
+- Governance checks enforce method evidence only for declared method-enabled artifacts in a project configured for required enforcement.
+- Advisory and historical artifacts remain valid while receiving actionable guidance.
+
+Stop the line if:
+
+- A required-mode R2 closes without independent review or fresh verification evidence.
+- A required-mode method-enabled artifact omits required evidence.
 
 ## Work Batches and Execution Docs
 

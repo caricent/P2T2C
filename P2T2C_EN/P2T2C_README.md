@@ -12,6 +12,12 @@ Intent Admission
 
 The AI entry point is `P2T2C_AGENTS.md`.
 
+## Execution Method Layer
+
+P2T2C governs decisions, risk, Truth, and audit evidence. Its native method layer provides design refinement, risk-aware TDD, root-cause debugging, independent review, and workspace isolation. These methods do not replace Truth or add an external plugin dependency.
+
+New installs enable the balanced profile by default. Existing projects remain compatible in advisory mode until they add the `methodology` section to `.p2t2c/project_config.yaml`.
+
 ## Risk Levels
 
 | Level | Applies to | Persistent artifacts |
@@ -37,10 +43,9 @@ make p2t2c-install-dry-run TARGET=/path/to/project
 make p2t2c-install TARGET=/path/to/project
 ```
 
-Then copy and edit project configuration:
+Then edit the project-owned configuration created by the installer:
 
 ```bash
-cp .p2t2c/templates/project_config.example.yaml .p2t2c/project_config.yaml
 bash .p2t2c/bin/check_p2t2c.sh
 ```
 

@@ -21,6 +21,11 @@ change_pack: docs/change_packs/CPK-YYYYMMDD-short-title.md
 - 当 {条件} 时，系统应 {行为}。
 - 系统不得 {禁止行为}。
 
+## 行为与测试策略
+
+- 测试先行行为：
+- 豁免及替代证据：
+
 ## 边界
 
 - 新的语义边界、Truth 冲突或高风险事项必须返回意图准入阶段。

@@ -23,3 +23,9 @@ Based on: `spec.md`
 | 检查 | 命令或步骤 | 覆盖 |
 |---|---|---|
 | Build / Test / Lint / Typecheck / Governance |  |  |
+
+## 隔离、协作与审查
+
+- 隔离与干净基线：
+- 并行所有权边界：
+- 独立审查检查点：

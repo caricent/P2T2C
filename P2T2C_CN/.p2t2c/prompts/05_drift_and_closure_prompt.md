@@ -14,8 +14,9 @@
 1. 对比代码、CPK、执行文档、Truth 和 ADR。
 2. 发现 Execution Doc Drift 时由 AI 自动回填执行文档。
 3. 发现 Truth Drift 时触发 Gate B，不得静默更新 Truth。
-4. 使用 Closure 模板创建 `docs/closure/CR-YYYYMMDD-short-title.md`。
-5. CR 必须记录风险等级、实际验证命令、结果、Truth Drift 状态和剩余风险。
+4. R1 生产代码变更和所有 R2 变更在收口前使用 `skills/independent-review/SKILL.md`。先审查 Truth/CPK/spec 合规，再审查代码质量和安全。Critical 与 Important 问题阻断收口；Minor 问题必须修复，或在 CR 剩余风险中明确接受。
+5. 使用 Closure 模板创建 `docs/closure/CR-YYYYMMDD-short-title.md`。
+6. CR 必须记录风险等级、新鲜的实际验证命令、结果、Truth Drift 状态、剩余风险和适用的方法证据：TDD RED 结果或豁免、发生修复时的根因记录、审查结论、隔离/基线状态。
 
 Gate B 选项：
 

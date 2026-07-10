@@ -55,6 +55,11 @@ CORE_MANAGED=(
   ".p2t2c/prompts/03_execute_work_batch_prompt.md"
   ".p2t2c/prompts/04_verify_and_repair_prompt.md"
   ".p2t2c/prompts/05_drift_and_closure_prompt.md"
+  ".p2t2c/skills/design-refinement/SKILL.md"
+  ".p2t2c/skills/risk-aware-tdd/SKILL.md"
+  ".p2t2c/skills/root-cause-debugging/SKILL.md"
+  ".p2t2c/skills/independent-review/SKILL.md"
+  ".p2t2c/skills/workspace-isolation/SKILL.md"
   ".p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md"
   ".p2t2c/templates/adr/ADR_TEMPLATE.md"
   ".p2t2c/templates/install/INSTALL_REPORT_TEMPLATE.md"
@@ -83,6 +88,7 @@ GOVERNANCE_MANAGED=(
   "docs/change_packs/README.md"
   "docs/closure/README.md"
   "docs/reference/README.md"
+  "docs/reference/SUPERPOWERS_ATTRIBUTION.md"
   "docs/sot/governance/P2T2C_GOVERNANCE.md"
   "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md"
   "docs/sot/manifest.yaml"
@@ -103,6 +109,7 @@ GOVERNANCE_MANAGED=(
   ".p2t2c/migrations/0.10.0-to-0.10.1.md"
   ".p2t2c/migrations/0.10.1-to-0.11.0.md"
   ".p2t2c/migrations/0.11.0-to-0.12.0.md"
+  ".p2t2c/migrations/0.12.0-to-0.13.0.md"
 )
 
 ALL_MANAGED=(
@@ -112,6 +119,9 @@ ALL_MANAGED=(
 
 is_project_owned() {
   case "$1" in
+    .p2t2c/project_config.yaml)
+      return 0
+      ;;
     docs/sot/product/*|docs/sot/data/*|docs/sot/api/*|docs/sot/client/*|docs/sot/server/*|docs/sot/ai/*|docs/sot/testing/*)
       return 0
       ;;

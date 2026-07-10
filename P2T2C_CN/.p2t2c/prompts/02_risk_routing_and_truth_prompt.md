@@ -12,11 +12,12 @@
 
 1. 选择风险等级并记录理由。
 2. R1/R2 使用 `docs/change_packs/CPK_TEMPLATE.md` 创建 CPK。
-3. R2 判断当前用户指令是否已经明确决定完整语义：
+3. 项目启用方法配置时，将其复制到新 CPK 并识别适用的方法检查点。该选择不得改变风险等级、Truth 边界或 Gate A/B 要求。
+4. R2 判断当前用户指令是否已经明确决定完整语义：
    - 已明确决定：`gate_a: satisfied`，无需重复批准。
    - 尚未决定：`gate_a: pending`，暂停并提供明确选项。
-4. Gate A 满足后才可应用 R2 Truth Patch；应用后将 CPK 标记为 `status: applied`。
-5. R1 必须使用 `truth_change: false`、`gate_a: not_required`。
+5. Gate A 满足后才可应用 R2 Truth Patch；应用后将 CPK 标记为 `status: applied`。
+6. R1 必须使用 `truth_change: false`、`gate_a: not_required`。
 
 禁止：
 

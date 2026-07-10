@@ -4,6 +4,7 @@ core_managed:
   description: "内部 Prompt、模板与脚本；未被本地修改时可安全升级。"
   paths:
     - ".p2t2c/prompts/**"
+    - ".p2t2c/skills/**"
     - ".p2t2c/templates/**"
     - ".p2t2c/bin/**"
     - "docs/submit_proposals/SP_TEMPLATE.md"
@@ -26,6 +27,7 @@ governance_managed:
     - "docs/change_packs/README.md"
     - "docs/closure/README.md"
     - "docs/reference/README.md"
+    - "docs/reference/SUPERPOWERS_ATTRIBUTION.md"
     - "docs/sot/governance/P2T2C_GOVERNANCE.md"
     - "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md"
     - "docs/sot/manifest.yaml"
@@ -34,6 +36,7 @@ governance_managed:
 project_owned:
   description: "升级脚本不得写入项目业务 Truth、实例产物、实现或测试。"
   paths:
+    - ".p2t2c/project_config.yaml"
     - "docs/sot/product/**"
     - "docs/sot/data/**"
     - "docs/sot/api/**"

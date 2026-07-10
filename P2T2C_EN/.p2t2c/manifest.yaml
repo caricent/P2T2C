@@ -1,4 +1,4 @@
-version: "0.12.0"
+version: "0.13.0"
 workflow: "P2T2C Risk-Routed Workflow"
 upgrade_model: "ai_readable_safe_upgrade"
 language: "en-US"
@@ -14,6 +14,7 @@ metadata:
   upgrade_root: ".p2t2c/upgrade"
   internal_asset_root: ".p2t2c"
   script_root: ".p2t2c/bin"
+  skill_root: ".p2t2c/skills"
 
 canonical_entries:
   human: "P2T2C_README.md"
@@ -33,6 +34,6 @@ policy:
   managed_docs_language: "English-only inside this release root"
 
 compatibility:
-  new_work_after_upgrade: "New work uses the 0.12.0 risk-routed workflow."
+  new_work_after_upgrade: "New work uses the 0.13.0 risk-routed workflow and may opt into the balanced method profile."
   historical_artifacts: "Historical SPs, CPKs, specs, tasks, and CRs remain valid without forced migration."
   project_truth: "Upgrade must not modify project-owned Truth or ADRs."

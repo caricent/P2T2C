@@ -34,6 +34,17 @@ p2t2c:
     same_failure_fix_rounds: 2
     environment_retry_count: 1
 
+methodology:
+  profile: "p2t2c-balanced-v1"
+  enforcement: "required"
+  tdd: "risk_aware"
+  debugging: "root_cause_first"
+  review:
+    r1_production_code: "required"
+    r2: "required"
+  isolation: "auto"
+  parallel_execution: "r2_independent_only"
+
 agent_policy:
   default_forbidden_reads:
     - "docs/reference"

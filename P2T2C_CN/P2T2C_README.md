@@ -12,6 +12,12 @@ P2T2C 表示 **Proposal-to-Truth-to-Code**。它让 AI 默认持续推进，同�
 
 AI 操作入口是 `P2T2C_AGENTS.md`。
 
+## 执行方法层
+
+P2T2C 负责决策、风险、Truth 和审计证据。其原生方法层提供设计澄清、风险感知 TDD、根因调试、独立审查和工作区隔离。这些方法不替代 Truth，也不增加外部插件依赖。
+
+新安装默认启用 balanced 配置。既有项目保持 advisory 兼容模式，直到在 `.p2t2c/project_config.yaml` 中添加 `methodology` 段。
+
 ## 风险等级
 
 | 等级 | 适用范围 | 持久化产物 |
@@ -37,10 +43,9 @@ make p2t2c-install-dry-run TARGET=/path/to/project
 make p2t2c-install TARGET=/path/to/project
 ```
 
-进入目标项目后，复制并编辑项目配置：
+进入目标项目后，编辑安装器创建的项目拥有配置：
 
 ```bash
-cp .p2t2c/templates/project_config.example.yaml .p2t2c/project_config.yaml
 bash .p2t2c/bin/check_p2t2c.sh
 ```
 
