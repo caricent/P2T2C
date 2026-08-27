@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://p2t2c.dev/schemas/evidence-summary-v1.schema.json",
+  "title": "P2T2C bounded evidence summary v1",
+  "type": "object",
+  "required": ["schema_version", "kind", "work_id", "state", "trust", "source", "binding", "route", "tdd", "verification", "reviews", "repairs", "completeness", "warnings", "remaining_risk", "blockers"],
+  "properties": {
+    "schema_version": { "const": 1 }, "kind": { "const": "evidence_summary" }, "work_id": { "$ref": "#/$defs/workId" },
+    "state": { "enum": ["active", "closed", "invalid"] }, "trust": { "type": ["string", "null"] },
+    "source": { "type": "object", "required": ["ledger_ref", "evidence_ref", "digest", "event_count", "receipt_schema"], "properties": { "ledger_ref": { "$ref": "#/$defs/nullablePath" }, "evidence_ref": { "$ref": "#/$defs/nullablePath" }, "digest": { "$ref": "#/$defs/nullableDigest" }, "event_count": { "type": "integer", "minimum": 0 }, "receipt_schema": { "type": ["integer", "null"], "minimum": 1 } }, "additionalProperties": false },
+    "binding": { "type": "object", "required": ["contract_digest", "baseline_sha", "final_tree_sha", "head_sha"], "properties": { "contract_digest": { "$ref": "#/$defs/nullableDigest" }, "baseline_sha": { "$ref": "#/$defs/nullableOid" }, "final_tree_sha": { "$ref": "#/$defs/nullableOid" }, "head_sha": { "$ref": "#/$defs/nullableOid" } }, "additionalProperties": false },
+    "route": { "type": "object", "required": ["risk", "execution_shape"], "properties": { "risk": { "enum": ["R0", "R1", "R2", "undetermined"] }, "execution_shape": { "enum": ["spike", "bounded", "architectural", "undetermined"] } }, "additionalProperties": false },
+    "tdd": { "type": "object", "required": ["policy", "evidence"], "properties": { "policy": { "type": "string" }, "evidence": { "type": "string" } }, "additionalProperties": false },
+    "verification": { "type": "array", "maxItems": 32, "items": { "type": "object", "required": ["profile", "command_id", "exit_code", "tree_sha", "fresh", "covered_by"], "properties": { "profile": { "enum": ["fast", "impacted", "full", "governance"] }, "command_id": { "type": "string" }, "exit_code": { "type": "integer", "minimum": 0, "maximum": 255 }, "tree_sha": { "$ref": "#/$defs/nullableOid" }, "fresh": { "type": "boolean" }, "covered_by": { "type": ["string", "null"] } }, "additionalProperties": false } },
+    "reviews": { "type": "object", "required": ["roles", "batches", "critical", "important", "minor"], "properties": { "roles": { "type": "array", "uniqueItems": true, "items": { "enum": ["batch", "global", "specialist", "re_review"] } }, "batches": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }, "critical": { "$ref": "#/$defs/nonnegative" }, "important": { "$ref": "#/$defs/nonnegative" }, "minor": { "$ref": "#/$defs/nonnegative" } }, "additionalProperties": false },
+    "repairs": { "type": "object", "required": ["max_round", "count"], "properties": { "max_round": { "type": "integer", "minimum": 0, "maximum": 2 }, "count": { "$ref": "#/$defs/nonnegative" } }, "additionalProperties": false },
+    "completeness": { "enum": ["in_progress", "complete", "advisory_incomplete", "invalid"] }, "warnings": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+    "remaining_risk": { "type": "object", "required": ["status", "ref"], "properties": { "status": { "enum": ["none", "recorded", "unknown"] }, "ref": { "type": ["string", "null"] } }, "additionalProperties": false },
+    "blockers": { "type": "array", "maxItems": 16, "items": { "type": "object", "required": ["code", "ref"], "properties": { "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }, "ref": { "type": ["string", "null"], "maxLength": 192 } }, "additionalProperties": false } }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "workId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "maxLength": 192 }, "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "oid": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "nullableDigest": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/digest" }] }, "nullableOid": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/oid" }] },
+    "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[^\\x00-\\x1f\\x7f]+$", "maxLength": 512 }, "nullablePath": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/path" }] }, "nonnegative": { "type": "integer", "minimum": 0 }
+  }
+}

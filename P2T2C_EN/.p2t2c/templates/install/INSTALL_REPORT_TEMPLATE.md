@@ -17,6 +17,10 @@ Generated at: {YYYY-MM-DD HH:MM:SS}
 
 - {files already identical}
 
+## 2a. Mode Repairs
+
+- {identical-byte managed files reconciled to deterministic mode policy}
+
 ---
 
 ## 3. Conflicts
@@ -42,3 +46,8 @@ Suggested manual integration:
 ## 5. Validation
 
 - {validation result}
+
+## 6. 0.14.1 Runtime Boundary
+
+- Installed workflow assets include the `p2t2c` context/verify dispatcher, immutable defaults, phase skills, receipt v2 schemas, and the managed evidence-directory README.
+- The install did not create or copy active runs, checker cache entries, closure evidence sidecars, project configuration instances beyond the initial advisory example, or historical artifacts.

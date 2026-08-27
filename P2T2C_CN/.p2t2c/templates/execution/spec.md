@@ -5,6 +5,8 @@ change_pack: docs/change_packs/CPK-YYYYMMDD-short-title.md
 
 # Spec {NNN}: {功能名称}
 
+> 兼容模板：v3 仅允许 architectural + `legacy_startup_evidence: true` 的真实旧流程启动证据使用；bounded/spike 一律拒绝。
+
 ## 目标与非目标
 
 - 目标：

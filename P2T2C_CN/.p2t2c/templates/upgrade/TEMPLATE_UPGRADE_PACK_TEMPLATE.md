@@ -13,6 +13,9 @@
 |---|---|
 | 升级后的新工作 | 使用升级后的风险路由工作流 |
 | 历史 SP、CPK、spec、task、CR | 保持不变 |
+| Inline receipt v1 与 evidence sidecar | 保持不变；新收口可使用 receipt v2 |
+| 活动 `.p2t2c/runs/**` 与 cache 状态 | 绝不作为发行受管或 rollback 目标 |
+| 受管文件 mode | 按 policy 修复；rollback 恢复旧 mode |
 | 项目拥有的 Truth、ADR | 不修改 |
 
 ## 受管文件动作
@@ -29,12 +32,13 @@
 
 ## 项目拥有文件不变
 
-升级不得修改项目业务 Truth、ADR 实例、SP 实例、CPK 实例、spec、代码、测试、数据库文件或历史 CR。
+升级不得修改项目业务 Truth、ADR 实例、SP 实例、CPK 实例、spec、代码、测试、数据库文件、历史 CR、evidence sidecar、活动 run、cache 状态或 `.p2t2c/project_config.yaml`。
 
 ## 验证
 
 ```bash
 bash .p2t2c/bin/check_p2t2c.sh
+./.p2t2c/bin/p2t2c --help
 shasum -a 256 -c .p2t2c/CHECKSUMS.sha256
 ```
 

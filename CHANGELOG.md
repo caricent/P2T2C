@@ -2,6 +2,29 @@
 
 All notable changes to P2T2C are documented here.
 
+## 0.14.1 - 2026-08-27
+
+- Added bounded deterministic `context`, `status`, and `evidence summary` views, managed defaults plus a compact project-owned configuration overlay, and three phase skills so routine Agents load only the active decision surface while exact Truth and cold evidence remain authoritative.
+- Added receipt v2 with content-addressed evidence sidecars and cold failure logs while preserving historical inline receipt v1 closures without rewriting them.
+- Replaced repeated checker parsing with a one-process index and narrowly scoped closed-proof cache; added coverage-aware batch verification with explicit `read_only`, `parallel_group`, and `covers` command metadata.
+- Split release smoke into `contract`, `security`, `transaction`, `migration`, `locale`, and `all`; language-neutral behavior runs once only after exact parity, while locale and migration workers run EN/CN in isolated parallel workspaces with quiet retained failure logs.
+- Added a registry-driven `smoke-daily` changed-path selector while keeping `all` as the only release proof; bounded sanitized failure tails, global worker barriers, and executable registry checks prevent hidden dispatch or log amplification.
+- Added deterministic managed-file mode policy and transactional same-byte mode repair; install/upgrade rollback tests now compare the entire target path, byte, and mode inventory outside transaction-report directories.
+- Hardened install/upgrade leaves and transactions: owner/nlink/mode checks reject hardlinks, checksum-frozen source and parent identities are revalidated through relative `O_NOFOLLOW` reads, destination parents are frozen before relative atomic writes, and unified failure/signal traps restore the complete pre-mutation target state.
+- Replaced large-file race timing with bounded marker-only test pauses that never skip validation, and set release proof to three global lanes (`transaction`, `contract→migration`, `security→locale`) so the worker cap remains three while preserving focused security coverage.
+- Added a digest-pinned, byte-exact 0.14.0 release fixture and real 0.14.0-to-0.14.1 upgrade/rollback coverage, while retaining the 0.13 long-hop and protecting project configuration, historical artifacts, active runs, cache state, and evidence sidecars.
+- Kept `methodology.profile: p2t2c-adaptive-v2`; this release does not include the deferred 0.14.1-C Agent dispatch, model-routing, review-capsule, or compaction experiments.
+
+## 0.14.0 - 2026-08-26
+
+- Added orthogonal `execution_shape: spike | bounded | architectural` routing while retaining R0/R1/R2 Truth authority and Gate A/B controls.
+- Replaced fixed R1/R2 document ceremony with schema v3 adaptive artifacts: zero-document R0 by default, one CPK for bounded R1, optional `work.md` for architectural work, and complete Truth/audit controls for R2.
+- Added SHA-bound JSONL execution and review evidence, deterministic schemas, runner and atomic closure commands, Truth ref+digest, Gate A/B exploration controls, ownership-batch/re-review evidence, total path mapping, stale-evidence rejection, and controller-only Agent fan-out rules.
+- Added `.p2t2c/managed-files.txt` as the shared install, upgrade, checksum, lock, and required-asset inventory; source checksums are verified before apply and failed post-apply validation automatically restores the prior state.
+- Shipped adaptive-v2 in advisory rollout mode pending real 0.13-versus-v2 Agent A/B results; the checked-in 3×3 scenarios are definitions, not claimed results or a reason to promote required enforcement.
+- Added project-owned required-mode configuration for the bilingual release roots, including complete full/root-smoke and governance profiles; installed projects still start from the advisory example with an upward catch-all mapping.
+- Added bilingual install/upgrade and evidence smoke coverage without adding Superpowers as a runtime dependency, while preserving project-owned configuration and historical schema v2 artifacts.
+
 ## 0.13.0 - 2026-07-10
 
 - Added a native Truth-governed execution method layer: design refinement, risk-aware TDD, root-cause debugging, independent review, and workspace isolation.

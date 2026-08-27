@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://p2t2c.dev/schemas/event-v1.schema.json",
+  "title": "P2T2C local execution evidence event v1",
+  "type": "object",
+  "required": [
+    "schema_version", "event_id", "work_id", "event_type", "contract_digest",
+    "tree_sha", "head_sha", "recorded_at", "evidence_target", "tree_excludes"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "event_id": { "type": "string", "pattern": "^evt-[A-Za-z0-9._-]+$" },
+    "work_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "event_type": {
+      "enum": [
+        "verification", "exploration", "tdd_red", "tdd_green", "tdd_exemption", "mutation",
+        "route", "isolation", "repair", "gate_b", "review"
+      ]
+    },
+    "contract_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "tree_sha": { "$ref": "#/$defs/gitOid" },
+    "head_sha": { "$ref": "#/$defs/gitOid" },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "evidence_target": { "$ref": "#/$defs/evidenceTarget" },
+    "tree_excludes": { "$ref": "#/$defs/treeExcludes" },
+    "started_tree_sha": { "$ref": "#/$defs/gitOid" },
+    "started_head_sha": { "$ref": "#/$defs/gitOid" },
+    "command_label": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,191}$" },
+    "argv_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "exit_code": { "type": "integer", "minimum": 0, "maximum": 255 },
+    "started_at": { "type": "string", "format": "date-time" },
+    "finished_at": { "type": "string", "format": "date-time" },
+    "duration_ms": { "type": "integer", "minimum": 0 },
+    "output_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "output_bytes": { "type": "integer", "minimum": 0 },
+    "output_lines": { "type": "integer", "minimum": 0 },
+    "output_summary": { "type": "string", "maxLength": 256 },
+    "verification_profile": { "enum": ["fast", "impacted", "full", "governance"] },
+    "profile_config_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "command_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+    "covered_commands": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["profile", "command_id", "profile_config_digest"],
+        "properties": {
+          "profile": { "enum": ["fast", "impacted", "full", "governance"] },
+          "command_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+          "profile_config_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "reason_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "from_risk": { "enum": ["R0", "R1", "R2"] },
+    "to_risk": { "enum": ["R0", "R1", "R2"] },
+    "from_shape": { "enum": ["spike", "bounded", "architectural"] },
+    "to_shape": { "enum": ["spike", "bounded", "architectural"] },
+    "workspace_kind": { "enum": ["worktree", "branch", "shared_owned"] },
+    "branch": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "baseline_sha": { "$ref": "#/$defs/gitOid" },
+    "clean": { "type": "boolean" },
+    "repair_round": { "type": "integer", "minimum": 1, "maximum": 2 },
+    "hypothesis_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "failure_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "fix_base_sha": { "$ref": "#/$defs/gitOid" },
+    "fix_head_sha": { "$ref": "#/$defs/gitOid" },
+    "fix_diff_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "gate_b_decision": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "gate_b_ref": { "type": "string", "minLength": 1, "maxLength": 512 },
+    "implementer": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "reviewer": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "reviewer_session": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "review_role": { "enum": ["batch", "global", "specialist", "re_review"] },
+    "batch_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+    "scope_digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "base_sha": { "$ref": "#/$defs/gitOid" },
+    "verdict": { "enum": ["pass", "fail"] },
+    "critical": { "type": "integer", "minimum": 0 },
+    "important": { "type": "integer", "minimum": 0 },
+    "minor": { "type": "integer", "minimum": 0 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "event_type": { "enum": ["verification", "exploration", "tdd_red", "tdd_green", "mutation"] } } },
+      "then": {
+        "required": [
+          "started_tree_sha", "started_head_sha", "command_label", "argv_digest", "exit_code",
+          "started_at", "finished_at", "duration_ms", "output_digest", "output_bytes",
+          "output_lines", "output_summary"
+        ]
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "verification" } } },
+      "then": { "required": ["verification_profile", "profile_config_digest", "command_id"] }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "tdd_exemption" } } },
+      "then": { "required": ["reason_digest"] }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "route" } } },
+      "then": { "required": ["from_risk", "to_risk", "from_shape", "to_shape"] }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "isolation" } } },
+      "then": { "required": ["workspace_kind", "branch", "baseline_sha", "clean"] }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "repair" } } },
+      "then": {
+        "required": [
+          "repair_round", "hypothesis_digest", "implementer", "failure_digest",
+          "fix_base_sha", "fix_head_sha", "fix_diff_digest"
+        ]
+      }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "gate_b" } } },
+      "then": { "required": ["gate_b_decision", "gate_b_ref"] }
+    },
+    {
+      "if": { "properties": { "event_type": { "const": "review" } } },
+      "then": {
+        "required": [
+          "implementer", "reviewer", "reviewer_session", "review_role", "scope_digest",
+          "base_sha", "verdict", "critical", "important", "minor"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "event_type": { "const": "review" },
+          "review_role": { "const": "batch" }
+        }
+      },
+      "then": { "required": ["batch_id"] }
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "gitOid": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "evidenceTarget": {
+      "type": "string",
+      "pattern": "^docs/(?:change_packs/CPK-|closure/CR-)[A-Za-z0-9._-]+\\.md$"
+    },
+    "treeExcludes": {
+      "type": "array",
+      "prefixItems": [{ "const": ".p2t2c/runs/**" }, { "$ref": "#/$defs/evidenceTarget" }],
+      "minItems": 2,
+      "maxItems": 2
+    }
+  }
+}

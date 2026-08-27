@@ -1,0 +1,90 @@
+schema_version: 1
+
+methodology:
+  profile: "p2t2c-adaptive-v2"
+  enforcement: "advisory"
+  tdd: "risk_aware"
+  debugging: "root_cause_first"
+  review:
+    r1_production_code: "required"
+    r2: "required"
+  isolation: "auto"
+  parallel_execution: "owned_isolated_only"
+  fan_out: "controller_only"
+  wait_strategy: "event_driven"
+
+p2t2c:
+  default_mode: "risk_routed"
+  r0:
+    audit_mode: false
+    closure_on_residual_risk: true
+  autonomous_repair:
+    same_failure_fix_rounds: 2
+    environment_retry_count: 1
+
+context:
+  default_format: "json"
+  capsule_max_bytes: 2048
+  latest_failures_max_items: 8
+  verification_summary_max_items: 32
+  raw_intent: "digest_only"
+  raw_events: "cold_only"
+  raw_output: "cold_only"
+  phase_skills:
+    admit-route: ".p2t2c/skills/admit-route/SKILL.md"
+    execute: ".p2t2c/skills/execute/SKILL.md"
+    verify-close: ".p2t2c/skills/verify-close/SKILL.md"
+
+evidence:
+  sidecar_root: "docs/closure/evidence"
+  failure_output_root: ".p2t2c/runs/{work_id}/outputs"
+  failure_tail_max_lines: 80
+  failure_tail_max_bytes: 16384
+
+verification:
+  fast:
+    commands:
+      - id: "p2t2c-check"
+        run: "bash .p2t2c/bin/check_p2t2c.sh --pre-close-work-id {work_id}"
+        read_only: true
+        parallel_group: "checker"
+  impacted:
+    commands:
+      - id: "p2t2c-check"
+        run: "bash .p2t2c/bin/check_p2t2c.sh --pre-close-work-id {work_id}"
+        read_only: true
+        parallel_group: "checker"
+  full:
+    commands:
+      - id: "p2t2c-check"
+        run: "bash .p2t2c/bin/check_p2t2c.sh --pre-close-work-id {work_id}"
+        read_only: true
+        parallel_group: "checker"
+        covers:
+          - "governance:p2t2c-check"
+  governance:
+    commands:
+      - id: "p2t2c-check"
+        run: "bash .p2t2c/bin/check_p2t2c.sh --pre-close-work-id {work_id}"
+        read_only: true
+        parallel_group: "checker"
+  path_mapping:
+    - pattern: ".p2t2c/**"
+      profile: "governance"
+    - pattern: "docs/sot/**"
+      profile: "governance"
+    - pattern: "src/**"
+      profile: "impacted"
+    - pattern: "tests/**"
+      profile: "impacted"
+    - pattern: "database/**"
+      profile: "full"
+    - pattern: "**"
+      profile: "impacted"
+
+agent_policy:
+  model_tiers: ["fast", "standard", "strongest"]
+  subagent_model_selection: "explicit"
+  recursive_fan_out: "forbidden"
+  default_forbidden_reads: ["docs/reference"]
+  business_rules_allowed_only_in: ["docs/sot"]

@@ -1,5 +1,7 @@
 # Tasks {NNN}: {功能名称}
 
+> 兼容模板：v3 仅允许 architectural + `legacy_startup_evidence: true`；当前 ownership IDs 仍以 CPK/work 为准。
+
 Based on: `spec.md` + `plan.md`
 
 ## 工作批次

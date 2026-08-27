@@ -1,49 +1,14 @@
-workflow: P2T2C Risk-Routed Workflow
-language: zh-CN
-supported_languages:
-  - zh-CN
-language_policy: monolingual_release_root
-status: template
-
-truth_root: docs/sot
-proposal_root: docs/submit_proposals
-change_pack_root: docs/change_packs
-adr_root: docs/adr
-spec_root: specs
-closure_root: docs/closure
-reference_root: docs/reference
-method_root: .p2t2c/skills
-
-canonical_entries:
-  human: P2T2C_README.md
-  ai: P2T2C_AGENTS.md
-
-risk_levels:
-  - R0
-  - R1
-  - R2
-
-workflow_stages:
-  - intent_admission
-  - risk_routing_truth
-  - work_batch_execution
-  - verification_repair
-  - drift_closure
-
-human_gates:
-  gate_a: Decide unresolved R2 semantics
-  gate_b: Resolve Truth Drift
-
-closure_decisions:
-  - CLOSE
+schema_version: 1
+workflow: "P2T2C Adaptive Risk-Routed Workflow"
+language: "zh-CN"
+truth_root: "docs/sot"
 
 truth_documents:
-  governance:
-    - docs/sot/governance/P2T2C_GOVERNANCE.md
-  governance_history:
-    - docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md
-  project_specific: []
+  - path: "docs/sot/governance/P2T2C_GOVERNANCE.md"
+    sha256: "93c03bd0722bf74fde374bda0cf55e5f2d8a2b0ac3e0e3b7655612f58bdeb408"
+    rule_ids: ["RULE-GOV-001", "RULE-GOV-002", "RULE-GOV-003", "RULE-GOV-004", "RULE-GOV-006", "RULE-GOV-007", "RULE-GOV-008", "RULE-GOV-009", "RULE-GOV-014", "RULE-GOV-015", "RULE-GOV-016", "RULE-GOV-017", "RULE-GOV-018"]
+    topics: ["治理", "Truth", "风险路由", "execution shape", "Gate", "Agent", "上下文", "机器证据", "验证", "收口", "安装升级", "双语发行"]
 
-forbidden_default_reads:
-  - docs/reference/
-  - docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md
+adrs: []
+
+cold_roots: ["docs/reference/", "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md", "docs/closure/evidence/"]

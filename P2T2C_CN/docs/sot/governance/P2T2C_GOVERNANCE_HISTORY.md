@@ -2,7 +2,7 @@
 
 Status: Reference
 Owner: Project maintainers
-Last updated: 2026-05-29
+Last updated: 2026-08-26
 
 本文件保存 `P2T2C_GOVERNANCE.md` 中各规则的 lifecycle 元数据（`Source`、`Supersedes`、`Superseded by`、`Migration required`、理由、下游投射），以及已 `Superseded`/`Deprecated` 的整条规则。
 
@@ -210,6 +210,90 @@ Migration required: Yes, 模板版本 `0.11.0`
 - `.p2t2c/prompts/05_execute_single_task_prompt.md`
 - `.p2t2c/templates/execution/tasks.md`
 - `.p2t2c/bin/check_p2t2c.sh`
+
+### RULE-GOV-014
+
+Status: Active
+Source: 维护者决策 2026-07-10；adaptive-v2 更新 2026-08-26
+Supersedes: 旧的固定方法检查点
+Superseded by: None
+Migration required: Yes, 模板版本 `0.14.0`
+
+理由: 方法层从固定文档/审查仪式演进为与 execution shape 相称的 Agent 自治，同时保留 Truth、关卡、两轮修复与独立审查护栏。
+
+下游投射:
+
+- `.p2t2c/skills/**`
+- `.p2t2c/prompts/**`
+- `P2T2C_AGENTS.md`
+
+### RULE-GOV-015
+
+Status: Active
+Source: 维护者决策 2026-07-10；machine-evidence 更新 2026-08-26
+Supersedes: schema v2 的手写方法证据强制规则
+Superseded by: None
+Migration required: Yes, 模板版本 `0.14.0`
+
+理由: 文本声明不能证明命令针对最终代码与当前 CPK 契约运行。v3 以 contract digest 和 final tree 做本地非对抗一致性检查，并结构化 TDD、路由、修复、Gate B 与分角色审查。
+
+下游投射:
+
+- `docs/change_packs/CPK_TEMPLATE.md`
+- `.p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md`
+- `.p2t2c/bin/check_p2t2c.sh`
+
+### RULE-GOV-016
+
+Status: Active
+Source: 维护者决策 2026-08-26
+Supersedes: R1/R2 固定三件套与所有风险固定 CR
+Superseded by: None
+Migration required: Yes, 模板版本 `0.14.0`
+
+理由: 风险等级决定 Truth 权限，execution shape 决定执行与文档强度，使 bounded 工作减少重复产物而不削弱 R2 控制。
+
+下游投射:
+
+- `docs/change_packs/**`
+- `.p2t2c/templates/execution/**`
+- `.p2t2c/manifest.yaml`
+- `.p2t2c/managed-files.txt`
+
+### RULE-GOV-017
+
+Status: Active
+Source: 维护者决策 2026-08-27
+Supersedes: None
+Superseded by: None
+Migration required: Yes, 模板版本 `0.14.1`
+
+理由: 大上下文窗口不会自动消除注意力稀释和重复读取。将精确 Truth 与当前状态保留在 Hot/Warm，把原始 event 和失败输出放入可校验 Cold sidecar，可在不减少证据的前提下降低默认上下文。
+
+下游投射:
+
+- `P2T2C_AGENTS.md`
+- `.p2t2c/skills/admit-route/**`、`.p2t2c/skills/execute/**`、`.p2t2c/skills/verify-close/**`
+- `.p2t2c/bin/p2t2c`、`.p2t2c/bin/p2t2c_run.sh`、`.p2t2c/bin/p2t2c_close.sh`
+- `.p2t2c/schemas/closure-receipt-v2.schema.json` 与上下文视图 schemas
+- `docs/sot/manifest.yaml`、`.p2t2c/defaults.yaml`、`.p2t2c/templates/project_config.example.yaml`
+
+### RULE-GOV-018
+
+Status: Active
+Source: 维护者决策 2026-08-27
+Supersedes: None
+Superseded by: None
+Migration required: Yes, 模板版本 `0.14.1`
+
+理由: v0.14 的最终证据和安全边界正确，但 checker、verification、close 和 release smoke 重复解析或执行同一工作。只有强 digest/tree/config 绑定下的等价去重才能作为提效，不得降低 Gate、审查、修复或全量 smoke。
+
+下游投射:
+
+- `.p2t2c/bin/check_p2t2c.sh` 与单进程 checker core
+- `.p2t2c/bin/p2t2c`、`.p2t2c/bin/p2t2c_evidence.pl`、`.p2t2c/bin/p2t2c_close.sh`
+- `.p2t2c/project_config.yaml` 与 `.p2t2c/templates/project_config.example.yaml`
+- `scripts/release_smoke_test.sh` 及其分套 fixture
 
 ---
 

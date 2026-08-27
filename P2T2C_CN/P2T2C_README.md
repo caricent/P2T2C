@@ -1,39 +1,51 @@
-# P2T2C 风险路由工作流
+# P2T2C Adaptive 风险路由工作流
 
-P2T2C 表示 **Proposal-to-Truth-to-Code**。它让 AI 默认持续推进，同时把人类决策集中在尚未决定的语义和 Truth Drift 上。
+P2T2C 表示 **Proposal-to-Truth-to-Code**。v0.14 在保留 Truth、R0/R1/R2、Gate A/B 和最终新鲜验证的同时，让流程仪式随任务形态缩放。
 
 ```text
-意图准入
-  -> 风险路由与 Truth
-  -> 工作批次执行
-  -> 验证与自主修复
-  -> 漂移检查与收口
+准入 + 路由 -> 计划 + 执行 -> 验证 + 修复 + 漂移 + 收口
 ```
 
 AI 操作入口是 `P2T2C_AGENTS.md`。
 
-## 执行方法层
+## 风险与执行形态
 
-P2T2C 负责决策、风险、Truth 和审计证据。其原生方法层提供设计澄清、风险感知 TDD、根因调试、独立审查和工作区隔离。这些方法不替代 Truth，也不增加外部插件依赖。
+风险决定 AI 能否改 Truth：R0 不改变业务行为，R1 实现既有 Truth，R2 改变 Truth/契约/数据/安全/权限。正交的 execution shape 决定执行与文档强度：`spike` 是可丢弃探索，`bounded` 是单批次工作，`architectural` 需要 DAG、所有权和集成。
 
-新安装默认启用 balanced 配置。既有项目保持 advisory 兼容模式，直到在 `.p2t2c/project_config.yaml` 中添加 `methodology` 段。
+| 场景 | v0.14 持久产物 |
+|---|---|
+| R0 | 默认无文档；审计模式或剩余风险时自动极简 CR |
+| bounded R1 | 单一 CPK v3，内含 closure evidence |
+| architectural R1 | CPK v3 + 单一 `work.md` |
+| bounded R2 | 完整 CPK v3 + Truth Patch + 自动 CR |
+| architectural R2 | 完整 CPK v3 + Truth Patch + `work.md` + 自动 CR |
 
-## 风险等级
+SP 可选。新 bounded 工作拒绝旧三件套；只有 architectural + `legacy_startup_evidence: true` 保留真实旧流程启动证据。CPK 用唯一 ownership IDs，并用 Truth Patch SHA-256 绑定单一 SoT 文件。
 
-| 等级 | 适用范围 | 持久化产物 |
-|---|---|---|
-| R0 | 重构、测试、文档、CI、恢复既有行为 | `CR-*` |
-| R1 | 实现现有 Truth 已覆盖的行为 | `CPK-*`、精简三件套、`CR-*` |
-| R2 | 改变 Truth、ADR、外部契约、数据语义、安全、权限或不可逆操作 | 完整 `CPK-*`、Truth Patch、精简三件套、`CR-*` |
+## 机器证据
 
-`SP-*` 是可选意图输入，不再是每个任务的必需产物。R1/R2 的 CPK 放在 `docs/change_packs/`；执行文档放在 `specs/{NNN-feature}/`；所有完成工作都在 `docs/closure/` 生成 CR。
+执行命令、TDD exemption、route、isolation、repair、Gate B 和独立审查记录在 gitignored 的 per-work JSONL ledger 中，并绑定 tree SHA 与 CPK contract digest。收口时把必要 receipt 投射到 R1 CPK 或 R2/R0 CR，验证成功后清理 ledger。Markdown 中手写 `Pass` 或审查声明不再被当作执行证据。
 
-## 人类关卡
+receipt 的 `evidence_trust: local_consistency` 只说明本地非对抗一致性；它不是签名、远程证明或针对可同时篡改工具与 ledger 的安全边界。
 
-- Gate A：仅用于尚未决定的 R2 语义。用户当前指令已经明确决定时，不重复批准。
-- Gate B：仅在实现改变、扩展或违反 Truth 时触发。
+每个 changed path 必须命中 path mapping 并解析配置的 command ID。R2/multi-Agent 强制 full，governance change 额外 governance；缺 mapping 是核心硬失败。
 
-首次验证失败不会立即停线。AI 会在既定范围内诊断并自主修复；需要新决策、危险操作、外部权限或重复失败时才暂停。
+示例：
+
+```bash
+bash .p2t2c/bin/p2t2c_run.sh --work-id CPK-... --event-type verification --verification-profile impacted --command-id p2t2c-check
+bash .p2t2c/bin/p2t2c_close.sh --work-id CPK-... --verification-profile impacted
+```
+
+runner 默认 quiet，只写摘要/digest；调试时显式加 `--show-output`，不能把聊天输出当作证据。verification 命令只能由项目配置的 profile + command ID 解析，不接受任意尾随命令。
+
+## 质量护栏
+
+- bounded R1 生产代码做一次独立综合审查；architectural R1/R2 做 batch + global 审查，适用时增加 specialist。reviewer 与 implementer 身份不同，Critical/Important/Minor 必须全为 0。
+- 两轮修复均恢复原 implementer，只复审 finding 与 fix diff；第三轮停线。
+- read-only 可并行；写并行要求无所有权重叠、明确基线和单一 controller。
+- implementer/reviewer 不得递归派生 Agent。
+- 明确违反 Truth 的实现由 Agent 先修正并重验；只有接受实现并修改 Truth 才触发 Gate B。
 
 ## 首次安装
 
@@ -43,22 +55,16 @@ make p2t2c-install-dry-run TARGET=/path/to/project
 make p2t2c-install TARGET=/path/to/project
 ```
 
-进入目标项目后，编辑安装器创建的项目拥有配置：
-
-```bash
-bash .p2t2c/bin/check_p2t2c.sh
-```
+v0.14 advisory 仍硬门控核心证据。方法缺口投射为 `evidence_warnings`，`evidence_completeness` 不完整，不能冒充 complete。真实 A/B 达标并经人类决定后才推广 required。
 
 ## 升级
-
-在目标项目根目录调用新发行根中的脚本：
 
 ```bash
 /path/to/P2T2C_CN/.p2t2c/bin/p2t2c_upgrade.sh --dry-run --source /path/to/P2T2C_CN
 /path/to/P2T2C_CN/.p2t2c/bin/p2t2c_upgrade.sh --apply --source /path/to/P2T2C_CN
 ```
 
-升级脚本只更新未被本地修改的受管工作流文件，保留项目拥有的 Truth、ADR、SP、CPK、spec、代码、测试和历史 CR。
+安装与升级只更新未被本地修改的受管工作流外壳，保留项目拥有的 Truth、ADR、SP、CPK、spec/work、代码、测试和历史 CR。
 
 ## 目录
 
@@ -66,9 +72,9 @@ bash .p2t2c/bin/check_p2t2c.sh
 |---|---|
 | `P2T2C_AGENTS.md` | AI 操作入口 |
 | `docs/sot/**` | 当前业务 Truth |
-| `docs/adr/**` | 决策原因与后果 |
-| `docs/submit_proposals/**` | 可选 SP 输入 |
-| `docs/change_packs/**` | R1/R2 CPK |
-| `specs/**` | R1/R2 精简执行三件套 |
-| `docs/closure/**` | 所有完成工作的 CR |
-| `.p2t2c/**` | Prompt、内部模板、脚本和升级元数据 |
+| `docs/adr/**` | 需长期解释的决策原因 |
+| `docs/change_packs/**` | R1/R2 CPK v3 |
+| `specs/**/work.md` | architectural 执行索引 |
+| `docs/closure/**` | 自动生成的 R2 / 条件性 R0 CR |
+| `.p2t2c/runs/**` | gitignored 临时机器证据 |
+| `.p2t2c/**` | Prompt、Skill、模板、脚本和升级元数据 |

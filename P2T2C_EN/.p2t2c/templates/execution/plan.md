@@ -1,5 +1,7 @@
 # Plan {NNN}: {Feature Name}
 
+> Compatibility template: v3 permits it only for architectural + `legacy_startup_evidence: true`; bounded/spike cannot create it.
+
 Based on: `spec.md`
 
 ## Implementation Strategy

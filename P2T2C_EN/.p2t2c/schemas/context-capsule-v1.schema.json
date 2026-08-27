@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://p2t2c.dev/schemas/context-capsule-v1.schema.json",
+  "title": "P2T2C bounded context capsule v1",
+  "type": "object",
+  "required": ["schema_version", "kind", "phase", "generated_at", "intent", "work_id", "methodology", "route", "manifest", "truth_refs", "required_reads", "required_profiles", "allowed_actions", "cold_refs", "blockers", "warnings"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "kind": { "const": "context_capsule" },
+    "phase": { "enum": ["admit-route", "execute", "verify-close"] },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "intent": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "object", "required": ["sha256", "bytes"], "properties": { "sha256": { "$ref": "#/$defs/digest" }, "bytes": { "type": "integer", "minimum": 0 } }, "additionalProperties": false }
+      ]
+    },
+    "work_id": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/workId" }] },
+    "methodology": { "type": "object", "required": ["profile", "enforcement"], "properties": { "profile": { "enum": ["p2t2c-balanced-v1", "p2t2c-adaptive-v2"] }, "enforcement": { "enum": ["advisory", "required"] } }, "additionalProperties": false },
+    "route": {
+      "type": "object",
+      "required": ["risk", "execution_shape", "gate_a", "status", "source"],
+      "properties": {
+        "risk": { "enum": ["R0", "R1", "R2", "undetermined"] },
+        "execution_shape": { "enum": ["spike", "bounded", "architectural", "undetermined"] },
+        "gate_a": { "enum": ["not_required", "satisfied", "pending", "undetermined"] },
+        "status": { "type": "string", "minLength": 1, "maxLength": 32 },
+        "source": { "enum": ["contract", "unbound"] }
+      },
+      "additionalProperties": false
+    },
+    "manifest": { "type": "object", "required": ["path", "digest"], "properties": { "path": { "const": "docs/sot/manifest.yaml" }, "digest": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/digest" }] } }, "additionalProperties": false },
+    "truth_refs": { "type": "array", "maxItems": 8, "items": { "type": "object", "required": ["path", "digest", "rule_ids"], "properties": { "path": { "$ref": "#/$defs/path" }, "digest": { "$ref": "#/$defs/digest" }, "rule_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^RULE-[A-Z]+-[0-9]+$" } } }, "additionalProperties": false } },
+    "required_reads": { "$ref": "#/$defs/pathList" },
+    "required_profiles": { "type": "array", "uniqueItems": true, "items": { "enum": ["fast", "impacted", "full", "governance"] } },
+    "allowed_actions": { "$ref": "#/$defs/codeList" },
+    "cold_refs": { "$ref": "#/$defs/pathList" },
+    "blockers": { "$ref": "#/$defs/blockers" },
+    "warnings": { "$ref": "#/$defs/codeList" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "workId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "maxLength": 192 },
+    "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[^\\x00-\\x1f\\x7f]+$", "maxLength": 512 },
+    "pathList": { "type": "array", "maxItems": 24, "items": { "$ref": "#/$defs/path" } },
+    "codeList": { "type": "array", "maxItems": 24, "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]*$" } },
+    "blockers": { "type": "array", "maxItems": 16, "items": { "type": "object", "required": ["code", "ref"], "properties": { "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }, "ref": { "type": ["string", "null"], "maxLength": 192 } }, "additionalProperties": false } }
+  }
+}

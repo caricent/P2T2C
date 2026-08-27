@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://p2t2c.dev/schemas/work-status-v1.schema.json",
+  "title": "P2T2C work status v1",
+  "type": "object",
+  "required": ["schema_version", "kind", "work_id", "state", "source", "contract", "binding", "paths", "progress", "required_profiles", "satisfied_profiles", "latest_failures", "blockers", "next_legal_actions"],
+  "properties": {
+    "schema_version": { "const": 1 }, "kind": { "const": "work_status" },
+    "work_id": { "$ref": "#/$defs/workId" },
+    "state": { "enum": ["missing", "active", "blocked", "closable", "closed", "invalid"] },
+    "source": { "enum": ["active_run", "cpk", "closure", "none"] },
+    "contract": { "oneOf": [{ "type": "null" }, { "type": "object", "required": ["risk", "execution_shape", "status", "gate_a", "contract_digest", "baseline_sha", "implementer"], "properties": { "risk": { "enum": ["R0", "R1", "R2", "undetermined"] }, "execution_shape": { "enum": ["spike", "bounded", "architectural", "undetermined"] }, "status": { "type": "string" }, "gate_a": { "type": "string" }, "contract_digest": { "$ref": "#/$defs/nullableDigest" }, "baseline_sha": { "$ref": "#/$defs/nullableOid" }, "implementer": { "type": "string", "maxLength": 128 } }, "additionalProperties": false }] },
+    "binding": { "type": "object", "required": ["head_sha", "tree_sha"], "properties": { "head_sha": { "$ref": "#/$defs/nullableOid" }, "tree_sha": { "$ref": "#/$defs/nullableOid" } }, "additionalProperties": false },
+    "paths": { "type": "object", "required": ["cpk", "work_pack", "run", "ledger", "evidence_target", "evidence_ref"], "properties": { "cpk": { "$ref": "#/$defs/nullablePath" }, "work_pack": { "$ref": "#/$defs/nullablePath" }, "run": { "$ref": "#/$defs/nullablePath" }, "ledger": { "$ref": "#/$defs/nullablePath" }, "evidence_target": { "$ref": "#/$defs/nullablePath" }, "evidence_ref": { "$ref": "#/$defs/nullablePath" } }, "additionalProperties": false },
+    "progress": { "type": "object", "required": ["event_count", "route_count", "verification_count", "review_count", "repair_round"], "properties": { "event_count": { "$ref": "#/$defs/nonnegative" }, "route_count": { "$ref": "#/$defs/nonnegative" }, "verification_count": { "$ref": "#/$defs/nonnegative" }, "review_count": { "$ref": "#/$defs/nonnegative" }, "repair_round": { "type": "integer", "minimum": 0, "maximum": 2 } }, "additionalProperties": false },
+    "required_profiles": { "$ref": "#/$defs/profiles" }, "satisfied_profiles": { "$ref": "#/$defs/profiles" },
+    "latest_failures": { "type": "array", "maxItems": 8, "items": { "type": "object", "required": ["event_id", "event_type", "profile", "command_id", "exit_code", "log_ref"], "properties": { "event_id": { "type": "string" }, "event_type": { "type": "string" }, "profile": { "type": ["string", "null"] }, "command_id": { "type": ["string", "null"] }, "exit_code": { "type": "integer", "minimum": 1, "maximum": 255 }, "log_ref": { "$ref": "#/$defs/nullablePath" } }, "additionalProperties": false } },
+    "blockers": { "$ref": "#/$defs/blockers" }, "next_legal_actions": { "$ref": "#/$defs/codes" }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "workId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "maxLength": 192 }, "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" }, "oid": { "type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$" },
+    "nullableDigest": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/digest" }] }, "nullableOid": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/oid" }] },
+    "path": { "type": "string", "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[^\\x00-\\x1f\\x7f]+$", "maxLength": 512 }, "nullablePath": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/path" }] },
+    "nonnegative": { "type": "integer", "minimum": 0 }, "profiles": { "type": "array", "uniqueItems": true, "items": { "enum": ["fast", "impacted", "full", "governance"] } },
+    "codes": { "type": "array", "uniqueItems": true, "items": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9._-]*$" } },
+    "blockers": { "type": "array", "maxItems": 16, "items": { "type": "object", "required": ["code", "ref"], "properties": { "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }, "ref": { "type": ["string", "null"], "maxLength": 192 } }, "additionalProperties": false } }
+  }
+}

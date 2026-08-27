@@ -1,5 +1,7 @@
 # Tasks {NNN}: {Feature Name}
 
+> Compatibility template: v3 permits it only for architectural + `legacy_startup_evidence: true`; current ownership IDs remain in CPK/work.
+
 Based on: `spec.md` + `plan.md`
 
 ## Work Batch

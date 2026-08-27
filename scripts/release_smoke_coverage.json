@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "suites": ["contract", "security", "transaction", "migration", "locale"],
+  "cases": [
+    {"id":"contract.historical-v2-v3-routing","suite":"contract","language_scope":"neutral_once","legacy_function":"create_historical_v2_samples/create_v3_routing_samples"},
+    {"id":"contract.v3-schema-and-artifact-matrix","suite":"contract","language_scope":"neutral_once","legacy_function":"check_invalid_v3_contract/check_artifact_matrix_contracts"},
+    {"id":"contract.r0-closure-policy","suite":"contract","language_scope":"neutral_once","legacy_function":"run_r0_contracts"},
+    {"id":"contract.gate-a-state-machine","suite":"contract","language_scope":"neutral_once","legacy_function":"run_gate_a_exploration_contract"},
+    {"id":"contract.shape-and-route","suite":"contract","language_scope":"neutral_once","legacy_function":"run_spike_and_route_contracts"},
+    {"id":"contract.tdd-and-binding","suite":"contract","language_scope":"neutral_once","legacy_function":"run_tdd_and_contract_binding"},
+    {"id":"contract.advisory-required","suite":"contract","language_scope":"neutral_once","legacy_function":"run_advisory_required_contracts"},
+    {"id":"contract.review","suite":"contract","language_scope":"neutral_once","legacy_function":"run_review_contracts"},
+    {"id":"contract.architectural-r2","suite":"contract","language_scope":"neutral_once","legacy_function":"run_architectural_r2_contract"},
+    {"id":"contract.cli","suite":"contract","language_scope":"neutral_once","legacy_function":"run_cli_examples"},
+    {"id":"security.truth-digest","suite":"security","language_scope":"neutral_once","legacy_function":"check_truth_hash_contract"},
+    {"id":"security.unmapped-and-baseline","suite":"security","language_scope":"neutral_once","legacy_function":"run_unmapped_path_contract/run_baseline_contracts"},
+    {"id":"security.ledger-symlink-swap","suite":"security","language_scope":"neutral_once","legacy_function":"run_ledger_symlink_swap_contract"},
+    {"id":"security.path-and-checker-guards","suite":"security","language_scope":"neutral_once","legacy_function":"run_path_and_checker_guards"},
+    {"id":"security.sidecar-cache-verify","suite":"security","language_scope":"neutral_once","legacy_function":"run_v0141_security_contracts"},
+    {"id":"security.close-target-parent-swap","suite":"security","language_scope":"neutral_once","legacy_function":"run_close_target_parent_swap_contract"},
+    {"id":"security.install-upgrade-paths","suite":"security","language_scope":"neutral_once","legacy_function":"run_transaction_safety_contracts"},
+    {"id":"transaction.install-upgrade-rollback","suite":"transaction","language_scope":"neutral_once","legacy_function":"run_transaction_safety_contracts"},
+    {"id":"transaction.concurrent-close","suite":"transaction","language_scope":"neutral_once","legacy_function":"run_concurrent_close_contract"},
+    {"id":"transaction.atomic-close","suite":"transaction","language_scope":"neutral_once","legacy_function":"run_atomic_close_contract"},
+    {"id":"migration.0.13-long-hop","suite":"migration","language_scope":"bilingual_parallel","legacy_function":"run_upgrade_013_contract"},
+    {"id":"migration.0.14-direct","suite":"migration","language_scope":"bilingual_parallel","legacy_function":"run_upgrade_014_contract"},
+    {"id":"locale.release-parity","suite":"locale","language_scope":"repo_once","legacy_function":"check_release_parity.sh"},
+    {"id":"locale.release-metadata","suite":"locale","language_scope":"bilingual_parallel","legacy_function":"make check/checksums"},
+    {"id":"locale.fresh-install-surface","suite":"locale","language_scope":"bilingual_parallel","legacy_function":"assert_installed_assets"},
+    {"id":"locale.compact-effective-config","suite":"locale","language_scope":"bilingual_parallel","legacy_function":"run_locale_worker"}
+  ]
+}

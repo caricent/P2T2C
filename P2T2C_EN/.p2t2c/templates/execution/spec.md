@@ -5,6 +5,8 @@ change_pack: docs/change_packs/CPK-YYYYMMDD-short-title.md
 
 # Spec {NNN}: {Feature Name}
 
+> Compatibility template: v3 permits it only for architectural + `legacy_startup_evidence: true` real old-workflow startup evidence; bounded/spike rejects it.
+
 ## Goals and Non-goals
 
 - Goal:

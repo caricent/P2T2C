@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+context_engine="$script_dir/p2t2c_context.pl"
+
+usage() {
+  cat <<'EOF'
+Usage:
+  p2t2c context --phase admit-route|execute|verify-close [--work-id ID]
+    [--intent TEXT | --intent-file PATH|-] [--json]
+  p2t2c status --work-id ID [--json]
+  p2t2c evidence summary --work-id ID [--json]
+  p2t2c verify --work-id ID --profile PROFILE [verification options]
+EOF
+}
+
+[[ -f "$context_engine" && ! -L "$context_engine" ]] || {
+  echo "ERROR: missing or unsafe context engine" >&2
+  exit 2
+}
+
+command_name="${1:-}"
+case "$command_name" in
+  context|status)
+    if [[ "${2:-}" == "-h" || "${2:-}" == "--help" ]]; then usage; exit 0; fi
+    shift
+    exec perl "$context_engine" "$command_name" "$@"
+    ;;
+  evidence)
+    [[ "${2:-}" == "summary" ]] || { usage >&2; exit 2; }
+    if [[ "${3:-}" == "-h" || "${3:-}" == "--help" ]]; then usage; exit 0; fi
+    shift 2
+    exec perl "$context_engine" evidence-summary "$@"
+    ;;
+  verify)
+    shift
+    verify_runner="$script_dir/p2t2c_verify.pl"
+    [[ -f "$verify_runner" && ! -L "$verify_runner" ]] || {
+      echo "ERROR: batch verification is not installed" >&2
+      exit 2
+    }
+    exec perl "$verify_runner" "$@"
+    ;;
+  -h|--help|help|'')
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 2
+    ;;
+esac

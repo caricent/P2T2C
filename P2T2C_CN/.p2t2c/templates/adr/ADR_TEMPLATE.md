@@ -1,6 +1,13 @@
 # ADR-{YYYYMMDD}-{short-title}
 
-相关 SP: {docs/submit_proposals/SP-...}
+Status: Proposed / Accepted / Superseded
+Date: YYYY-MM-DD
+Change Pack: `docs/change_packs/CPK-...`
+Related SP: None / `docs/submit_proposals/SP-...`
+Truth Patch ref: `docs/sot/path.md`；相关 Rule：`RULE-...`
+Truth Patch SHA-256：`<digest>`
+Ownership / legacy：`none` / `B1,B2`；`legacy_startup_evidence: false|true`
+Gate B: `not_triggered` / `resolved`；resolved 时填写 decision 与人类决定引用
 
 ---
 
@@ -12,7 +19,7 @@
 
 ## 决策
 
-最终决定是什么？
+最终决定是什么？ADR 只解释需要长期保留的理由；当前可执行行为必须投射到 SoT。
 
 ---
 

@@ -1,0 +1,10 @@
+# Deterministic mode policy for every path in managed-files.txt.
+# Unlisted managed files use the default mode.
+default 0644
+0755 .p2t2c/bin/check_p2t2c.sh
+0755 .p2t2c/bin/p2t2c
+0755 .p2t2c/bin/p2t2c_close.sh
+0755 .p2t2c/bin/p2t2c_context.pl
+0755 .p2t2c/bin/p2t2c_install.sh
+0755 .p2t2c/bin/p2t2c_run.sh
+0755 .p2t2c/bin/p2t2c_upgrade.sh

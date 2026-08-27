@@ -1,6 +1,6 @@
 # P2T2C Template Migrations
 
-Latest migration: `0.12.0-to-0.13.0.md`, introducing the native execution method layer.
+Latest migration: `0.14.0-to-0.14.1.md`, reducing context and duplicate execution while retaining the adaptive-v2 contract.
 
 This directory records P2T2C workflow template migrations.
 
@@ -16,4 +16,4 @@ Rules:
 
 - Migration notes describe workflow/template/governance changes only.
 - Business Truth, ADR, specs, code, tests, and historical Closure Reports are not migrated automatically.
-- New workflow rules apply to SPs created after the upgrade.
+- New workflow rules apply to work created after the upgrade; historical v2 artifacts remain valid.

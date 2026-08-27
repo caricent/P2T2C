@@ -2,7 +2,7 @@
 
 Status: Reference
 Owner: Project maintainers
-Last updated: 2026-05-29
+Last updated: 2026-08-26
 
 This file holds the lifecycle metadata for the rules in `P2T2C_GOVERNANCE.md` (`Source`, `Supersedes`, `Superseded by`, `Migration required`, rationale, downstream projections), plus any `Superseded`/`Deprecated` rule in full.
 
@@ -208,6 +208,90 @@ Downstream projections:
 - `.p2t2c/prompts/05_execute_single_task_prompt.md`
 - `.p2t2c/templates/execution/tasks.md`
 - `.p2t2c/bin/check_p2t2c.sh`
+
+### RULE-GOV-014
+
+Status: Active
+Source: Maintainer decision on 2026-07-10; adaptive-v2 update on 2026-08-26
+Supersedes: Previous fixed method checkpoints
+Superseded by: None
+Migration required: Yes, template version `0.14.0`
+
+Rationale: The method layer evolves from fixed document/review ceremony to execution-shape-proportional Agent autonomy while retaining Truth, gates, two repair rounds, and independent review.
+
+Downstream projections:
+
+- `.p2t2c/skills/**`
+- `.p2t2c/prompts/**`
+- `P2T2C_AGENTS.md`
+
+### RULE-GOV-015
+
+Status: Active
+Source: Maintainer decision on 2026-07-10; machine-evidence update on 2026-08-26
+Supersedes: Schema v2 handwritten method-evidence enforcement
+Superseded by: None
+Migration required: Yes, template version `0.14.0`
+
+Rationale: Text claims cannot prove execution against final code and the current CPK contract. v3 uses contract digest and final tree for non-adversarial local consistency, structuring TDD, routing, repair, Gate B, and role-specific review.
+
+Downstream projections:
+
+- `docs/change_packs/CPK_TEMPLATE.md`
+- `.p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md`
+- `.p2t2c/bin/check_p2t2c.sh`
+
+### RULE-GOV-016
+
+Status: Active
+Source: Maintainer decision on 2026-08-26
+Supersedes: Fixed R1/R2 execution trio and mandatory CR for every risk
+Superseded by: None
+Migration required: Yes, template version `0.14.0`
+
+Rationale: Risk determines Truth authority while execution shape determines execution/document intensity, reducing duplication for bounded work without weakening R2 control.
+
+Downstream projections:
+
+- `docs/change_packs/**`
+- `.p2t2c/templates/execution/**`
+- `.p2t2c/manifest.yaml`
+- `.p2t2c/managed-files.txt`
+
+### RULE-GOV-017
+
+Status: Active
+Source: Maintainer decision on 2026-08-27
+Supersedes: None
+Superseded by: None
+Migration required: Yes, template version `0.14.1`
+
+Rationale: Large context windows do not remove attention dilution or repeated reads. Keeping exact Truth and current state Hot/Warm while moving raw events and failure output into verifiable Cold sidecars reduces default context without removing evidence.
+
+Downstream projections:
+
+- `P2T2C_AGENTS.md`
+- `.p2t2c/skills/admit-route/**`, `.p2t2c/skills/execute/**`, and `.p2t2c/skills/verify-close/**`
+- `.p2t2c/bin/p2t2c`, `.p2t2c/bin/p2t2c_run.sh`, and `.p2t2c/bin/p2t2c_close.sh`
+- `.p2t2c/schemas/closure-receipt-v2.schema.json` and context-view schemas
+- `docs/sot/manifest.yaml`, `.p2t2c/defaults.yaml`, and `.p2t2c/templates/project_config.example.yaml`
+
+### RULE-GOV-018
+
+Status: Active
+Source: Maintainer decision on 2026-08-27
+Supersedes: None
+Superseded by: None
+Migration required: Yes, template version `0.14.1`
+
+Rationale: v0.14 has correct final evidence and safety boundaries, but checker, verification, close, and release smoke repeat parsing or execution. Only equivalence deduplication under strong digest/tree/config bindings is an efficiency improvement; it cannot weaken gates, reviews, repairs, or complete smoke.
+
+Downstream projections:
+
+- `.p2t2c/bin/check_p2t2c.sh` and the single-process checker core
+- `.p2t2c/bin/p2t2c`, `.p2t2c/bin/p2t2c_evidence.pl`, and `.p2t2c/bin/p2t2c_close.sh`
+- `.p2t2c/project_config.yaml` and `.p2t2c/templates/project_config.example.yaml`
+- `scripts/release_smoke_test.sh` and its split fixtures
 
 ---
 

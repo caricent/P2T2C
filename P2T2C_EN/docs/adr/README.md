@@ -1,6 +1,6 @@
 # ADR
 
-ADRs record why important decisions were made.
+ADRs record why important decisions were made. An ADR is no longer a fixed artifact for every R2.
 
 ## When an ADR Is Needed
 
@@ -17,3 +17,5 @@ ADRs record why important decisions were made.
 ADR explains why. SoT defines what currently happens.
 
 If an ADR is accepted, executable rules must be projected into `docs/sot/`.
+
+R1 cannot change Truth through an ADR. CPK, work, machine evidence, and CR cannot replace SoT. When the current instruction already decides complete R2 semantics, record `gate_a: satisfied` without duplicate approval.

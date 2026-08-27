@@ -1,0 +1,22 @@
+# ordered_shell_glob	suites
+scripts/release_smoke_test.sh	contract,security,transaction,migration,locale
+scripts/release_smoke_coverage.json	contract,security,transaction,migration,locale
+scripts/release_smoke_registry.tsv	contract,security,transaction,migration,locale
+scripts/release_smoke_daily_map.tsv	contract,locale
+scripts/check_release_parity.sh	locale
+scripts/fixtures/*	migration
+P2T2C_*/.p2t2c/bin/p2t2c_install.sh	security,transaction,migration,locale
+P2T2C_*/.p2t2c/bin/p2t2c_upgrade.sh	security,transaction,migration,locale
+P2T2C_*/.p2t2c/bin/*	contract,security,transaction
+P2T2C_*/.p2t2c/lib/*	contract,security
+P2T2C_*/.p2t2c/schemas/*	contract,security
+P2T2C_*/.p2t2c/defaults.yaml	contract,security,locale
+P2T2C_*/.p2t2c/managed-*.txt	security,transaction,migration,locale
+P2T2C_*/.p2t2c/migrations/*	migration,locale
+P2T2C_*/.p2t2c/templates/project_config.example.yaml	contract,migration,locale
+P2T2C_*/docs/sot/*	contract,locale
+P2T2C_*/docs/*	locale
+P2T2C_*/*	contract,locale
+Makefile	contract,security,transaction,migration,locale
+CHANGELOG.md	locale
+*	contract

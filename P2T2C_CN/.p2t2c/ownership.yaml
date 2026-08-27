@@ -1,12 +1,24 @@
 language_policy: "中文单语语言专属发行根"
 
+managed_file_manifest:
+  path: ".p2t2c/managed-files.txt"
+  mode_policy: ".p2t2c/managed-modes.txt"
+  format: "one_exact_repository_relative_path_per_line"
+  authority: "install_upgrade_checksum_and_required_asset_inventory"
+  checksum_coverage: "all_managed_files_except_checksum_file_itself"
+  apply_precondition: "source_checksum_inventory_and_hashes_valid"
+
 core_managed:
-  description: "内部 Prompt、模板与脚本；未被本地修改时可安全升级。"
+  description: "内部 Prompt、模板、Schema、eval 与脚本；精确成员以 managed-files.txt 为准。"
   paths:
     - ".p2t2c/prompts/**"
     - ".p2t2c/skills/**"
     - ".p2t2c/templates/**"
     - ".p2t2c/bin/**"
+    - ".p2t2c/lib/**"
+    - ".p2t2c/schemas/**"
+    - ".p2t2c/evals/**"
+    - ".p2t2c/defaults.yaml"
     - "docs/submit_proposals/SP_TEMPLATE.md"
     - "docs/change_packs/CPK_TEMPLATE.md"
 
@@ -19,6 +31,8 @@ governance_managed:
     - ".p2t2c/VERSION"
     - ".p2t2c/P2T2C_LICENSE.md"
     - ".p2t2c/templates/project_config.example.yaml"
+    - ".p2t2c/managed-files.txt"
+    - ".p2t2c/managed-modes.txt"
     - ".p2t2c/manifest.yaml"
     - ".p2t2c/ownership.yaml"
     - ".p2t2c/migrations/**"
@@ -32,6 +46,15 @@ governance_managed:
     - "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md"
     - "docs/sot/manifest.yaml"
     - "specs/README.md"
+
+runtime_generated:
+  description: "由安装、升级或证据命令生成的本地状态；不得从发行清单复制。"
+  paths:
+    - ".p2t2c/lock.sha256"
+    - ".p2t2c/install/**"
+    - ".p2t2c/upgrade/**"
+    - ".p2t2c/runs/**"
+    - ".p2t2c/cache/**"
 
 project_owned:
   description: "升级脚本不得写入项目业务 Truth、实例产物、实现或测试。"
@@ -48,6 +71,7 @@ project_owned:
     - "docs/submit_proposals/SP-*.md"
     - "docs/change_packs/CPK-*.md"
     - "docs/closure/CR-*.md"
+    - "docs/closure/evidence/EV-*.jsonl"
     - "specs/**"
     - "src/**"
     - "tests/**"

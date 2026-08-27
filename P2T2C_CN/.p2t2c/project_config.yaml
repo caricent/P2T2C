@@ -1,0 +1,110 @@
+project:
+  name: "P2T2C_CN Release"
+  description: "中文 P2T2C 发行根"
+  workflow: "P2T2C Risk-Routed Workflow"
+  language: "zh-CN"
+  language_policy: "monolingual_release_root"
+
+roots:
+  proposals: "docs/submit_proposals"
+  change_packs: "docs/change_packs"
+  specs: "specs"
+  closures: "docs/closure"
+
+p2t2c:
+  default_mode: "risk_routed"
+  risk_levels:
+    - "R0"
+    - "R1"
+    - "R2"
+  execution_shapes:
+    - "spike"
+    - "bounded"
+    - "architectural"
+  r0:
+    audit_mode: false
+    closure_on_residual_risk: true
+  human_gates:
+    gate_a: "决定尚未解决的 R2 语义"
+    gate_b: "解决 Truth Drift"
+  closure_decisions:
+    - "CLOSE"
+  autonomous_repair:
+    same_failure_fix_rounds: 2
+    environment_retry_count: 1
+
+methodology:
+  profile: "p2t2c-adaptive-v2"
+  enforcement: "required"
+  tdd: "risk_aware"
+  debugging: "root_cause_first"
+  review:
+    r1_production_code: "required"
+    r2: "required"
+  isolation: "auto"
+  parallel_execution: "owned_isolated_only"
+  fan_out: "controller_only"
+  wait_strategy: "event_driven"
+
+verification:
+  fast:
+    commands:
+      - id: "p2t2c-check"
+        run: "bash .p2t2c/bin/check_p2t2c.sh --pre-close-work-id {work_id}"
+        read_only: true
+        parallel_group: "p2t2c-check"
+        covers: []
+  impacted:
+    commands:
+      - id: "p2t2c-check"
+        run: "bash .p2t2c/bin/check_p2t2c.sh --pre-close-work-id {work_id}"
+        read_only: true
+        parallel_group: "p2t2c-check"
+        covers: []
+  full:
+    commands:
+      - id: "p2t2c-check"
+        run: "bash .p2t2c/bin/check_p2t2c.sh --pre-close-work-id {work_id}"
+        read_only: true
+        parallel_group: "p2t2c-check"
+        covers:
+          - "governance:p2t2c-check"
+      - id: "release-smoke"
+        run: "bash ../scripts/release_smoke_test.sh --suite all --jobs 3 --pre-close-work-id {work_id}"
+        read_only: false
+        parallel_group: "none"
+        covers: []
+  governance:
+    commands:
+      - id: "p2t2c-check"
+        run: "bash .p2t2c/bin/check_p2t2c.sh --pre-close-work-id {work_id}"
+        read_only: true
+        parallel_group: "p2t2c-check"
+        covers: []
+  path_mapping:
+    - pattern: "**/.p2t2c/**"
+      profile: "governance"
+    - pattern: "**/docs/sot/**"
+      profile: "governance"
+    - pattern: "scripts/**"
+      profile: "full"
+    - pattern: "Makefile"
+      profile: "full"
+    - pattern: "CHANGELOG.md"
+      profile: "full"
+    - pattern: "P2T2C_*/**"
+      profile: "full"
+    - pattern: "**"
+      profile: "full"
+
+agent_policy:
+  model_tiers:
+    - "fast"
+    - "standard"
+    - "strongest"
+  subagent_model_selection: "explicit"
+  recursive_fan_out: "forbidden"
+  default_forbidden_reads:
+    - "docs/reference"
+  business_rules_allowed_only_in:
+    - "docs/sot"

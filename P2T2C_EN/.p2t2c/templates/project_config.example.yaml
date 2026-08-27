@@ -1,52 +1,22 @@
+# Project-owned compact overlay. Managed defaults live in .p2t2c/defaults.yaml.
 project:
   name: "YourProject"
-  description: "Replace with project description"
-  workflow: "P2T2C Risk-Routed Workflow"
+  description: "Replace with the project description"
   language: "en-US"
   language_policy: "monolingual_release_root"
 
-roots:
-  proposals: "docs/submit_proposals"
-  change_packs: "docs/change_packs"
-  specs: "specs"
-  closures: "docs/closure"
-
-technology_stack:
-  backend: "TBD"
-  frontend: "TBD"
-  mobile: "TBD"
-  database: "TBD"
-  ai: "TBD"
-  testing: "TBD"
-
-p2t2c:
-  default_mode: "risk_routed"
-  risk_levels:
-    - "R0"
-    - "R1"
-    - "R2"
-  human_gates:
-    gate_a: "Decide unresolved R2 semantics"
-    gate_b: "Resolve Truth Drift"
-  closure_decisions:
-    - "CLOSE"
-  autonomous_repair:
-    same_failure_fix_rounds: 2
-    environment_retry_count: 1
-
 methodology:
-  profile: "p2t2c-balanced-v1"
-  enforcement: "required"
+  profile: "p2t2c-adaptive-v2"
+  enforcement: "advisory"
   tdd: "risk_aware"
   debugging: "root_cause_first"
   review:
     r1_production_code: "required"
     r2: "required"
   isolation: "auto"
-  parallel_execution: "r2_independent_only"
+  parallel_execution: "owned_isolated_only"
+  fan_out: "controller_only"
+  wait_strategy: "event_driven"
 
-agent_policy:
-  default_forbidden_reads:
-    - "docs/reference"
-  business_rules_allowed_only_in:
-    - "docs/sot"
+# Omit inherited sections. If overriding methodology, verification, or path
+# mapping, declare the complete controlled section; partial overrides fail.

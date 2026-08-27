@@ -13,6 +13,9 @@ Source release: `{path or URL}`
 |---|---|
 | New work after upgrade | Use the upgraded risk-routed workflow |
 | Historical SPs, CPKs, specs, tasks, and CRs | Leave unchanged |
+| Inline receipt v1 and evidence sidecars | Leave unchanged; new closures may use receipt v2 |
+| Active `.p2t2c/runs/**` and cache state | Never release-managed or rollback targets |
+| Managed file modes | Reconcile to policy; rollback restores prior modes |
 | Project-owned Truth and ADRs | Do not modify |
 
 ## Managed File Actions
@@ -29,12 +32,13 @@ Source release: `{path or URL}`
 
 ## Project-owned Files Untouched
 
-Upgrade must not modify project business Truth, ADR instances, SP instances, CPK instances, specs, code, tests, database files, or historical CRs.
+Upgrade must not modify project business Truth, ADR instances, SP instances, CPK instances, specs, code, tests, database files, historical CRs, evidence sidecars, active runs, cache state, or `.p2t2c/project_config.yaml`.
 
 ## Validation
 
 ```bash
 bash .p2t2c/bin/check_p2t2c.sh
+./.p2t2c/bin/p2t2c --help
 shasum -a 256 -c .p2t2c/CHECKSUMS.sha256
 ```
 

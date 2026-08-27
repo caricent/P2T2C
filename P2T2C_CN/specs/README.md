@@ -1,17 +1,19 @@
 # 执行文档
 
-R1/R2 在这里保存精简执行三件套：
+adaptive-v2 只为 `execution_shape: architectural` 创建一份执行文档：
 
 ```text
 specs/{NNN-feature}/
-  spec.md
-  plan.md
-  tasks.md
+  work.md
 ```
 
-- `spec.md` 必须在 front matter 中引用对应 `docs/change_packs/CPK-*.md`。
-- `plan.md` 记录实现策略、影响范围和风险。
-- `tasks.md` 记录一个可整体验收工作批次内的多个相关 Task 和批次级验收。
-- 精简三件套还记录行为/测试策略、隔离/审查检查点和批次级方法证据，但不恢复逐 Task Actual 记录。
-- R0 不创建执行文档。
-- 不要求逐 Task Actual、`Acceptance scope` 或逐条 Rule ID 标签。
+`work.md` 必须在 front matter 中引用 CPK v3，并只记录接口/数据流、任务 DAG、文件所有权、集成顺序、验证、审查和恢复点。意图、Truth 引用与验收仍以 CPK 为主；业务规则仍只能位于 `docs/sot/**`。
+
+上下文恢复使用 `p2t2c context --phase execute --work-id <id> --json` 与 `p2t2c status --work-id <id> --json`，不把 raw ledger 复制进 work。
+
+- spike 默认不创建执行文档。
+- bounded R1 只创建 CPK v3。
+- bounded R2 使用 CPK v3、Truth Patch 和自动 CR，不创建 work。
+- architectural R1/R2 创建 CPK v3 + work。
+
+bounded 新工作存在 spec/plan/tasks 即违规。只有 architectural CPK 明确 `legacy_startup_evidence: true` 时可保留真实旧流程启动三件套。014 CPK 正是该迁移例外，不是 adaptive-v2 新产物示例。

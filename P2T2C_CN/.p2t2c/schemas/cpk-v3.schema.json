@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://p2t2c.dev/schemas/cpk-v3.schema.json",
+  "title": "P2T2C change pack front matter v3",
+  "type": "object",
+  "required": [
+    "artifact", "schema_version", "id", "risk", "source", "truth_change",
+    "gate_a", "status", "methodology_profile", "execution_shape",
+    "production_code_change", "multi_agent", "work_pack", "implementer",
+    "tdd_policy", "governance_change", "specialist_review_required",
+    "truth_patch_ref", "truth_patch_digest", "gate_b_status", "gate_b_decision",
+    "gate_b_ref", "ownership_batches", "legacy_startup_evidence"
+  ],
+  "properties": {
+    "artifact": { "const": "change_pack" },
+    "schema_version": { "const": 3 },
+    "id": { "type": "string", "pattern": "^CPK-[A-Za-z0-9._-]+$" },
+    "risk": { "enum": ["R1", "R2"] },
+    "source": { "enum": ["user_instruction", "issue_path", "sp_path"] },
+    "truth_change": { "type": "boolean" },
+    "gate_a": { "enum": ["not_required", "satisfied", "pending"] },
+    "status": { "enum": ["ready", "blocked", "applied"] },
+    "methodology_profile": { "const": "p2t2c-adaptive-v2" },
+    "execution_shape": { "enum": ["spike", "bounded", "architectural"] },
+    "production_code_change": { "type": "boolean" },
+    "multi_agent": { "type": "boolean" },
+    "work_pack": {
+      "oneOf": [
+        { "const": "none" },
+        { "type": "string", "pattern": "^specs/[A-Za-z0-9._-]+/work\\.md$" }
+      ]
+    },
+    "implementer": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,127}$" },
+    "tdd_policy": { "enum": ["required", "exempt", "not_applicable"] },
+    "governance_change": { "type": "boolean" },
+    "specialist_review_required": { "type": "boolean" },
+    "truth_patch_ref": { "type": "string", "minLength": 1 },
+    "truth_patch_digest": { "oneOf": [{ "const": "none" }, { "type": "string", "pattern": "^[0-9a-f]{64}$" }] },
+    "gate_b_status": { "enum": ["not_triggered", "resolved"] },
+    "gate_b_decision": { "type": "string", "minLength": 1 },
+    "gate_b_ref": { "type": "string", "minLength": 1 },
+    "ownership_batches": { "type": "string", "minLength": 1 },
+    "legacy_startup_evidence": { "type": "boolean" }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "risk": { "const": "R1" } } },
+      "then": {
+        "properties": {
+          "truth_change": { "const": false }, "gate_a": { "const": "not_required" },
+          "truth_patch_ref": { "const": "none" }, "truth_patch_digest": { "const": "none" },
+          "gate_b_status": { "const": "not_triggered" },
+          "gate_b_decision": { "const": "none" }, "gate_b_ref": { "const": "none" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "risk": { "const": "R2" } } },
+      "then": {
+        "properties": {
+          "truth_change": { "const": true }, "gate_a": { "enum": ["satisfied", "pending"] },
+          "truth_patch_ref": { "pattern": "^docs/sot/(?!.*(?:^|/)\\.\\.(?:/|$)).+" },
+          "truth_patch_digest": { "pattern": "^[0-9a-f]{64}$" }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "execution_shape": { "const": "architectural" } } },
+      "then": {
+        "properties": {
+          "work_pack": { "pattern": "^specs/[A-Za-z0-9._-]+/work\\.md$" },
+          "ownership_batches": { "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*(?:,[A-Za-z0-9][A-Za-z0-9._-]*)+$|^[A-Za-z0-9][A-Za-z0-9._-]*$" }
+        }
+      },
+      "else": {
+        "properties": {
+          "work_pack": { "const": "none" },
+          "ownership_batches": { "const": "none" },
+          "legacy_startup_evidence": { "const": false }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "execution_shape": { "const": "spike" } } },
+      "then": { "properties": { "status": { "enum": ["ready", "blocked"] } } }
+    },
+    {
+      "if": { "properties": { "gate_b_status": { "const": "not_triggered" } } },
+      "then": { "properties": { "gate_b_decision": { "const": "none" }, "gate_b_ref": { "const": "none" } } },
+      "else": {
+        "properties": {
+          "gate_b_decision": { "not": { "const": "none" } },
+          "gate_b_ref": { "not": { "const": "none" } }
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}

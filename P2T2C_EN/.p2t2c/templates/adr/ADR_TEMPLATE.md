@@ -2,7 +2,12 @@
 
 Status: Proposed | Accepted | Superseded | Deprecated
 Date: {YYYY-MM-DD}
-Related SP: {docs/submit_proposals/SP-...}
+Change Pack: `docs/change_packs/CPK-...`
+Related SP: None / `docs/submit_proposals/SP-...`
+Truth Patch ref: `docs/sot/path.md`; related rule: `RULE-...`
+Truth Patch SHA-256: `<digest>`
+Ownership / legacy: `none` / `B1,B2`; `legacy_startup_evidence: false|true`
+Gate B: `not_triggered` / `resolved`; when resolved, provide decision and human-decision reference
 
 ---
 
@@ -14,7 +19,7 @@ Why is this decision needed? What background, constraints, or conflicts matter?
 
 ## 2. Decision
 
-What is the final decision?
+What is the final decision? The ADR explains only a reason that needs to endure; current executable behavior must be projected into SoT.
 
 ---
 

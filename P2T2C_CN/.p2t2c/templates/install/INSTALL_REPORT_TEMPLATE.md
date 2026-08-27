@@ -15,6 +15,10 @@ Target: `{target-path}`
 
 - {已经相同的文件}
 
+## Mode 修复
+
+- {字节相同并按确定性 mode policy 修复的受管文件}
+
 ---
 
 ## 冲突
@@ -40,3 +44,8 @@ Target: `{target-path}`
 ## 验证
 
 - {验证结果}
+
+## 0.14.1 运行边界
+
+- 安装的工作流资产包含 `p2t2c` context/verify dispatcher、不可变 defaults、阶段 Skill、receipt v2 schema 与受管的 evidence 目录 README。
+- 安装没有创建或复制活动 run、checker cache 条目、收口 evidence sidecar、初始 advisory 示例以外的项目配置实例或历史制品。
