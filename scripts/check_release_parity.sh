@@ -72,6 +72,7 @@ list_paths() {
       ! -path './.p2t2c/lock.sha256' \
       ! -path './.p2t2c/generated/*' \
       ! -path './.p2t2c/runs/*' \
+      ! -path './.p2t2c/cache/*' \
       ! -path './.p2t2c/install/*' \
       ! -path './.p2t2c/upgrade/*' \
       | sort \
@@ -86,11 +87,14 @@ parity_self_test() {
   local fixture left right path_diff
   fixture="$(mktemp -d "${TMPDIR:-/tmp}/p2t2c-parity-selftest.XXXXXX")"
   left="$fixture/EN"; right="$fixture/CN"
-  mkdir -p "$left/docs/closure/evidence" "$right/docs/closure/evidence" "$left/.p2t2c/bin" "$right/.p2t2c/bin"
+  mkdir -p "$left/docs/closure/evidence" "$right/docs/closure/evidence" "$left/.p2t2c/bin" "$right/.p2t2c/bin" \
+    "$left/.p2t2c/cache" "$right/.p2t2c/cache"
   printf '%s\n' '# managed evidence directory' > "$left/docs/closure/evidence/README.md"
   printf '%s\n' '# managed evidence directory' > "$right/docs/closure/evidence/README.md"
   printf '%s\n' '# CN-only closure instance' > "$right/docs/closure/CR-cn-only.md"
   printf '%s\n' '{"event_type":"fixture"}' > "$right/docs/closure/evidence/EV-CN-only-0000000000000000000000000000000000000000000000000000000000000000.jsonl"
+  printf '%s\n' '{"runtime_cache":"left"}' > "$left/.p2t2c/cache/left-only.json"
+  printf '%s\n' '{"runtime_cache":"right"}' > "$right/.p2t2c/cache/right-only.json"
   path_diff="$(diff -u <(list_paths "$left") <(list_paths "$right") || true)"
   [[ -z "$path_diff" ]] || error "closure-instance parity exclusion self-test failed"
   is_project_owned_closure_instance 'docs/closure/CR-cn-only.md' || error "CR ownership classification self-test failed"

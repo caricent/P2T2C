@@ -14,6 +14,7 @@ security.unmapped-and-baseline	security	neutral_once	case_security_mapping_basel
 security.ledger-symlink-swap	security	neutral_once	case_security_ledger_swap
 security.path-and-checker-guards	security	neutral_once	case_security_path_guards
 security.sidecar-cache-verify	security	neutral_once	case_security_sidecar_cache_verify
+security.historical-tree-portability	security	neutral_once	case_security_history_portability
 security.close-target-parent-swap	security	neutral_once	case_security_close_target_parent_swap
 security.install-upgrade-paths	security	neutral_once	case_security_install_paths
 transaction.install-upgrade-rollback	transaction	neutral_once	case_transaction_install_upgrade

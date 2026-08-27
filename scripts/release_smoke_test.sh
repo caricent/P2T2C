@@ -1173,6 +1173,29 @@ assert_receipt_v2_pair() {
   ' "$artifact" "$id")
 }
 
+receipt_field() {
+  local artifact="$1" field="$2"
+  perl -Mstrict -Mwarnings -MJSON::PP -e '
+    my ($artifact,$field)=@ARGV;
+    open my $fh,"<:raw",$artifact or die "cannot read $artifact: $!\n";
+    local $/; my $raw=<$fh>//""; close $fh;
+    my @blocks=$raw=~/<!-- p2t2c:evidence:start -->\s*```jsonl\s*(.*?)\s*```\s*<!-- p2t2c:evidence:end -->/sg;
+    die "artifact must contain exactly one receipt block\n" if @blocks!=1;
+    my @lines=grep {length} split /\r?\n/,$blocks[0];
+    die "receipt block must contain exactly one JSON value\n" if @lines!=1;
+    my $receipt=eval {JSON::PP->new->utf8(1)->decode($lines[0])};
+    die "invalid receipt JSON\n" if $@||ref($receipt) ne "HASH";
+    die "receipt field is missing: $field\n" if !defined($receipt->{$field})||ref($receipt->{$field});
+    print $receipt->{$field},"\n";
+  ' "$artifact" "$field"
+}
+
+validate_closure_artifact() {
+  local target="$1" artifact="$2"
+  (cd "$target" && perl .p2t2c/bin/p2t2c_evidence.pl --action validate-artifact \
+    --file "$artifact" --cpk "$artifact" --target "$artifact")
+}
+
 run_r0_contracts() {
   local target="$1" config="$1/.p2t2c/project_config.yaml"
 
@@ -2130,6 +2153,57 @@ run_v0141_security_contracts() {
   cp "$config_backup" "$config"
 }
 
+run_historical_tree_portability_contract() {
+  local target="$1" id="CPK-history-portability"
+  local artifact="docs/change_packs/$id.md" final_tree full shallow
+  local full_log="$tmp_root/history-full.log" dirty_log="$tmp_root/history-dirty.log"
+  local shallow_log="$tmp_root/history-shallow.log" artifact_backup="$tmp_root/history-artifact.backup"
+
+  write_cpk "$target" "$id" R1 bounded ready false false none not_applicable false false none not_triggered none none
+  mkdir -p "$target/src"
+  printf 'historical final-tree portability fixture\n' > "$target/src/history-portability.txt"
+  record_route "$target" "$id" R1 R1 bounded bounded
+  record_verification "$target" "$id" impacted
+  close_work "$target" "$id" impacted
+  final_tree="$(receipt_field "$target/$artifact" final_tree_sha)"
+  git -C "$target" cat-file -e "$final_tree^{tree}" || fail "close did not create its final-tree object"
+  checkpoint_fixture_git "$target" history-portability-closure
+
+  printf 'later history keeps the closure inputs clean but changes the current tree\n' > "$target/src/history-after-close.txt"
+  checkpoint_fixture_git "$target" history-portability-later-change
+  git -C "$target" reflog expire --expire=now --all
+  git -C "$target" gc --prune=now --quiet
+  if git -C "$target" cat-file -e "$final_tree^{tree}" 2>/dev/null; then
+    fail "unreachable historical final-tree object survived fixture pruning"
+  fi
+
+  full="$tmp_root/history-full-clone"
+  git clone -q --no-local "$target" "$full"
+  if ! validate_closure_artifact "$full" "$artifact" >"$full_log" 2>&1; then
+    safe_tail "$full_log" >&2
+    fail "full-history clone rejected tracked, HEAD-clean historical evidence"
+  fi
+  grep -Fq 'matched_paths_digest was not independently recomputed' "$full_log" \
+    || fail "full-history compatibility did not disclose its local-consistency boundary"
+
+  cp "$full/$artifact" "$artifact_backup"
+  perl -0pi -e 's/(```jsonl\r?\n)/$1 /' "$full/$artifact"
+  if validate_closure_artifact "$full" "$artifact" >"$dirty_log" 2>&1; then
+    fail "dirty historical evidence was accepted without its final-tree object"
+  fi
+  grep -Fq 'only for tracked, HEAD-clean historical evidence' "$dirty_log" \
+    || fail "dirty historical evidence failed for an unrelated reason"
+  cp "$artifact_backup" "$full/$artifact"
+
+  shallow="$tmp_root/history-shallow-clone"
+  git clone -q --depth 1 "file://$target" "$shallow"
+  if validate_closure_artifact "$shallow" "$artifact" >"$shallow_log" 2>&1; then
+    fail "shallow clone accepted a receipt whose baseline commit is unavailable"
+  fi
+  grep -Eq 'baseline.*is not a local commit' "$shallow_log" \
+    || fail "shallow clone failed for an unrelated reason"
+}
+
 run_close_target_parent_swap_contract() {
   local target="$1" phase id parent="$1/docs/change_packs" parked victim sentinel log marker attempt runner_pid runner_status
   local victim_before victim_after
@@ -2191,6 +2265,12 @@ case_security_mapping_baseline() { run_unmapped_path_contract "$suite_target"; r
 case_security_ledger_swap() { run_ledger_symlink_swap_contract "$suite_target"; }
 case_security_path_guards() { run_path_and_checker_guards "$suite_target"; checkpoint_fixture_git "$suite_target" security-prerequisites; }
 case_security_sidecar_cache_verify() { run_v0141_security_contracts "$suite_target"; }
+case_security_history_portability() {
+  local target="$tmp_root/security-history-portability-target"
+  install_suite_target "$suite_source" "$target"
+  initialize_fixture_git "$target"
+  run_historical_tree_portability_contract "$target"
+}
 case_security_close_target_parent_swap() { run_close_target_parent_swap_contract "$suite_target"; }
 case_security_install_paths() { run_transaction_safety_contracts "$suite_rel" "$suite_source" security; }
 

@@ -191,6 +191,13 @@ sub quiet_system {
     waitpid($pid,0); return $?;
 }
 
+sub tracked_head_clean {
+    my($path)=@_;
+    return 0 if !defined($path)||$path eq''||!-f$path||-l$path;
+    return 0 if quiet_system('git','ls-files','--error-unmatch','--',$path)!=0;
+    return quiet_system('git','diff','--quiet','HEAD','--',$path)==0?1:0;
+}
+
 sub current_head {
     my $head = capture('git', 'rev-parse', '--verify', 'HEAD');
     fail('current Git HEAD is not a supported object id') if $head !~ $oid_re;
@@ -1543,13 +1550,28 @@ sub validate_artifact {
             if $fresh->{contract_digest} ne $context->{contract_digest};
     }
     validate_commit_ancestry($receipt->{baseline_sha},$receipt->{head_sha},'receipt path mapping baseline');
-    open my $path_pipe,'-|','git','diff','--name-only','--no-renames',$receipt->{baseline_sha},$receipt->{final_tree_sha}
-        or fail('cannot recompute receipt path diff');
-    my @receipt_paths; while (my $line=<$path_pipe>) { chomp $line; push @receipt_paths,$line if $line ne '' }
-    close $path_pipe or fail('cannot recompute receipt path diff');
-    @receipt_paths=sort @receipt_paths;
-    fail('closure_receipt.matched_paths_digest mismatch')
-        if sha256_hex($json->encode(\@receipt_paths)) ne $receipt->{matched_paths_digest};
+    my $tree_available=quiet_system('git','cat-file','-e',"$receipt->{final_tree_sha}^{tree}")==0;
+    if(!$tree_available){
+        my$sidecar_ref=($receipt->{schema_version}||0)==2?$receipt->{evidence_ref}:undef;
+        my$rebuilt=workspace_tree($logical_target,$sidecar_ref);
+        $tree_available=1 if $rebuilt eq$receipt->{final_tree_sha};
+    }
+    if($tree_available){
+        open my $path_pipe,'-|','git','diff','--name-only','--no-renames',$receipt->{baseline_sha},$receipt->{final_tree_sha}
+            or fail('cannot recompute receipt path diff');
+        my @receipt_paths; while (my $line=<$path_pipe>) { chomp $line; push @receipt_paths,$line if $line ne '' }
+        close $path_pipe or fail('cannot recompute receipt path diff');
+        @receipt_paths=sort @receipt_paths;
+        fail('closure_receipt.matched_paths_digest mismatch')
+            if sha256_hex($json->encode(\@receipt_paths)) ne $receipt->{matched_paths_digest};
+    }else{
+        my@historical_inputs=($artifact);
+        push@historical_inputs,$cpk_path if defined($cpk_path)&&$cpk_path ne''&&$cpk_path ne$artifact;
+        push@historical_inputs,$receipt->{evidence_ref} if($receipt->{schema_version}||0)==2;
+        fail('unavailable final tree may be accepted only for tracked, HEAD-clean historical evidence')
+            if grep{!tracked_head_clean($_)}@historical_inputs;
+        warn "WARNING: evidence: historical final tree object is unavailable; matched_paths_digest was not independently recomputed and is accepted only from tracked, HEAD-clean local-consistency evidence for $receipt->{work_id} ($receipt->{final_tree_sha})\n";
+    }
     my @mapping_warnings=grep {$_ eq 'MISSING_ISOLATION_BASELINE'} @{$receipt->{evidence_warnings}};
     my $summary = validate_events($objects, $context, $logical_target, $receipt->{verification_requirements},
         $receipt->{final_tree_sha}, $receipt->{head_sha}, $receipt->{methodology_enforcement}, \@mapping_warnings);

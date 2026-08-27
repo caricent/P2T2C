@@ -17,6 +17,7 @@
     {"id":"security.ledger-symlink-swap","suite":"security","language_scope":"neutral_once","legacy_function":"run_ledger_symlink_swap_contract"},
     {"id":"security.path-and-checker-guards","suite":"security","language_scope":"neutral_once","legacy_function":"run_path_and_checker_guards"},
     {"id":"security.sidecar-cache-verify","suite":"security","language_scope":"neutral_once","legacy_function":"run_v0141_security_contracts"},
+    {"id":"security.historical-tree-portability","suite":"security","language_scope":"neutral_once","legacy_function":"run_historical_tree_portability_contract"},
     {"id":"security.close-target-parent-swap","suite":"security","language_scope":"neutral_once","legacy_function":"run_close_target_parent_swap_contract"},
     {"id":"security.install-upgrade-paths","suite":"security","language_scope":"neutral_once","legacy_function":"run_transaction_safety_contracts"},
     {"id":"transaction.install-upgrade-rollback","suite":"transaction","language_scope":"neutral_once","legacy_function":"run_transaction_safety_contracts"},
