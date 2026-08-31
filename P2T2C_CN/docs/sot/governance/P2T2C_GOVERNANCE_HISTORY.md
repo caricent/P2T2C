@@ -59,8 +59,8 @@ Migration required: Yes, 模板版本 `0.10.1`
 - `.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
 - `.p2t2c/prompts/02_generate_change_pack_prompt.md`
 - `.p2t2c/prompts/03_apply_change_pack_prompt.md`
-- `docs/submit_proposals/SP_TEMPLATE.md`
-- `docs/submit_proposals/README.md`
+- `docs/reference/archive/proposals/SP_TEMPLATE.md`
+- `docs/reference/archive/proposals/README.md`
 - `.p2t2c/prompts/04_generate_execution_pack_prompt.md`
 
 ### RULE-GOV-004
@@ -101,7 +101,7 @@ Supersedes: previous exposed internal asset layout
 Superseded by: None
 Migration required: Yes, template version `0.6.0`
 
-理由: 收敛根目录工作面，只暴露 `docs/` 和 `specs/`，内部资产收进 `.p2t2c/`。
+理由: 收敛根目录工作面，只暴露 `docs/` 和 `docs/reference/archive/specs/`，内部资产收进 `.p2t2c/`。
 
 下游投射:
 
@@ -239,7 +239,7 @@ Migration required: Yes, 模板版本 `0.14.0`
 
 下游投射:
 
-- `docs/change_packs/CPK_TEMPLATE.md`
+- `docs/reference/archive/change_packs/CPK_TEMPLATE.md`
 - `.p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md`
 - `.p2t2c/bin/check_p2t2c.sh`
 
@@ -255,7 +255,7 @@ Migration required: Yes, 模板版本 `0.14.0`
 
 下游投射:
 
-- `docs/change_packs/**`
+- `docs/reference/archive/change_packs/**`
 - `.p2t2c/templates/execution/**`
 - `.p2t2c/manifest.yaml`
 - `.p2t2c/managed-files.txt`
@@ -295,6 +295,39 @@ Migration required: Yes, 模板版本 `0.14.1`
 - `.p2t2c/project_config.yaml` 与 `.p2t2c/templates/project_config.example.yaml`
 - `scripts/release_smoke_test.sh` 及其分套 fixture
 
+### RULE-GOV-019
+
+Status: Superseded
+Source: 用户与维护者决策 2026-08-31
+Supersedes: adaptive-v2 固定审查矩阵与显式 verify-close 注意力分配
+Superseded by: `DEC-GOV-017`
+Migration required: Yes, 模板版本 `0.15.0`
+
+理由: 质量应由最终行为、风险覆盖与缺陷逃逸衡量，而不是由统一流程动作数量衡量。风险、execution shape 与 assurance 分轴后，普通工作可保持业务焦点，未知/敏感影响仍 fail closed。
+
+下游投射:
+
+- `.p2t2c/lib/P2T2C/Flow.pm` 与 `p2t2c next|finish|proof`
+- `.p2t2c/defaults.yaml` assurance policy
+- `.p2t2c/skills/verify-close/ADAPTIVE_V3_EXCEPTION.md` 与 independent review
+
+### RULE-GOV-020
+
+Status: Superseded
+Source: 用户与维护者决策 2026-08-31
+Supersedes: 新工作默认 CPK v3/event v1/receipt v2
+Superseded by: `DEC-GOV-017`
+Migration required: Yes, 模板版本 `0.15.0`
+
+理由: 精简 CPK v4 只保存业务语义，动态保障由 actual diff 派生；semantic/assurance/coverage 分离绑定避免无关改动使全部证据失效，并保持历史制品原样兼容。
+
+下游投射:
+
+- `docs/reference/archive/change_packs/CPK_TEMPLATE.md`
+- `.p2t2c/schemas/cpk-v4.schema.json`、`event-v2.schema.json`、`closure-receipt-v3.schema.json`
+- `.p2t2c/evals/adaptive-v3-scenarios.md`
+- `.p2t2c/migrations/0.14.1-to-0.15.0.md`
+
 ---
 
 ## 已取代规则（全文）
@@ -313,3 +346,39 @@ Migration required: Yes, template version `0.4.0`
 P2T2C-managed human and AI workflow documents 曾采用英文优先、单文件双语呈现。
 
 此规则已被 `RULE-GOV-006` 取代，仅作为历史 lifecycle 记录保留。
+## Decision Records migrated from ADR
+
+### DEC-013：原生 Truth 治理的方法层
+
+Disposition: active foundation
+Source: `docs/reference/archive/adr/ADR-013-superpowers-method-layer.md`
+
+保留 P2T2C 自身 Truth 权威，并允许项目方法技能作为非权威执行层。0.15 继续保留这一边界，但不再要求方法层生成证明制品。
+
+### DEC-014：分层自治与机器证据
+
+Disposition: superseded by DEC-GOV-017
+Source: `docs/reference/archive/adr/ADR-014-adaptive-autonomy-and-machine-evidence.md`
+
+0.14 的 CPK v3、event v1、receipt 与固定审查继续作为 legacy 兼容语义；它们不适用于 0.15 新工作。
+
+### DEC-015：最小上下文与等价执行提效
+
+Disposition: superseded for new work by DEC-GOV-017
+Source: `docs/reference/archive/adr/ADR-015-context-and-execution-efficiency.md`
+
+0.14.1 的 context/evidence/verify/close 提效继续保护活动 legacy 工作。新工作通过删除默认证据控制面获得效率。
+
+### DEC-016：业务优先保障候选
+
+Disposition: history only; superseded before release by DEC-GOV-017
+Source: `docs/reference/archive/adr/ADR-016-business-first-assurance.md`
+
+未发布的 assurance/proof/event-v2/receipt-v3 方案因仍把证明流程置于中心而被撤回。
+
+### DEC-017：核心动作与三域文档治理
+
+Disposition: active
+Current rule: `docs/sot/governance/P2T2C_GOVERNANCE.md#DEC-GOV-017`
+
+0.15 新工作采用 Explore、Propose、Apply、可选 Verify、Archive，并将活动文档收敛为 proposals、specs 与 SOT。

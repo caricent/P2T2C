@@ -78,6 +78,43 @@ release_lifecycle() {
   rmdir "$lifecycle_lock"
 }
 
+documents_lock=".p2t2c/.documents-lock"
+documents_lock_owned=0
+
+acquire_documents_lock() {
+  local attempt=0 owner_pid=""
+  while [[ "$attempt" -lt 200 ]]; do
+    if mkdir "$documents_lock" 2>/dev/null; then
+      chmod 700 "$documents_lock"
+      printf '%s\n' "$$" > "$documents_lock/owner"
+      chmod 600 "$documents_lock/owner"
+      documents_lock_owned=1
+      return 0
+    fi
+    [[ -d "$documents_lock" && ! -L "$documents_lock" ]] || die "unsafe document mutation lock"
+    if [[ -f "$documents_lock/owner" && ! -L "$documents_lock/owner" ]]; then
+      owner_pid="$(sed -n '1p' "$documents_lock/owner")"
+      if [[ "$owner_pid" =~ ^[1-9][0-9]*$ ]] && ! kill -0 "$owner_pid" 2>/dev/null; then
+        rm -f "$documents_lock/owner"
+        rmdir "$documents_lock" 2>/dev/null || true
+        continue
+      fi
+    fi
+    attempt=$((attempt + 1))
+    sleep 0.1
+  done
+  die "timed out waiting for document mutation lock"
+}
+
+release_documents_lock() {
+  [[ "$documents_lock_owned" -eq 1 ]] || return 0
+  [[ -f "$documents_lock/owner" && ! -L "$documents_lock/owner" ]] || die "document mutation lock has no safe owner"
+  [[ "$(sed -n '1p' "$documents_lock/owner")" == "$$" ]] || die "refusing to release another document mutation owner"
+  rm -f "$documents_lock/owner"
+  rmdir "$documents_lock"
+  documents_lock_owned=0
+}
+
 work_id=""
 event_type=""
 verification_profile=""
@@ -151,6 +188,10 @@ done
 [[ -n "$event_type" ]] || die "--event-type is required"
 [[ -d .p2t2c && -d docs ]] || die "run from the project root containing .p2t2c and docs"
 [[ ! -L .p2t2c ]] || die ".p2t2c must not be a symlink"
+acquire_documents_lock
+trap 'release_documents_lock || true' EXIT INT TERM
+perl -I.p2t2c/lib -MP2T2C::Documents -e 'P2T2C::Documents::assert_no_pending_migration()' \
+  || die "unfinished document migration blocks legacy run creation"
 
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 helper="$script_dir/p2t2c_evidence.pl"
@@ -173,6 +214,7 @@ chmod 600 "$run_root/.gitignore"
 [[ "$(sed -n '1,2p' "$run_root/.gitignore")" == $'*\n!.gitignore' ]] || die "$run_root/.gitignore must contain '*' and '!.gitignore'"
 mkdir -p "$run_dir"
 chmod 700 "$run_dir"
+release_documents_lock
 
 if [[ -f "$cpk_path" ]]; then
   context_json="$(perl "$helper" --action context-cpk --file "$cpk_path" --work-id "$work_id")"
@@ -373,6 +415,7 @@ cleanup() {
       release_lifecycle || true
     fi
   fi
+  release_documents_lock || true
 }
 trap cleanup EXIT INT TERM
 

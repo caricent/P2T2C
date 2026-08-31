@@ -61,13 +61,19 @@ upgrade_dir=""
 
 is_project_owned() {
   case "$1" in
-    .p2t2c/project_config.yaml|.p2t2c/runs/*|.p2t2c/cache/*|.p2t2c/install/*|.p2t2c/upgrade/*)
+    docs/reference/archive/README.md)
+      return 1
+      ;;
+    docs/sot/manifest.yaml|docs/sot/governance/P2T2C_GOVERNANCE.md|docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md)
+      return 1
+      ;;
+    .p2t2c/project_config.yaml|.p2t2c/runs/*|.p2t2c/cache/*|.p2t2c/install/*|.p2t2c/upgrade/*|.p2t2c/docs-migrate/*|.p2t2c/.documents-lock)
       return 0
       ;;
-    docs/sot/product/*|docs/sot/data/*|docs/sot/api/*|docs/sot/client/*|docs/sot/server/*|docs/sot/ai/*|docs/sot/testing/*)
+    docs/sot/*)
       return 0
       ;;
-    docs/adr/ADR-*.md|docs/submit_proposals/SP-*.md|docs/change_packs/CPK-*.md|docs/closure/CR-*.md|docs/closure/evidence/EV-*.jsonl|specs/*/*|src/*|tests/*|database/*|package.json)
+    docs/proposals/SP-*.md|docs/specs/*/*|docs/reference/archive/*|docs/reference/archive/*/*|docs/reference/archive/*/*/*|docs/adr/ADR-*.md|docs/submit_proposals/SP-*.md|docs/change_packs/CPK-*.md|docs/closure/CR-*.md|docs/closure/evidence/EV-*.jsonl|specs/*/*|src/*|tests/*|database/*|package.json)
       return 0
       ;;
     *)
@@ -307,20 +313,30 @@ load_managed_files() {
     ".p2t2c/bin/p2t2c_close.pl" \
     ".p2t2c/bin/p2t2c_close.sh" \
     ".p2t2c/bin/p2t2c_context.pl" \
+    ".p2t2c/bin/p2t2c_docs_migrate.pl" \
+    ".p2t2c/bin/p2t2c_documents.pl" \
     ".p2t2c/bin/p2t2c_evidence.pl" \
     ".p2t2c/bin/p2t2c_install.sh" \
     ".p2t2c/bin/p2t2c_run.sh" \
     ".p2t2c/bin/p2t2c_upgrade.sh" \
     ".p2t2c/bin/p2t2c_verify.pl" \
     ".p2t2c/lib/P2T2C/Checker.pm" \
+    ".p2t2c/lib/P2T2C/DocsMigration.pm" \
+    ".p2t2c/lib/P2T2C/Documents.pm" \
     ".p2t2c/schemas/closure-receipt-v2.schema.json" \
     ".p2t2c/schemas/context-capsule-v1.schema.json" \
+    ".p2t2c/schemas/design-v1.schema.json" \
     ".p2t2c/schemas/evidence-summary-v1.schema.json" \
+    ".p2t2c/schemas/proposal-v1.schema.json" \
+    ".p2t2c/schemas/tasks-v1.schema.json" \
     ".p2t2c/schemas/work-status-v1.schema.json" \
     ".p2t2c/skills/admit-route/SKILL.md" \
     ".p2t2c/skills/execute/SKILL.md" \
+    ".p2t2c/skills/core/SKILL.md" \
     ".p2t2c/skills/verify-close/SKILL.md" \
-    "docs/closure/evidence/README.md"
+    "docs/proposals/README.md" \
+    "docs/specs/README.md" \
+    "docs/reference/archive/README.md"
   do
     if ! managed_contains "$rel"; then
       echo "ERROR: managed-file manifest omits required release asset: $rel" >&2
@@ -462,6 +478,11 @@ cleanup_empty_legacy_dirs() {
     ".p2t2c/skills/admit-route"
     ".p2t2c/skills/execute"
     ".p2t2c/skills/verify-close"
+    ".p2t2c/skills/core"
+    ".p2t2c/templates/core"
+    "docs/reference/archive"
+    "docs/proposals"
+    "docs/specs"
     "docs/closure/evidence"
     "migrations/p2t2c"
     "migrations"
@@ -482,6 +503,13 @@ write_lock() {
       fi
     done
   } | atomic_write_rel "$target_root" ".p2t2c/lock.sha256" "target lock"
+}
+
+assert_docs_layout_rollback_ready() {
+  [[ -f "$target_root/.p2t2c/lib/P2T2C/DocsMigration.pm" && ! -L "$target_root/.p2t2c/lib/P2T2C/DocsMigration.pm" ]] \
+    || die "docs-migrate validator is missing; cannot roll back template"
+  (cd "$target_root" && perl -I.p2t2c/lib -MP2T2C::DocsMigration -e 'P2T2C::DocsMigration::template_rollback_ready()') \
+    || die "roll back document layout first"
 }
 
 rollback() {
@@ -537,6 +565,7 @@ assert_root_dir "$target_root" "target"
 
 if [[ "$mode" == "rollback" ]]; then
   resolve_rollback_dir "$rollback_dir"
+  assert_docs_layout_rollback_ready
   assert_rel_components "$target_root" ".p2t2c/managed-files.txt" optional_regular "rollback managed manifest"
   assert_rel_components "$rollback_dir" "backup/.p2t2c/managed-files.txt" optional_regular "rollback backup manifest"
   assert_rel_components "$target_root" ".p2t2c/lock.sha256" optional_regular "rollback target lock"

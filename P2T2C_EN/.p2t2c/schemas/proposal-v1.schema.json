@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "P2T2C proposal front matter v1",
+  "type": "object",
+  "required": ["artifact","schema_version","id","status","risk","decision","decision_ref","specs_ref","truth_ref","truth_digest"],
+  "properties": {
+    "artifact": {"const":"proposal"},
+    "schema_version": {"const":1},
+    "id": {"type":"string","pattern":"^SP-[0-9]{8}-[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "status": {"enum":["proposed","approved"]},
+    "risk": {"enum":["R1","R2"]},
+    "decision": {"enum":["not_required","pending","approved"]},
+    "decision_ref": {"type":"string","minLength":1},
+    "specs_ref": {"type":"string","pattern":"^docs/specs/[0-9]{3,4}-[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "truth_ref": {"type":"string","minLength":1},
+    "truth_digest": {"oneOf":[{"const":"none"},{"type":"string","pattern":"^[0-9a-f]{64}$"}]}
+  },
+  "additionalProperties": false
+}

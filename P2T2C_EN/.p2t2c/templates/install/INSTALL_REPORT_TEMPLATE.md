@@ -47,7 +47,7 @@ Suggested manual integration:
 
 - {validation result}
 
-## 6. 0.14.1 Runtime Boundary
+## 6. 0.15.0 Runtime Boundary
 
-- Installed workflow assets include the `p2t2c` context/verify dispatcher, immutable defaults, phase skills, receipt v2 schemas, and the managed evidence-directory README.
-- The install did not create or copy active runs, checker cache entries, closure evidence sidecars, project configuration instances beyond the initial advisory example, or historical artifacts.
+- Installed workflow assets include core SP/design/tasks templates, Documents Archive, explicit docs-migrate, and the 0.14.x context/evidence/verify/close compatibility engine.
+- Install created no active SP/specs, run, cache, cold-archive instance, or evidence. Fresh config explicitly selects core-v1 while legacy defaults remain adaptive-v2.

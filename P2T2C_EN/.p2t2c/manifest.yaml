@@ -1,5 +1,5 @@
-version: "0.14.1"
-workflow: "P2T2C Risk-Routed Workflow"
+version: "0.15.0"
+workflow: "P2T2C Core Workflow"
 upgrade_model: "ai_readable_safe_upgrade"
 language: "en-US"
 supported_languages:
@@ -14,15 +14,15 @@ metadata:
   ownership_file: ".p2t2c/ownership.yaml"
   lock_file: ".p2t2c/lock.sha256"
   upgrade_root: ".p2t2c/upgrade"
+  docs_migration_root: ".p2t2c/docs-migrate"
   internal_asset_root: ".p2t2c"
   script_root: ".p2t2c/bin"
   skill_root: ".p2t2c/skills"
   schema_root: ".p2t2c/schemas"
-  run_root: ".p2t2c/runs"
-  cache_root: ".p2t2c/cache"
+  legacy_run_root: ".p2t2c/runs"
+  legacy_cache_root: ".p2t2c/cache"
   defaults_file: ".p2t2c/defaults.yaml"
   context_cli: ".p2t2c/bin/p2t2c"
-  evidence_sidecar_root: "docs/closure/evidence"
   project_config_file: ".p2t2c/project_config.yaml"
   project_config_ownership: "project_owned_initialized_on_fresh_install_not_release_managed"
 
@@ -31,36 +31,22 @@ canonical_entries:
   ai: "P2T2C_AGENTS.md"
 
 policy:
-  default_mode: "risk_routed"
+  new_work_profile: "p2t2c-core-v1"
+  core_actions: "explore,propose,apply,verify,archive"
+  active_document_roots: "docs/proposals,docs/specs,docs/sot"
+  cold_archive_root: "docs/reference/archive"
   risk_levels: "R0,R1,R2"
-  execution_shapes: "spike,bounded,architectural"
-  workflow_stages: "intent_admission,risk_routing_truth,work_batch_execution,verification_repair,drift_closure"
-  runtime_loops: "admission_routing,planning_execution,verification_repair_drift_closure"
-  methodology_profile: "p2t2c-adaptive-v2"
-  rollout: "advisory_until_real_agent_eval_targets_are_met"
-  promotion_target: "required_after_recorded_non_regression_and_efficiency_evidence"
-  release_root_enforcement: "required"
-  new_install_enforcement: "advisory"
-  verification_command_wire: "commands_as_id_run_metadata_and_coverage_objects"
-  context_views: "context-capsule-v1,work-status-v1,evidence-summary-v1"
-  project_config_layering: "compact_overlay_over_managed_defaults"
-  partial_controlled_override: "hard_failure"
-  legacy_full_config: "digest_and_semantics_preserved"
-  phase_skills: "admit-route,execute,verify-close"
-  closure_receipt_schema: "closure-receipt-v2"
-  historical_closure_receipt_schema: "closure-receipt-v1"
-  checker_engine: "single_process_index_with_safe_closed_cache"
-  close_engine: "single_semantic_preparation_with_atomic_pair_install"
-  batch_verification: "coverage_aware_read_only_parallel_groups"
+  human_decision: "not_required,pending,approved"
+  verify_optional: true
+  archive_runs_tests: false
+  archive_generates_evidence: false
+  release_smoke_scope: "explicit_release_ci_only"
+  legacy_methodology_profile: "p2t2c-adaptive-v2"
+  legacy_context_views: "context-capsule-v1,work-status-v1,evidence-summary-v1"
+  legacy_closure_receipts: "closure-receipt-v1,closure-receipt-v2"
+  legacy_evidence_schema: "event-v1"
+  legacy_defaults_semantics: "preserved"
   release_smoke_suites: "contract,security,transaction,migration,locale,daily,all"
-  daily_smoke_selection: "deterministic_changed_path_mapping"
-  release_proof_suite: "all"
-  smoke_failure_tail: "sanitized_max_80_lines_and_16384_bytes"
-  release_smoke_jobs: 3
-  release_smoke_scheduler: "transaction__contract_then_migration__security_then_locale"
-  path_mapping_policy: "first_match_with_mandatory_final_catchall"
-  closure_transaction: "atomic_restore_on_failure"
-  evidence_schema: "event-v1"
   dry_run_required: true
   source_checksums_required_before_apply: true
   managed_mode_policy: "default_0644_with_explicit_0755_executables"
@@ -75,11 +61,10 @@ policy:
   obsolete_managed_files_removed_when_lock_matches: true
   visible_release_dirs:
     - "docs"
-    - "specs"
   managed_docs_language: "English-only inside this release root"
 
 compatibility:
-  new_install: "New installations use a compact project overlay over managed defaults and p2t2c-adaptive-v2 in advisory mode until real Agent A/B targets are met."
-  new_work_after_upgrade: "Existing complete project configuration and its effective meaning are preserved; projects without methodology configuration remain advisory until they opt in."
-  historical_artifacts: "Historical SPs, schema v2 CPKs and CRs, inline receipt v1 evidence, specs, plans, and tasks remain valid without forced migration."
-  project_truth: "Upgrade must not modify project-owned Truth or ADRs."
+  new_install: "New installs use the proposals/specs/sot core layout; Archive does not orchestrate project tests or CI."
+  new_work_after_upgrade: "New 0.15 work uses core actions; existing CPK/runs keep their original config and legacy engine."
+  historical_artifacts: "CPK v2/v3, event v1, receipt v1/v2, CR, ADR, and legacy specs are not rewritten; only explicit docs-migrate moves them to cold archive."
+  project_truth: "Normal upgrade must not modify project-owned SOT or decisions."

@@ -6,7 +6,7 @@ risk: R2
 source: user_instruction
 truth_change: true
 gate_a: satisfied
-status: ready
+status: applied
 methodology_profile: p2t2c-adaptive-v2
 execution_shape: architectural
 production_code_change: true
@@ -17,7 +17,7 @@ tdd_policy: required
 governance_change: true
 specialist_review_required: true
 truth_patch_ref: docs/sot/governance/P2T2C_GOVERNANCE.md
-truth_patch_digest: dffca2ddffd0f0dd4c6d8f5ed222866d9acd0462cd231caccfd64085a69cd57c
+truth_patch_digest: 9976fd86c2071c54d7fc4a0bc9eeb324aa93b5fd2f870b8dc83dd783e94abf96
 gate_b_status: not_triggered
 gate_b_decision: none
 gate_b_ref: none

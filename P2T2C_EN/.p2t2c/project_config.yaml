@@ -5,6 +5,9 @@ project:
   language: "en-US"
   language_policy: "monolingual_release_root"
 
+workflow:
+  profile: "p2t2c-core-v1"
+
 roots:
   proposals: "docs/submit_proposals"
   change_packs: "docs/change_packs"

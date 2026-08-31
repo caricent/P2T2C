@@ -13,10 +13,11 @@ Source release: `{path or URL}`
 |---|---|
 | New work after upgrade | Use the upgraded risk-routed workflow |
 | Historical SPs, CPKs, specs, tasks, and CRs | Leave unchanged |
-| Inline receipt v1 and evidence sidecars | Leave unchanged; new closures may use receipt v2 |
+| Receipt v1/v2 and historical evidence sidecars | Leave unchanged; only legacy work continues to use them |
 | Active `.p2t2c/runs/**` and cache state | Never release-managed or rollback targets |
 | Managed file modes | Reconcile to policy; rollback restores prior modes |
 | Project-owned Truth and ADRs | Do not modify |
+| Document layout | Normal upgrade does not move it; only explicit `docs-migrate` changes it |
 
 ## Managed File Actions
 

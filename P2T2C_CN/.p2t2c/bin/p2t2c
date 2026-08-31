@@ -7,6 +7,11 @@ context_engine="$script_dir/p2t2c_context.pl"
 usage() {
   cat <<'EOF'
 Usage:
+  p2t2c archive --spec NNN-name [--json]
+  p2t2c validate-docs [--json]
+  p2t2c docs-migrate --dry-run|--apply|--rollback REPORT [migration options]
+
+Legacy 0.14.x work only:
   p2t2c context --phase admit-route|execute|verify-close [--work-id ID]
     [--intent TEXT | --intent-file PATH|-] [--json]
   p2t2c status --work-id ID [--json]
@@ -15,19 +20,42 @@ Usage:
 EOF
 }
 
-[[ -f "$context_engine" && ! -L "$context_engine" ]] || {
-  echo "ERROR: missing or unsafe context engine" >&2
-  exit 2
-}
-
 command_name="${1:-}"
 case "$command_name" in
+  archive|validate-docs)
+    documents_runner="$script_dir/p2t2c_documents.pl"
+    [[ -f "$documents_runner" && ! -L "$documents_runner" ]] || {
+      echo "ERROR: document workflow engine is not installed" >&2
+      exit 2
+    }
+    shift
+    documents_command="archive"
+    [[ "$command_name" == "validate-docs" ]] && documents_command="validate"
+    exec perl "$documents_runner" "$documents_command" "$@"
+    ;;
+  docs-migrate)
+    migration_runner="$script_dir/p2t2c_docs_migrate.pl"
+    [[ -f "$migration_runner" && ! -L "$migration_runner" ]] || {
+      echo "ERROR: document migration engine is not installed" >&2
+      exit 2
+    }
+    shift
+    exec perl "$migration_runner" "$@"
+    ;;
   context|status)
+    [[ -f "$context_engine" && ! -L "$context_engine" ]] || {
+      echo "ERROR: missing or unsafe legacy context engine" >&2
+      exit 2
+    }
     if [[ "${2:-}" == "-h" || "${2:-}" == "--help" ]]; then usage; exit 0; fi
     shift
     exec perl "$context_engine" "$command_name" "$@"
     ;;
   evidence)
+    [[ -f "$context_engine" && ! -L "$context_engine" ]] || {
+      echo "ERROR: missing or unsafe legacy context engine" >&2
+      exit 2
+    }
     [[ "${2:-}" == "summary" ]] || { usage >&2; exit 2; }
     if [[ "${3:-}" == "-h" || "${3:-}" == "--help" ]]; then usage; exit 0; fi
     shift 2

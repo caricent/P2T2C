@@ -1,32 +1,42 @@
-# P2T2C_AGENTS.md - AI Entry
+# P2T2C_AGENTS.md — AI Entry
 
-P2T2C means Proposal-to-Truth-to-Code. Continue by default while preserving seven invariants:
+P2T2C 0.15 defaults to these core actions:
 
-1. Business Truth lives only in `docs/sot/**`; capsules, CPK/work, code, tests, receipts, and chat cannot override it.
-2. Classify `R0|R1|R2` (Truth authority) and `spike|bounded|architectural` (execution intensity) first; upgrade only.
-3. Gate A decides only unresolved R2 semantics; Gate B only accepts implementation and changes Truth. Dangerous, irreversible, or external side effects always require human authority.
-4. Verification, review, and receipt bind current contract/config and final tree. Handwritten `Pass` is invalid.
-5. Repair the same failure at most twice, restoring the original implementer with scoped re-review. Stop on round three.
-6. Required reviewer differs from implementer; Critical, Important, and Minor are all zero before closure.
-7. Preserve user changes, file ownership, isolation baseline, and one integration controller; no recursive fan-out.
-
-## Minimal Read
-
-Start with:
-
-```bash
-.p2t2c/bin/p2t2c context --phase admit-route --intent-file - --json
+```text
+Explore optional -> Propose -> Apply -> Verify optional -> Archive
 ```
 
-Read only the exact Truth/ADR listed by the capsule and `.p2t2c/skills/admit-route/SKILL.md`. On `UNINDEXED_PROJECT_TRUTH`, search `docs/sot/**/*.md` by intent (excluding History), read matching Truth, and only then route; the managed manifest is not a complete inventory of project Truth. Generate an `execute` or `verify-close` capsule when entering that phase, and load only its phase skill.
+## New Work
 
-Recover work with:
+1. R0 read-only exploration creates no artifact.
+2. R1/R2 creates `docs/proposals/SP-YYYYMMDD-short-title.md`.
+3. Create exactly design.md and tasks.md under `docs/specs/<NNN-short-title>/`.
+4. R1 uses existing SOT. Stop on pending R2; after approval, update SOT before Apply.
+5. Apply implements SP observable outcomes and runs tests according to project practice. Do not load P2T2C verification profiles, ledgers, receipts, or cold archive.
+6. Verify is optional and reports completeness, correctness, and coherence.
+7. When completion conditions hold, run:
 
 ```bash
-.p2t2c/bin/p2t2c status --work-id <id> --json
-.p2t2c/bin/p2t2c evidence summary --work-id <id> --json
+.p2t2c/bin/p2t2c archive --spec <NNN-short-title> --json
 ```
 
-Do not read raw config, ledger, sidecar, complete CR, history, or reference by default. Cold-read a safe ref only for diagnosis/audit. A capsule hint is neither route nor Truth; regenerate after a digest changes.
+Archive runs no tests, review, CI, or release smoke.
 
-`p2t2c-adaptive-v2` remains active. v0.14.1 does not change Agent spawning, model tiers, review, or gate policy.
+## Stop Conditions
+
+- R2 decision is pending.
+- Implementation reveals Truth drift.
+- A known test failure, Verify Critical, or incomplete task exists.
+- A dangerous action lacks explicit authorization.
+- Existing user changes would be overwritten.
+
+## Document Authority
+
+- Current behavior is defined only by `docs/sot/**`.
+- SP contains why/what; design contains how; tasks contain execution and completion.
+- Decision rationale uses `DEC-*` records inside SOT.
+- `docs/reference/archive/**` is non-authoritative cold history and is forbidden by default.
+
+## Legacy Compatibility
+
+When an existing `docs/reference/archive/change_packs/CPK-*.md` or `.p2t2c/runs/**` is present, that work continues through 0.14.x context/status/evidence/verify/close. Do not convert legacy work or change its configuration or evidence merely because 0.15 was installed.

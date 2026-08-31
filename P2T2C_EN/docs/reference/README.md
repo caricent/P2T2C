@@ -4,4 +4,6 @@ Store historical material, exported documents, screenshots, old specs, vendor do
 
 `SUPERPOWERS_ATTRIBUTION.md` records provenance for the 0.13.0 native method layer. It is not business Truth and does not add an upstream plugin dependency.
 
+`OPENSPEC_ATTRIBUTION.md` records provenance for the 0.15 core actions and design/tasks split. `archive/` holds original legacy ADR, CPK, CR/evidence, and specs files moved by explicit migration.
+
 Reference documents are not default implementation authority. If reference content should change current project Truth, create a SP and update SoT first.

@@ -9,6 +9,7 @@ contract.advisory-required	contract	neutral_once	case_contract_advisory_required
 contract.review	contract	neutral_once	case_contract_review
 contract.architectural-r2	contract	neutral_once	case_contract_architectural_r2
 contract.cli	contract	neutral_once	case_contract_cli
+contract.core-v1-document-flow	contract	neutral_once	case_contract_core_v1
 security.truth-digest	security	neutral_once	case_security_truth_digest
 security.unmapped-and-baseline	security	neutral_once	case_security_mapping_baseline
 security.ledger-symlink-swap	security	neutral_once	case_security_ledger_swap
@@ -17,11 +18,14 @@ security.sidecar-cache-verify	security	neutral_once	case_security_sidecar_cache_
 security.historical-tree-portability	security	neutral_once	case_security_history_portability
 security.close-target-parent-swap	security	neutral_once	case_security_close_target_parent_swap
 security.install-upgrade-paths	security	neutral_once	case_security_install_paths
+security.docs-migrate-boundaries	security	neutral_once	case_security_docs_migrate
 transaction.install-upgrade-rollback	transaction	neutral_once	case_transaction_install_upgrade
 transaction.concurrent-close	transaction	neutral_once	case_transaction_concurrent_close
 transaction.atomic-close	transaction	neutral_once	case_transaction_atomic_close
+transaction.docs-migrate-roundtrip	transaction	neutral_once	case_transaction_docs_migrate
 migration.0.13-long-hop	migration	bilingual_parallel	case_migration_013
 migration.0.14-direct	migration	bilingual_parallel	case_migration_014
+migration.0.14.1-direct	migration	bilingual_parallel	case_migration_0141
 locale.release-parity	locale	repo_once	case_locale_release_parity
 locale.release-metadata	locale	bilingual_parallel	case_locale_release_metadata
 locale.fresh-install-surface	locale	bilingual_parallel	case_locale_fresh_install

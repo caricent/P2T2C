@@ -1,32 +1,42 @@
 # P2T2C_AGENTS.md — AI 入口
 
-P2T2C 表示 Proposal-to-Truth-to-Code。默认持续推进，但必须遵守七条不变量：
+P2T2C 0.15 的默认核心动作是：
 
-1. 业务 Truth 只在 `docs/sot/**`；胶囊、CPK/work、代码、测试、receipt 和聊天不能覆盖 Truth。
-2. 先判断 `R0|R1|R2`（Truth 权限）和 `spike|bounded|architectural`（执行强度）；只能向上升级。
-3. Gate A 只决定未解的 R2 语义；Gate B 只接受实现并改 Truth。危险、不可逆或外部副作用始终需人类授权。
-4. 验证、review 和 receipt 绑定当前 contract/config 与 final tree；手写 `Pass` 无效。
-5. 同失败最多两轮修复，恢复原 implementer 并 scoped re-review；第三轮停线。
-6. 必需 reviewer 与 implementer 不同，Critical/Important/Minor 全为 0 才可收口。
-7. 保留用户改动、文件所有权、隔离基线与单一集成 controller；不递归 fan-out。
-
-## 最小读取
-
-先运行：
-
-```bash
-.p2t2c/bin/p2t2c context --phase admit-route --intent-file - --json
+```text
+Explore 可选 -> Propose -> Apply -> Verify 可选 -> Archive
 ```
 
-只读胶囊列出的精确 Truth/ADR 与 `.p2t2c/skills/admit-route/SKILL.md`。若出现 `UNINDEXED_PROJECT_TRUTH`，先在 `docs/sot/**/*.md`（排除 History）按 intent 检索并读取匹配 Truth，再路由；受管 manifest 不是项目 Truth 的完整清单。进入实现或收口时，分别生成 `execute` / `verify-close` 胶囊，并只加载该阶段 Skill。
+## 新工作
 
-恢复工作使用：
+1. R0 只读探索不创建文档。
+2. R1/R2 创建 `docs/proposals/SP-YYYYMMDD-short-title.md`。
+3. 在 `docs/specs/<NNN-short-title>/` 创建且只创建 design.md 与 tasks.md。
+4. R1 使用现有 SOT；R2 decision pending 时停线，approved 后先更新 SOT。
+5. Apply 围绕 SP 可观察结果实现，按项目惯例运行必要测试；不要加载 P2T2C verification profile、ledger、receipt 或冷归档。
+6. Verify 可选，只报告 completeness、correctness、coherence。
+7. 满足完成条件后运行：
 
 ```bash
-.p2t2c/bin/p2t2c status --work-id <id> --json
-.p2t2c/bin/p2t2c evidence summary --work-id <id> --json
+.p2t2c/bin/p2t2c archive --spec <NNN-short-title> --json
 ```
 
-默认不读 raw config、ledger、sidecar、完整 CR、history 或 reference。只在诊断/审计时按安全 ref 冷读。胶囊 hint 不是 route 或 Truth；digest 改变后重建。
+Archive 不运行测试、review、CI 或 release smoke。
 
-`p2t2c-adaptive-v2` 继续生效。0.14.1 不改变 Agent 派生、模型档位、审查或 Gate 策略。
+## 必须停线
+
+- R2 decision pending。
+- 实现发现 Truth 漂移。
+- 已知失败测试、Verify Critical 或未完成任务。
+- 危险操作缺少明确授权。
+- 用户已有改动会被覆盖。
+
+## 文档权威
+
+- 当前行为只能由 `docs/sot/**` 定义。
+- SP 写 why/what；design 写 how；tasks 写执行与完成。
+- Decision rationale 使用 SOT 中的 `DEC-*`。
+- `docs/reference/archive/**` 是非权威冷历史，默认禁止读取。
+
+## Legacy 兼容
+
+发现已有 `docs/reference/archive/change_packs/CPK-*.md` 或 `.p2t2c/runs/**` 时，该工作继续使用 0.14.x 的 context/status/evidence/verify/close。不要把 legacy 工作转换成新文档，也不要因 0.15 升级改变其配置或证据。

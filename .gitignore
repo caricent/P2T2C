@@ -21,6 +21,7 @@ coverage/
 
 **/.p2t2c/install/
 **/.p2t2c/upgrade/
+**/.p2t2c/docs-migrate/
 **/.p2t2c/generated/
 **/.p2t2c/runs/
 **/.p2t2c/cache/

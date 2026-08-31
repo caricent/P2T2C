@@ -1,14 +1,15 @@
 schema_version: 1
-workflow: "P2T2C Adaptive Risk-Routed Workflow"
+workflow: "P2T2C Core Workflow"
 language: "zh-CN"
 truth_root: "docs/sot"
 
 truth_documents:
   - path: "docs/sot/governance/P2T2C_GOVERNANCE.md"
-    sha256: "93c03bd0722bf74fde374bda0cf55e5f2d8a2b0ac3e0e3b7655612f58bdeb408"
-    rule_ids: ["RULE-GOV-001", "RULE-GOV-002", "RULE-GOV-003", "RULE-GOV-004", "RULE-GOV-006", "RULE-GOV-007", "RULE-GOV-008", "RULE-GOV-009", "RULE-GOV-014", "RULE-GOV-015", "RULE-GOV-016", "RULE-GOV-017", "RULE-GOV-018"]
-    topics: ["治理", "Truth", "风险路由", "execution shape", "Gate", "Agent", "上下文", "机器证据", "验证", "收口", "安装升级", "双语发行"]
+    sha256: "9495632de31553655fe853dbfdfa29ded9f49b3163a391f7a88b2c26aa6d0eae"
+    rule_ids: ["RULE-GOV-001", "RULE-GOV-002", "RULE-GOV-003", "RULE-GOV-004", "RULE-GOV-006", "RULE-GOV-007", "RULE-GOV-008", "RULE-GOV-009", "RULE-GOV-014", "RULE-GOV-015", "RULE-GOV-016", "RULE-GOV-017", "RULE-GOV-018", "RULE-GOV-019", "RULE-GOV-020"]
+    decision_ids: ["DEC-GOV-013", "DEC-GOV-014", "DEC-GOV-015", "DEC-GOV-016", "DEC-GOV-017"]
+    topics: ["治理", "Truth", "核心动作", "proposal", "design", "tasks", "Archive", "文档迁移", "legacy 兼容", "安装升级", "双语发行"]
 
 adrs: []
 
-cold_roots: ["docs/reference/", "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md", "docs/closure/evidence/"]
+cold_roots: ["docs/reference/archive/", "docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md"]

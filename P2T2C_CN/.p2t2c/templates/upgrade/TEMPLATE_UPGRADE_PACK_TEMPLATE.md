@@ -13,10 +13,11 @@
 |---|---|
 | 升级后的新工作 | 使用升级后的风险路由工作流 |
 | 历史 SP、CPK、spec、task、CR | 保持不变 |
-| Inline receipt v1 与 evidence sidecar | 保持不变；新收口可使用 receipt v2 |
+| receipt v1/v2 与历史 evidence sidecar | 保持不变；仅 legacy 工作继续使用 |
 | 活动 `.p2t2c/runs/**` 与 cache 状态 | 绝不作为发行受管或 rollback 目标 |
 | 受管文件 mode | 按 policy 修复；rollback 恢复旧 mode |
 | 项目拥有的 Truth、ADR | 不修改 |
+| 文档布局 | 普通升级不移动；仅显式 `docs-migrate` 修改 |
 
 ## 受管文件动作
 

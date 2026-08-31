@@ -5,6 +5,8 @@ default 0644
 0755 .p2t2c/bin/p2t2c
 0755 .p2t2c/bin/p2t2c_close.sh
 0755 .p2t2c/bin/p2t2c_context.pl
+0755 .p2t2c/bin/p2t2c_docs_migrate.pl
+0755 .p2t2c/bin/p2t2c_documents.pl
 0755 .p2t2c/bin/p2t2c_install.sh
 0755 .p2t2c/bin/p2t2c_run.sh
 0755 .p2t2c/bin/p2t2c_upgrade.sh

@@ -1,0 +1,6 @@
+{
+  "docs/adr/ADR-013-superpowers-method-layer.md": "docs/sot/governance/P2T2C_GOVERNANCE.md#DEC-GOV-013",
+  "docs/adr/ADR-014-adaptive-autonomy-and-machine-evidence.md": "docs/sot/governance/P2T2C_GOVERNANCE.md#DEC-GOV-014",
+  "docs/adr/ADR-015-context-and-execution-efficiency.md": "docs/sot/governance/P2T2C_GOVERNANCE.md#DEC-GOV-015",
+  "docs/adr/ADR-016-business-first-assurance.md": "docs/sot/governance/P2T2C_GOVERNANCE.md#DEC-GOV-016"
+}

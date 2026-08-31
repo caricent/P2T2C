@@ -57,8 +57,8 @@ Downstream projections:
 - `.p2t2c/templates/change_packs/CHANGE_PACK_TEMPLATE.md`
 - `.p2t2c/prompts/02_generate_change_pack_prompt.md`
 - `.p2t2c/prompts/03_apply_change_pack_prompt.md`
-- `docs/submit_proposals/SP_TEMPLATE.md`
-- `docs/submit_proposals/README.md`
+- `docs/reference/archive/proposals/SP_TEMPLATE.md`
+- `docs/reference/archive/proposals/README.md`
 - `.p2t2c/prompts/04_generate_execution_pack_prompt.md`
 
 ### RULE-GOV-004
@@ -99,7 +99,7 @@ Supersedes: previous exposed internal asset layout
 Superseded by: None
 Migration required: Yes, template version `0.6.0`
 
-Rationale: Converge the project-root surface to `docs/` and `specs/`, with internal assets under `.p2t2c/`.
+Rationale: Converge the project-root surface to `docs/` and `docs/reference/archive/specs/`, with internal assets under `.p2t2c/`.
 
 Downstream projections:
 
@@ -237,7 +237,7 @@ Rationale: Text claims cannot prove execution against final code and the current
 
 Downstream projections:
 
-- `docs/change_packs/CPK_TEMPLATE.md`
+- `docs/reference/archive/change_packs/CPK_TEMPLATE.md`
 - `.p2t2c/templates/closure/CLOSURE_REPORT_TEMPLATE.md`
 - `.p2t2c/bin/check_p2t2c.sh`
 
@@ -253,7 +253,7 @@ Rationale: Risk determines Truth authority while execution shape determines exec
 
 Downstream projections:
 
-- `docs/change_packs/**`
+- `docs/reference/archive/change_packs/**`
 - `.p2t2c/templates/execution/**`
 - `.p2t2c/manifest.yaml`
 - `.p2t2c/managed-files.txt`
@@ -293,6 +293,39 @@ Downstream projections:
 - `.p2t2c/project_config.yaml` and `.p2t2c/templates/project_config.example.yaml`
 - `scripts/release_smoke_test.sh` and its split fixtures
 
+### RULE-GOV-019
+
+Status: Superseded
+Source: User and maintainer decision on 2026-08-31
+Supersedes: Adaptive-v2 fixed review matrix and explicit verify-close attention allocation
+Superseded by: `DEC-GOV-017`
+Migration required: Yes, template version `0.15.0`
+
+Rationale: Quality should be measured through final behavior, risk coverage, and defect escape rather than uniform process-action count. Separating risk, execution shape, and assurance keeps routine work business-focused while unknown/sensitive impact still fails closed.
+
+Downstream projections:
+
+- `.p2t2c/lib/P2T2C/Flow.pm` and `p2t2c next|finish|proof`
+- Assurance policy in `.p2t2c/defaults.yaml`
+- `.p2t2c/skills/verify-close/ADAPTIVE_V3_EXCEPTION.md` and independent review
+
+### RULE-GOV-020
+
+Status: Superseded
+Source: User and maintainer decision on 2026-08-31
+Supersedes: CPK v3/event v1/receipt v2 as the default for new work
+Superseded by: `DEC-GOV-017`
+Migration required: Yes, template version `0.15.0`
+
+Rationale: Compact CPK v4 persists business semantics only while actual diff derives dynamic assurance. Separate semantic/assurance/coverage bindings prevent unrelated changes from invalidating all evidence while preserving historical artifacts unchanged.
+
+Downstream projections:
+
+- `docs/reference/archive/change_packs/CPK_TEMPLATE.md`
+- `.p2t2c/schemas/cpk-v4.schema.json`, `event-v2.schema.json`, and `closure-receipt-v3.schema.json`
+- `.p2t2c/evals/adaptive-v3-scenarios.md`
+- `.p2t2c/migrations/0.14.1-to-0.15.0.md`
+
 ---
 
 ## Superseded rules (full text)
@@ -311,3 +344,39 @@ Rule:
 P2T2C-managed human and AI workflow documents used English-first single-file bilingual presentation.
 
 This rule has been superseded by `RULE-GOV-006` and is retained only as a historical lifecycle record.
+## Decision Records Migrated from ADR
+
+### DEC-013: Native Method Layer under Truth Governance
+
+Disposition: active foundation
+Source: `docs/reference/archive/adr/ADR-013-superpowers-method-layer.md`
+
+P2T2C retains its own Truth authority while project method skills remain a non-authoritative execution layer. Version 0.15 keeps this boundary without requiring method evidence artifacts.
+
+### DEC-014: Layered Autonomy and Machine Evidence
+
+Disposition: superseded by DEC-GOV-017
+Source: `docs/reference/archive/adr/ADR-014-adaptive-autonomy-and-machine-evidence.md`
+
+The 0.14 CPK v3, event v1, receipts, and fixed reviews remain legacy compatibility semantics only and do not apply to new 0.15 work.
+
+### DEC-015: Minimal Context and Equivalent Execution Efficiency
+
+Disposition: superseded for new work by DEC-GOV-017
+Source: `docs/reference/archive/adr/ADR-015-context-and-execution-efficiency.md`
+
+The 0.14.1 context/evidence/verify/close improvements continue protecting active legacy work. New work gains efficiency by removing the default evidence control plane.
+
+### DEC-016: Business-first Assurance Candidate
+
+Disposition: history only; superseded before release by DEC-GOV-017
+Source: `docs/reference/archive/adr/ADR-016-business-first-assurance.md`
+
+The unreleased assurance/proof/event-v2/receipt-v3 design was withdrawn because it still centered the proof process.
+
+### DEC-017: Core Actions and Three-domain Document Governance
+
+Disposition: active
+Current rule: `docs/sot/governance/P2T2C_GOVERNANCE.md#DEC-GOV-017`
+
+New 0.15 work uses Explore, Propose, Apply, optional Verify, and Archive, with active documents reduced to proposals, specs, and SOT.

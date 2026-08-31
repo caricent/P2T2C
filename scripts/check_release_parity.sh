@@ -58,7 +58,7 @@ managed_unique_count="$(managed_paths "$en/$managed_manifest" | LC_ALL=C sort -u
 
 is_project_owned_closure_instance() {
   case "$1" in
-    ./docs/closure/CR-*.md|docs/closure/CR-*.md|./docs/closure/evidence/EV-*.jsonl|docs/closure/evidence/EV-*.jsonl) return 0 ;;
+    ./docs/closure/CR-*.md|docs/closure/CR-*.md|./docs/closure/evidence/EV-*.jsonl|docs/closure/evidence/EV-*.jsonl|./docs/reference/archive/closure/evidence/EV-*.jsonl|docs/reference/archive/closure/evidence/EV-*.jsonl) return 0 ;;
     *) return 1 ;;
   esac
 }
@@ -75,6 +75,7 @@ list_paths() {
       ! -path './.p2t2c/cache/*' \
       ! -path './.p2t2c/install/*' \
       ! -path './.p2t2c/upgrade/*' \
+      ! -path './.p2t2c/docs-migrate/*' \
       | sort \
       | while IFS= read -r path; do
           is_project_owned_closure_instance "$path" && continue
@@ -152,30 +153,42 @@ rule_diff="$(diff -u <(rule_contract "$en") <(rule_contract "$cn") || true)"
 }
 
 frontmatter_contract() {
-  local root="$1" file rel cpk_instance
+  local root="$1" file rel workflow_local_status
+  local -a roots=()
+  local candidate
+  for candidate in \
+    "$root/docs/change_packs" \
+    "$root/docs/closure" \
+    "$root/specs" \
+    "$root/docs/proposals" \
+    "$root/docs/specs" \
+    "$root/.p2t2c/templates/closure" \
+    "$root/.p2t2c/templates/execution" \
+    "$root/.p2t2c/templates/core"
+  do
+    [[ -d "$candidate" ]] && roots+=("$candidate")
+  done
+  [[ "${#roots[@]}" -gt 0 ]] || return 0
   while IFS= read -r file; do
     [[ "$(head -n 1 "$file" 2>/dev/null || true)" == "---" ]] || continue
     rel="${file#"$root/"}"
     is_project_owned_closure_instance "$rel" && continue
-    case "$rel" in docs/change_packs/CPK-*.md) cpk_instance=1 ;; *) cpk_instance=0 ;; esac
+    case "$rel" in
+      docs/change_packs/CPK-*.md|docs/proposals/SP-*.md|docs/specs/*/tasks.md) workflow_local_status=1 ;;
+      *) workflow_local_status=0 ;;
+    esac
     printf '[%s]\n' "$rel"
-    awk -v cpk_instance="$cpk_instance" '
+    awk -v workflow_local_status="$workflow_local_status" '
       NR == 1 && $0 == "---" { in_fm=1; next }
       in_fm && $0 == "---" { exit }
       in_fm && /^[A-Za-z0-9_]+:[[:space:]]*/ {
         key=$0; sub(/:.*/, "", key)
-        if (cpk_instance && key == "status") print key ": <workflow-local>"
+        if (workflow_local_status && key == "status") print key ": <workflow-local>"
         else if (key ~ /(_digest|_sha)$/) print key ": <opaque>"
         else print
       }
     ' "$file" | LC_ALL=C sort
-  done < <(find \
-    "$root/docs/change_packs" \
-    "$root/docs/closure" \
-    "$root/specs" \
-    "$root/.p2t2c/templates/closure" \
-    "$root/.p2t2c/templates/execution" \
-    -type f -name '*.md' | LC_ALL=C sort)
+  done < <(find "${roots[@]}" -type f -name '*.md' | LC_ALL=C sort)
 }
 
 frontmatter_parity_self_test() {
@@ -223,6 +236,7 @@ frontmatter_diff="$(diff -u <(frontmatter_contract "$en") <(frontmatter_contract
 
 adr_contract() {
   local root="$1" file rel
+  [[ -d "$root/docs/adr" ]] || return 0
   while IFS= read -r file; do
     rel="${file#"$root/"}"
     printf '[%s]\n' "$rel"
@@ -234,6 +248,18 @@ adr_diff="$(diff -u <(adr_contract "$en") <(adr_contract "$cn") || true)"
 [[ -z "$adr_diff" ]] || {
   echo "$adr_diff" >&2
   error "stable ADR metadata differs"
+}
+
+decision_contract() {
+  local root="$1"
+  grep -hE '^## DEC-[A-Z0-9._-]+' "$root"/docs/sot/**/*.md 2>/dev/null \
+    | grep -oE 'DEC-[A-Z0-9._-]+' | LC_ALL=C sort || true
+}
+
+decision_diff="$(diff -u <(decision_contract "$en") <(decision_contract "$cn") || true)"
+[[ -z "$decision_diff" ]] || {
+  echo "$decision_diff" >&2
+  error "stable current SOT Decision IDs differ"
 }
 
 enum_contract() {
@@ -277,22 +303,19 @@ project_overlay_diff="$(diff -u \
 }
 
 for root in "$en" "$cn"; do
-  grep -q '^version: "0.14.1"$' "$root/.p2t2c/manifest.yaml" || error "$root manifest is not version 0.14.1"
+  grep -q '^version: "0.15.0"$' "$root/.p2t2c/manifest.yaml" || error "$root manifest is not version 0.15.0"
   grep -q 'managed_files: ".p2t2c/managed-files.txt"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare managed-files.txt"
   grep -q 'managed_modes: ".p2t2c/managed-modes.txt"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare managed-modes.txt"
-  grep -q 'methodology_profile: "p2t2c-adaptive-v2"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare adaptive-v2"
-  grep -q 'rollout: "advisory_until_real_agent_eval_targets_are_met"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare advisory rollout"
-  grep -q 'release_root_enforcement: "required"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare required release enforcement"
-  grep -q 'path_mapping_policy: "first_match_with_mandatory_final_catchall"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare total path mapping"
-  grep -q 'context_views: "context-capsule-v1,work-status-v1,evidence-summary-v1"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare bounded context views"
-  grep -q 'project_config_layering: "compact_overlay_over_managed_defaults"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare compact project overlays"
-  grep -q 'partial_controlled_override: "hard_failure"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not reject partial controlled overrides"
-  grep -q 'phase_skills: "admit-route,execute,verify-close"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare the three phase skills"
-  grep -q 'closure_receipt_schema: "closure-receipt-v2"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare receipt v2"
-  grep -q 'historical_closure_receipt_schema: "closure-receipt-v1"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not retain receipt v1 compatibility"
+  grep -q 'new_work_profile: "p2t2c-core-v1"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare core-v1"
+  grep -q 'core_actions: "explore,propose,apply,verify,archive"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare core actions"
+  grep -q 'active_document_roots: "docs/proposals,docs/specs,docs/sot"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare active document roots"
+  grep -q 'archive_runs_tests: false' "$root/.p2t2c/manifest.yaml" || error "$root manifest lets Archive run tests"
+  grep -q 'verify_optional: true' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not make Verify optional"
+  grep -q 'legacy_closure_receipts: "closure-receipt-v1,closure-receipt-v2"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not retain receipt v1/v2 compatibility"
   grep -q 'release_smoke_suites: "contract,security,transaction,migration,locale,daily,all"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare split release smoke"
   grep -q 'source_checksums_required_before_apply: true' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not require source checksum verification"
-  grep -q 'profile: "p2t2c-adaptive-v2"' "$root/.p2t2c/templates/project_config.example.yaml" || error "$root new-install config is not adaptive-v2"
+  grep -q 'profile: "p2t2c-core-v1"' "$root/.p2t2c/templates/project_config.example.yaml" || error "$root new-install config is not core-v1"
+  grep -q 'profile: "p2t2c-adaptive-v2"' "$root/.p2t2c/defaults.yaml" || error "$root managed defaults do not preserve adaptive-v2 upgrades"
   grep -q 'enforcement: "advisory"' "$root/.p2t2c/templates/project_config.example.yaml" || error "$root new-install config is not advisory"
   grep -q 'enforcement: "required"' "$root/.p2t2c/project_config.yaml" || error "$root release project config is not required"
   grep -q 'id: "release-smoke"' "$root/.p2t2c/project_config.yaml" || error "$root full profile omits root release smoke"
@@ -313,13 +336,16 @@ for root in "$en" "$cn"; do
   if grep -q '^verification:' "$root/.p2t2c/templates/project_config.example.yaml"; then
     error "$root compact project overlay duplicates inherited verification"
   fi
-  [[ "$(wc -c < "$root/.p2t2c/templates/project_config.example.yaml" | tr -d ' ')" -lt 1024 ]] || error "$root project overlay is not compact"
+  [[ "$(wc -c < "$root/.p2t2c/templates/project_config.example.yaml" | tr -d ' ')" -lt 1536 ]] || error "$root project overlay is not compact"
   grep -q '^verification:' "$root/.p2t2c/defaults.yaml" || error "$root managed defaults omit verification profiles"
   grep -q '^  path_mapping:' "$root/.p2t2c/defaults.yaml" || error "$root managed defaults omit verification path mapping"
   [[ -f "$root/.p2t2c/migrations/0.13.0-to-0.14.0.md" ]] || error "$root missing 0.13.0-to-0.14.0 migration"
   [[ -f "$root/.p2t2c/migrations/0.14.0-to-0.14.1.md" ]] || error "$root missing 0.14.0-to-0.14.1 migration"
+  [[ -f "$root/.p2t2c/migrations/0.14.1-to-0.15.0.md" ]] || error "$root missing 0.14.1-to-0.15.0 migration"
   [[ -x "$root/.p2t2c/bin/p2t2c" ]] || error "$root dispatcher is missing or not executable"
-  [[ -f "$root/docs/closure/evidence/README.md" ]] || error "$root evidence sidecar README is missing"
+  [[ -f "$root/.p2t2c/bin/p2t2c_documents.pl" && -f "$root/.p2t2c/lib/P2T2C/Documents.pm" ]] || error "$root core document engine is missing"
+  [[ -f "$root/.p2t2c/bin/p2t2c_docs_migrate.pl" && -f "$root/.p2t2c/lib/P2T2C/DocsMigration.pm" ]] || error "$root docs-migrate is missing"
+  [[ -f "$root/docs/proposals/README.md" && -f "$root/docs/specs/README.md" && -f "$root/docs/reference/archive/README.md" ]] || error "$root core document roots are incomplete"
   default_mode="$(awk '$1 == "default" {print $2}' "$root/.p2t2c/managed-modes.txt")"
   while IFS= read -r rel; do
     expected_mode="$(awk -v path="$rel" -v fallback="$default_mode" '$1 ~ /^0[0-7][0-7][0-7]$/ && $2 == path {chosen=$1} END {if (length(chosen)>0) print chosen; else print fallback}' "$root/.p2t2c/managed-modes.txt")"
@@ -334,6 +360,13 @@ if [[ ! -f "$fixture" ]]; then
   error "missing byte-exact 0.14.0 release fixture"
 elif [[ "$(shasum -a 256 "$fixture" | awk '{print $1}')" != "$fixture_expected" ]]; then
   error "0.14.0 release fixture digest differs"
+fi
+fixture="$repo_root/scripts/fixtures/p2t2c-0.14.1-release-roots.tar.gz"
+fixture_expected="7c1491a3df3500c8a9cd31cd3f50257975654a40b86189bd50b9cfbee566e0f2"
+if [[ ! -f "$fixture" ]]; then
+  error "missing byte-exact 0.14.1 release fixture"
+elif [[ "$(shasum -a 256 "$fixture" | awk '{print $1}')" != "$fixture_expected" ]]; then
+  error "0.14.1 release fixture digest differs"
 fi
 [[ -f "$repo_root/scripts/release_smoke_coverage.json" ]] || error "missing release smoke coverage manifest"
 

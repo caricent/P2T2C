@@ -16,6 +16,8 @@ case_registry="$repo_root/scripts/release_smoke_registry.tsv"
 daily_map="$repo_root/scripts/release_smoke_daily_map.tsv"
 fixture_014_archive="$repo_root/scripts/fixtures/p2t2c-0.14.0-release-roots.tar.gz"
 fixture_014_digest="72c785a2fa0e8835732abf76eb93012c9b68a36c2344e6674550a135d6eb0256"
+fixture_0141_archive="$repo_root/scripts/fixtures/p2t2c-0.14.1-release-roots.tar.gz"
+fixture_0141_digest="7c1491a3df3500c8a9cd31cd3f50257975654a40b86189bd50b9cfbee566e0f2"
 
 usage() {
   cat <<'EOF'
@@ -246,6 +248,15 @@ check_smoke_coverage() {
     || fail "frozen EN release fixture is not 0.14.0"
   [[ "$(tar -xOzf "$fixture_014_archive" P2T2C_CN/.p2t2c/VERSION | tr -d '[:space:]')" == "0.14.0" ]] \
     || fail "frozen CN release fixture is not 0.14.0"
+  [[ -f "$fixture_0141_archive" ]] || fail "missing byte-exact 0.14.1 release fixture"
+  [[ "$(sha256_file "$fixture_0141_archive")" == "$fixture_0141_digest" ]] || fail "0.14.1 release fixture digest mismatch"
+  if tar -tzf "$fixture_0141_archive" | grep -Eq '(^/|(^|/)\.\.(/|$))'; then
+    fail "0.14.1 release fixture contains an unsafe archive path"
+  fi
+  [[ "$(tar -xOzf "$fixture_0141_archive" P2T2C_EN/.p2t2c/VERSION | tr -d '[:space:]')" == "0.14.1" ]] \
+    || fail "frozen EN release fixture is not 0.14.1"
+  [[ "$(tar -xOzf "$fixture_0141_archive" P2T2C_CN/.p2t2c/VERSION | tr -d '[:space:]')" == "0.14.1" ]] \
+    || fail "frozen CN release fixture is not 0.14.1"
 }
 
 refresh_source_metadata() {
@@ -266,6 +277,26 @@ refresh_source_metadata() {
   done < <(managed_paths "$root/.p2t2c/managed-files.txt")
   chmod 0644 "$lock_tmp"
   mv "$lock_tmp" "$root/.p2t2c/lock.sha256"
+}
+
+normalize_fixture_managed_modes() {
+  local root="$1" rel fallback expected
+  if [[ -f "$root/.p2t2c/managed-modes.txt" ]]; then
+    fallback="$(awk '$1 == "default" {print $2; exit}' "$root/.p2t2c/managed-modes.txt")"
+    [[ "$fallback" =~ ^0[0-7]{3}$ ]] || fail "fixture managed mode policy has no valid default"
+  else
+    fallback="0644"
+  fi
+  while IFS= read -r rel; do
+    if [[ -f "$root/.p2t2c/managed-modes.txt" ]]; then
+      expected="$(awk -v path="$rel" -v fallback="$fallback" '$1 ~ /^0[0-7][0-7][0-7]$/ && $2 == path {mode=$1} END {print length(mode)?mode:fallback}' "$root/.p2t2c/managed-modes.txt")"
+    elif [[ -x "$root/$rel" ]]; then
+      expected="0755"
+    else
+      expected="$fallback"
+    fi
+    chmod "$expected" "$root/$rel" || fail "cannot normalize frozen fixture mode: $rel"
+  done < <(managed_paths "$root/.p2t2c/managed-files.txt")
 }
 
 check_refresh_source_metadata_umask_contract() {
@@ -458,7 +489,7 @@ run_transaction_safety_contracts() {
   printf 'source-swap-target-sentinel\n' > "$swap_target/sentinel.txt"
   target_inventory "$swap_target" > "$swap_inventory_before"
   set +e
-  P2T2C_TEST_PAUSE_AFTER_SOURCE_SNAPSHOT_REL="specs/README.md" P2T2C_TEST_PAUSE_MS=1000 \
+  P2T2C_TEST_PAUSE_AFTER_SOURCE_SNAPSHOT_REL="docs/specs/README.md" P2T2C_TEST_PAUSE_MS=1000 \
     bash "$swap_source/.p2t2c/bin/p2t2c_install.sh" --apply --target "$swap_target" >"$fixture_root/source-swap.log" 2>&1 &
   runner_pid=$!
   set -e
@@ -468,9 +499,9 @@ run_transaction_safety_contracts() {
     sleep 0.01
   done
   [[ -n "$marker" ]] || { wait "$runner_pid" 2>/dev/null || true; fail "$rel source-swap fixture did not observe the transaction marker"; }
-  mv "$swap_source/specs/README.md" "$swap_source/specs/README.before-swap.md"
-  printf '# swapped after checksum freeze\n' > "$swap_source/specs/README.md"
-  chmod 0644 "$swap_source/specs/README.md"
+  mv "$swap_source/docs/specs/README.md" "$swap_source/docs/specs/README.before-swap.md"
+  printf '# swapped after checksum freeze\n' > "$swap_source/docs/specs/README.md"
+  chmod 0644 "$swap_source/docs/specs/README.md"
   set +e; wait "$runner_pid"; runner_status=$?; set -e
   [[ "$runner_status" -ne 0 ]] || fail "$rel checksum-frozen source swap unexpectedly installed"
   grep -Eqi 'frozen source|source.*changed|identity|snapshot' "$fixture_root/source-swap.log" \
@@ -513,7 +544,7 @@ run_transaction_safety_contracts() {
   printf 'destination-victim-sentinel\n' > "$dest_swap_victim/sentinel.txt"
   target_inventory "$dest_swap_victim" > "$victim_inventory_before"
   set +e
-  P2T2C_TEST_PAUSE_BEFORE_DEST_IDENTITY_REL="specs/README.md" P2T2C_TEST_PAUSE_MS=1000 \
+  P2T2C_TEST_PAUSE_BEFORE_DEST_IDENTITY_REL="docs/specs/README.md" P2T2C_TEST_PAUSE_MS=1000 \
     bash "$dest_swap_source/.p2t2c/bin/p2t2c_install.sh" --apply --target "$dest_swap_target" >"$fixture_root/dest-swap.log" 2>&1 &
   runner_pid=$!
   set -e
@@ -523,8 +554,8 @@ run_transaction_safety_contracts() {
     sleep 0.005
   done
   [[ -n "$marker" ]] || { wait "$runner_pid" 2>/dev/null || true; fail "$rel destination-parent fixture did not observe specs parent"; }
-  mv "$dest_swap_target/specs" "$dest_swap_parked"
-  ln -s "$dest_swap_victim" "$dest_swap_target/specs"
+  mv "$dest_swap_target/docs/specs" "$dest_swap_parked"
+  ln -s "$dest_swap_victim" "$dest_swap_target/docs/specs"
   set +e; wait "$runner_pid"; runner_status=$?; set -e
   [[ "$runner_status" -ne 0 ]] || fail "$rel swapped destination parent unexpectedly installed"
   target_inventory "$dest_swap_victim" > "$victim_inventory_after"
@@ -559,13 +590,13 @@ run_transaction_safety_contracts() {
 
   bash "$valid_source/.p2t2c/bin/p2t2c_install.sh" --apply --target "$dest_swap_upgrade_target" >/dev/null
   cp -pR "$valid_source/." "$dest_swap_upgrade_source/"
-  printf '\n# upgrade destination swap fixture\n' >> "$dest_swap_upgrade_source/specs/README.md"
+  printf '\n# upgrade destination swap fixture\n' >> "$dest_swap_upgrade_source/docs/specs/README.md"
   refresh_source_metadata "$dest_swap_upgrade_source"
   printf 'upgrade-destination-victim-sentinel\n' > "$dest_swap_upgrade_victim/sentinel.txt"
   chmod 0640 "$dest_swap_upgrade_victim/sentinel.txt"
   target_inventory "$dest_swap_upgrade_victim" > "$victim_inventory_before"
   set +e
-  (cd "$dest_swap_upgrade_target" && P2T2C_TEST_PAUSE_BEFORE_DEST_IDENTITY_REL="specs/README.md" P2T2C_TEST_PAUSE_MS=1000 \
+  (cd "$dest_swap_upgrade_target" && P2T2C_TEST_PAUSE_BEFORE_DEST_IDENTITY_REL="docs/specs/README.md" P2T2C_TEST_PAUSE_MS=1000 \
     bash .p2t2c/bin/p2t2c_upgrade.sh --apply --source "$dest_swap_upgrade_source") >"$fixture_root/dest-swap-upgrade.log" 2>&1 &
   runner_pid=$!
   set -e
@@ -575,15 +606,15 @@ run_transaction_safety_contracts() {
     sleep 0.005
   done
   [[ -n "$marker" ]] || { wait "$runner_pid" 2>/dev/null || true; fail "$rel upgrade destination-parent fixture did not observe specs backup"; }
-  mv "$dest_swap_upgrade_target/specs" "$dest_swap_upgrade_parked"
-  ln -s "$dest_swap_upgrade_victim" "$dest_swap_upgrade_target/specs"
+  mv "$dest_swap_upgrade_target/docs/specs" "$dest_swap_upgrade_parked"
+  ln -s "$dest_swap_upgrade_victim" "$dest_swap_upgrade_target/docs/specs"
   set +e; wait "$runner_pid"; runner_status=$?; set -e
   [[ "$runner_status" -ne 0 ]] || fail "$rel swapped upgrade destination parent unexpectedly applied"
   target_inventory "$dest_swap_upgrade_victim" > "$victim_inventory_after"
   assert_target_inventory_equal "$victim_inventory_before" "$victim_inventory_after" "$rel upgrade destination-parent swap victim"
   [[ ! -e "$dest_swap_upgrade_victim/README.md" ]] || fail "$rel upgrade destination-parent swap wrote through to victim"
-  rm -f "$dest_swap_upgrade_target/specs"
-  mv "$dest_swap_upgrade_parked" "$dest_swap_upgrade_target/specs"
+  rm -f "$dest_swap_upgrade_target/docs/specs"
+  mv "$dest_swap_upgrade_parked" "$dest_swap_upgrade_target/docs/specs"
 
   cp -pR "$valid_source/." "$corrupt_source/"
   printf '\ncorrupt source fixture\n' >> "$corrupt_source/P2T2C_README.md"
@@ -1496,7 +1527,11 @@ verification:
       profile: "impacted"
 EOF
   fi
-  if grep -q 'pattern: "\*\*"' "$config"; then
+  if perl -0777 -e '
+    my $path=shift; open my $fh,"<:raw",$path or die $!; local$/; my $raw=<$fh>//"";
+    my ($verification)=$raw=~/^verification:\s*\n(.*?)(?=^\S|\z)/ms;
+    exit(defined($verification)&&$verification=~/^  path_mapping:\s*\n.*?^    - pattern: "\*\*"/ms?0:1);
+  ' "$config"; then
     fail "unmapped-path fixture did not remove the final catch-all"
   fi
   checkpoint_fixture_git "$target" unmapped-config
@@ -1739,7 +1774,7 @@ run_cli_examples() {
   (cd "$target" && bash .p2t2c/bin/p2t2c_close.sh --help) | grep -q -- '--remaining-risk-ref'
   (cd "$target" && perl .p2t2c/bin/p2t2c_evidence.pl --action verification-command \
     --verification-profile impacted --command-id p2t2c-check --work-id CLI-example) | grep -q 'pre-close-work-id CLI-example'
-  (cd "$target" && ./.p2t2c/bin/p2t2c --help) | grep -q 'context\|status\|evidence\|verify'
+  (cd "$target" && ./.p2t2c/bin/p2t2c --help) | grep -q 'archive\|validate-docs\|docs-migrate\|context\|status\|evidence\|verify'
   (cd "$target" && ./.p2t2c/bin/p2t2c context --help) | grep -q -- '--phase\|context'
   (cd "$target" && ./.p2t2c/bin/p2t2c status --help) | grep -q -- '--work-id\|status'
   (cd "$target" && ./.p2t2c/bin/p2t2c evidence summary --help) | grep -q -- '--work-id\|summary'
@@ -1765,14 +1800,15 @@ assert_installed_assets() {
   diff -u "$expected" "$actual"
 
   [[ -f "$target/.p2t2c/project_config.yaml" ]] || fail "new install omitted project configuration"
-  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.14.1" ]] || fail "new install did not install 0.14.1"
+  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.15.0" ]] || fail "new install did not install 0.15.0"
   grep -q 'enforcement: "required"' "$release_root/.p2t2c/project_config.yaml" || fail "release root project configuration is not required-mode"
   if managed_paths "$release_root/.p2t2c/managed-files.txt" | grep -qx '.p2t2c/project_config.yaml'; then
     fail "project-owned project_config.yaml entered the managed inventory"
   fi
-  grep -q 'profile: "p2t2c-adaptive-v2"' "$target/.p2t2c/project_config.yaml" || fail "new install is not adaptive-v2"
+  grep -q 'profile: "p2t2c-core-v1"' "$target/.p2t2c/project_config.yaml" || fail "new install does not select the core workflow"
+  grep -q 'profile: "p2t2c-adaptive-v2"' "$target/.p2t2c/defaults.yaml" || fail "managed defaults do not preserve adaptive-v2 upgrades"
   grep -q 'enforcement: "advisory"' "$target/.p2t2c/project_config.yaml" || fail "new install is not advisory-mode"
-  [[ "$(wc -c < "$target/.p2t2c/project_config.yaml" | tr -d ' ')" -lt 1024 ]] || fail "new install project overlay is not compact"
+  [[ "$(wc -c < "$target/.p2t2c/project_config.yaml" | tr -d ' ')" -lt 1536 ]] || fail "new install project overlay is not compact"
   ! grep -q '^verification:' "$target/.p2t2c/project_config.yaml" || fail "new install copied inherited verification into the project overlay"
   grep -q 'pattern: "\*\*"' "$target/.p2t2c/defaults.yaml" || fail "managed defaults lack a final verification catch-all"
   grep -q 'read_only: true' "$target/.p2t2c/defaults.yaml" || fail "managed defaults omit read_only metadata"
@@ -1783,21 +1819,27 @@ assert_installed_assets() {
   [[ -f "$target/.p2t2c/templates/execution/work.md" ]] || fail "work.md template was not installed"
   [[ -f "$target/.p2t2c/evals/adaptive-v2-scenarios.md" ]] || fail "adaptive-v2 eval asset was not installed"
   grep -q '^Status: Scenario definition only$' "$target/.p2t2c/evals/adaptive-v2-scenarios.md" || fail "Agent eval asset incorrectly claims executed results"
+  [[ -f "$target/.p2t2c/evals/core-v1-scenarios.md" ]] || fail "core-v1 eval asset was not installed"
   [[ ! -e "$target/.p2t2c/runs" ]] || fail "install created runtime evidence state before first run"
   [[ ! -e "$target/.p2t2c/cache" ]] || fail "install created checker cache state before first check"
   [[ -x "$target/.p2t2c/bin/p2t2c" ]] || fail "new install omitted the executable p2t2c dispatcher"
   [[ -f "$target/.p2t2c/bin/p2t2c_close.pl" ]] || fail "new install omitted the one-process close core"
   [[ -f "$target/.p2t2c/bin/p2t2c_context.pl" ]] || fail "new install omitted bounded context views"
   [[ -f "$target/.p2t2c/bin/p2t2c_verify.pl" ]] || fail "new install omitted batch verification"
+  [[ -f "$target/.p2t2c/bin/p2t2c_documents.pl" && -f "$target/.p2t2c/lib/P2T2C/Documents.pm" ]] || fail "new install omitted the core document engine"
+  [[ -f "$target/.p2t2c/bin/p2t2c_docs_migrate.pl" && -f "$target/.p2t2c/lib/P2T2C/DocsMigration.pm" ]] || fail "new install omitted docs-migrate"
   [[ -f "$target/.p2t2c/defaults.yaml" ]] || fail "new install omitted immutable defaults"
   [[ -f "$target/.p2t2c/schemas/closure-receipt-v2.schema.json" ]] || fail "new install omitted receipt v2 schema"
   [[ -f "$target/.p2t2c/schemas/context-capsule-v1.schema.json" ]] || fail "new install omitted context capsule schema"
+  [[ -f "$target/.p2t2c/schemas/proposal-v1.schema.json" && -f "$target/.p2t2c/schemas/design-v1.schema.json" && -f "$target/.p2t2c/schemas/tasks-v1.schema.json" ]] \
+    || fail "new install omitted core document schemas"
   [[ -f "$target/.p2t2c/skills/admit-route/SKILL.md" && -f "$target/.p2t2c/skills/execute/SKILL.md" && -f "$target/.p2t2c/skills/verify-close/SKILL.md" ]] \
     || fail "new install omitted one or more phase skills"
-  [[ -f "$target/docs/closure/evidence/README.md" ]] || fail "new install omitted the evidence-sidecar directory contract"
-  if find "$target/docs/closure/evidence" -maxdepth 1 -type f -name 'EV-*.jsonl' | grep -q .; then
-    fail "fresh install contains an evidence sidecar instance"
-  fi
+  [[ -f "$target/.p2t2c/skills/core/SKILL.md" ]] || fail "new install omitted the core skill"
+  [[ -f "$target/docs/proposals/README.md" && -f "$target/docs/specs/README.md" && -f "$target/docs/reference/archive/README.md" ]] \
+    || fail "new install omitted the core document roots"
+  [[ ! -d "$target/docs/change_packs" && ! -d "$target/docs/closure" && ! -d "$target/docs/adr" && ! -d "$target/specs" ]] \
+    || fail "fresh install exposed a legacy document root"
   (cd "$target" && ./.p2t2c/bin/check_p2t2c.sh >/dev/null)
   (cd "$target" && ./.p2t2c/bin/p2t2c_install.sh --help >/dev/null)
   (cd "$target" && ./.p2t2c/bin/p2t2c_upgrade.sh --help >/dev/null)
@@ -1805,10 +1847,11 @@ assert_installed_assets() {
   (cd "$target" && ./.p2t2c/bin/p2t2c_close.sh --help >/dev/null)
   (cd "$target" && ./.p2t2c/bin/p2t2c --help >/dev/null)
   (cd "$target" && ./.p2t2c/bin/p2t2c context --help >/dev/null)
+  (cd "$target" && ./.p2t2c/bin/p2t2c validate-docs --json) | grep -q '"state":"valid"' \
+    || fail "fresh install core document validation failed"
   (cd "$target" && ./.p2t2c/bin/p2t2c verify --help >/dev/null)
-  if find "$target/docs/closure" -maxdepth 1 -type f -name 'CR-*.md' | grep -q .; then
-    fail "fresh install contains an R0 or historical closure instance"
-  fi
+  [[ ! -e "$target/docs/reference/archive/adr" && ! -e "$target/docs/reference/archive/change_packs" && ! -e "$target/docs/reference/archive/closure" ]] \
+    || fail "fresh install contains historical archive instances"
 }
 
 find_013_commit() {
@@ -1856,12 +1899,13 @@ run_upgrade_013_contract() {
     fail "$rel 0.13.0 long-hop upgrade failed"
   fi
 
-  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.14.1" ]] || fail "upgrade did not install 0.14.1"
+  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.15.0" ]] || fail "upgrade did not install 0.15.0"
   [[ -f "$target/.p2t2c/managed-files.txt" ]] || fail "upgrade omitted managed-files.txt"
   [[ -f "$target/.p2t2c/bin/p2t2c_run.sh" ]] || fail "upgrade omitted evidence runner"
   [[ -x "$target/.p2t2c/bin/p2t2c" ]] || fail "upgrade omitted the context/verify dispatcher"
   [[ -f "$target/.p2t2c/bin/p2t2c_verify.pl" ]] || fail "upgrade omitted batch verification"
   [[ -f "$target/.p2t2c/schemas/closure-receipt-v2.schema.json" ]] || fail "upgrade omitted receipt v2"
+  [[ -f "$target/.p2t2c/lib/P2T2C/Documents.pm" && -f "$target/.p2t2c/bin/p2t2c_docs_migrate.pl" ]] || fail "upgrade omitted core document tools"
   [[ "$(sha256_file "$target/.p2t2c/project_config.yaml")" == "$project_config_before" ]] || fail "upgrade rewrote project configuration"
   [[ "$(sha256_file "$target/docs/sot/product/HISTORICAL.md")" == "$truth_before" ]] || fail "upgrade rewrote project Truth"
   [[ "$(sha256_file "$target/docs/change_packs/CPK-20260710-historical-v2.md")" == "$cpk_before" ]] || fail "upgrade rewrote historical CPK"
@@ -1879,8 +1923,8 @@ run_upgrade_013_contract() {
   [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.13.0" ]] || fail "rollback did not restore 0.13.0"
   [[ ! -e "$target/.p2t2c/managed-files.txt" ]] || fail "rollback retained a post-0.13 managed manifest"
   [[ ! -e "$target/.p2t2c/bin/p2t2c_run.sh" ]] || fail "rollback retained a post-0.13 evidence runner"
-  [[ ! -e "$target/.p2t2c/bin/p2t2c" ]] || fail "rollback retained a 0.14.1-created dispatcher"
-  [[ ! -e "$target/.p2t2c/bin/p2t2c_verify.pl" ]] || fail "rollback retained 0.14.1 batch verification"
+  [[ ! -e "$target/.p2t2c/bin/p2t2c" ]] || fail "rollback retained a post-0.13 dispatcher"
+  [[ ! -e "$target/.p2t2c/bin/p2t2c_verify.pl" ]] || fail "rollback retained post-0.13 batch verification"
   [[ "$(sha256_file "$target/.p2t2c/project_config.yaml")" == "$project_config_before" ]] || fail "rollback rewrote project configuration"
   [[ "$(sha256_file "$target/docs/sot/product/HISTORICAL.md")" == "$truth_before" ]] || fail "rollback rewrote project Truth"
   [[ "$(sha256_file "$target/docs/change_packs/CPK-20260710-historical-v2.md")" == "$cpk_before" ]] || fail "rollback rewrote historical CPK"
@@ -1902,6 +1946,7 @@ run_upgrade_014_contract() {
 
   mkdir -p "$fixture_root" "$target"
   tar -xzf "$fixture_014_archive" -C "$fixture_root"
+  normalize_fixture_managed_modes "$legacy_source"
   [[ "$(tr -d '[:space:]' < "$legacy_source/.p2t2c/VERSION")" == "0.14.0" ]] || fail "$rel frozen fixture is not 0.14.0"
   (cd "$legacy_source" && shasum -a 256 -c .p2t2c/CHECKSUMS.sha256 >/dev/null)
   make -C "$legacy_source" p2t2c-install TARGET="$target" >/dev/null
@@ -1940,7 +1985,7 @@ run_upgrade_014_contract() {
     fail "$rel frozen 0.14.0 direct upgrade failed"
   fi
 
-  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.14.1" ]] || fail "$rel direct upgrade did not install 0.14.1"
+  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.15.0" ]] || fail "$rel direct upgrade did not install 0.15.0"
   [[ "$(sha256_file "$target/.p2t2c/project_config.yaml")" == "$project_config_before" ]] || fail "$rel direct upgrade rewrote project configuration"
   [[ "$(sha256_file "$target/docs/sot/product/HISTORICAL_014.md")" == "$truth_before" ]] || fail "$rel direct upgrade rewrote project Truth"
   [[ "$(sha256_file "$target/docs/change_packs/CPK-20260710-historical-v2.md")" == "$v2_before" ]] || fail "$rel direct upgrade rewrote historical v2 CPK"
@@ -1950,7 +1995,7 @@ run_upgrade_014_contract() {
   [[ "$(sha256_file "$target/$sidecar_rel")" == "$sidecar_before" ]] || fail "$rel direct upgrade rewrote evidence sidecar"
   [[ "$(sha256_file "$target/.p2t2c/cache/.upgrade-preserve")" == "$cache_before" ]] || fail "$rel direct upgrade rewrote cache state"
   [[ -x "$target/.p2t2c/bin/p2t2c" && -f "$target/.p2t2c/bin/p2t2c_verify.pl" && -f "$target/.p2t2c/bin/p2t2c_close.pl" ]] \
-    || fail "$rel direct upgrade omitted 0.14.1 CLI assets"
+    || fail "$rel direct upgrade omitted compatibility CLI assets"
   legacy_full_after="$(cd "$target" && perl .p2t2c/bin/p2t2c_evidence.pl --action profile-requirement --verification-profile full)"
   [[ "$legacy_full_after" == "$legacy_full_before" ]] || fail "$rel direct upgrade changed the legacy full-profile digest or semantics"
 
@@ -1960,10 +2005,10 @@ run_upgrade_014_contract() {
   assert_target_inventory_equal "$inventory_before" "$inventory_after" "$rel 0.14 rollback"
 
   [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.14.0" ]] || fail "$rel direct rollback did not restore 0.14.0"
-  [[ ! -e "$target/.p2t2c/bin/p2t2c" ]] || fail "$rel direct rollback retained the 0.14.1 dispatcher"
+  [[ ! -e "$target/.p2t2c/bin/p2t2c" ]] || fail "$rel direct rollback retained the post-0.14 dispatcher"
   [[ ! -e "$target/.p2t2c/bin/p2t2c_verify.pl" ]] || fail "$rel direct rollback retained batch verification"
-  [[ ! -e "$target/.p2t2c/bin/p2t2c_close.pl" ]] || fail "$rel direct rollback retained the 0.14.1 close core"
-  [[ ! -e "$target/docs/closure/evidence/README.md" ]] || fail "$rel direct rollback retained the 0.14.1 evidence README"
+  [[ ! -e "$target/.p2t2c/bin/p2t2c_close.pl" ]] || fail "$rel direct rollback retained the post-0.14 close core"
+  [[ ! -e "$target/docs/closure/evidence/README.md" ]] || fail "$rel direct rollback retained the post-0.14 evidence README"
   [[ "$(sha256_file "$target/.p2t2c/project_config.yaml")" == "$project_config_before" ]] || fail "$rel direct rollback rewrote project configuration"
   [[ "$(sha256_file "$target/docs/change_packs/$inline_id.md")" == "$inline_before" ]] || fail "$rel direct rollback rewrote inline receipt v1 proof"
   [[ "$(sha256_file "$target/.p2t2c/runs/$active_id/contract.json")" == "$active_contract_before" ]] || fail "$rel direct rollback rewrote active contract"
@@ -1971,6 +2016,104 @@ run_upgrade_014_contract() {
   [[ "$(sha256_file "$target/$sidecar_rel")" == "$sidecar_before" ]] || fail "$rel direct rollback rewrote evidence sidecar"
   [[ "$(sha256_file "$target/.p2t2c/cache/.upgrade-preserve")" == "$cache_before" ]] || fail "$rel direct rollback rewrote cache state"
   (cd "$target" && bash .p2t2c/bin/check_p2t2c.sh)
+}
+
+run_upgrade_0141_contract() {
+  local rel="$1" release_root="$2"
+  local fixture_root="$tmp_root/$rel-0141-fixture"
+  local legacy_source="$fixture_root/$rel"
+  local target="$tmp_root/$rel-0141-target" completion_target="$tmp_root/$rel-0141-completion-target"
+  local inherit_target="$tmp_root/$rel-0141-inherited-default-target"
+  local closed_id="CPK-upgrade-v2-sidecar" active_id="CPK-upgrade-v1-active"
+  local project_config_before truth_before closed_before sidecar sidecar_before active_contract_before active_events_before upgrade_dir
+  local inventory_before="$tmp_root/$rel-0141-inventory.before" inventory_after="$tmp_root/$rel-0141-inventory.after"
+
+  mkdir -p "$fixture_root" "$target"
+  tar -xzf "$fixture_0141_archive" -C "$fixture_root"
+  normalize_fixture_managed_modes "$legacy_source"
+  [[ "$(tr -d '[:space:]' < "$legacy_source/.p2t2c/VERSION")" == "0.14.1" ]] || fail "$rel frozen fixture is not 0.14.1"
+  (cd "$legacy_source" && shasum -a 256 -c .p2t2c/CHECKSUMS.sha256 >/dev/null)
+  make -C "$legacy_source" p2t2c-install TARGET="$target" >/dev/null
+
+  create_historical_v2_samples "$target"
+  mkdir -p "$target/docs/sot/product"
+  printf '# Project-owned 0.14.1 Truth\n' > "$target/docs/sot/product/HISTORICAL_0141.md"
+  write_cpk "$target" "$closed_id" R1 bounded ready false false none not_applicable false false none not_triggered none none
+  initialize_fixture_git "$target"
+  record_route "$target" "$closed_id" R1 R1 bounded bounded
+  record_verification "$target" "$closed_id" impacted
+  close_work "$target" "$closed_id" impacted
+  sidecar="$(find "$target/docs/closure/evidence" -maxdepth 1 -type f -name "EV-$closed_id-*.jsonl" -print -quit)"
+  [[ -n "$sidecar" ]] || fail "$rel 0.14.1 fixture did not create receipt-v2 sidecar"
+
+  write_cpk "$target" "$active_id" R1 bounded ready false false none not_applicable false false none not_triggered none none
+  record_route "$target" "$active_id" R1 R1 bounded bounded
+
+  project_config_before="$(sha256_file "$target/.p2t2c/project_config.yaml")"
+  truth_before="$(sha256_file "$target/docs/sot/product/HISTORICAL_0141.md")"
+  closed_before="$(sha256_file "$target/docs/change_packs/$closed_id.md")"
+  sidecar_before="$(sha256_file "$sidecar")"
+  active_contract_before="$(sha256_file "$target/.p2t2c/runs/$active_id/contract.json")"
+  active_events_before="$(sha256_file "$target/.p2t2c/runs/$active_id/events.jsonl")"
+  target_inventory "$target" > "$inventory_before"
+
+  echo "==> Upgrading a frozen $rel 0.14.1 installation"
+  (cd "$target" && "$release_root/.p2t2c/bin/p2t2c_upgrade.sh" --dry-run --source "$release_root")
+  if ! (cd "$target" && "$release_root/.p2t2c/bin/p2t2c_upgrade.sh" --apply --source "$release_root"); then
+    while IFS= read -r validation_path; do echo "==> $validation_path" >&2; safe_tail "$validation_path" >&2; done \
+      < <(find "$target/.p2t2c/upgrade" -maxdepth 3 -type f -name validation.log 2>/dev/null)
+    fail "$rel frozen 0.14.1 direct upgrade failed"
+  fi
+
+  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.15.0" ]] || fail "$rel 0.14.1 upgrade did not install 0.15.0"
+  [[ -f "$target/.p2t2c/lib/P2T2C/Documents.pm" && -f "$target/.p2t2c/schemas/proposal-v1.schema.json" ]] \
+    || fail "$rel 0.14.1 upgrade omitted core document assets"
+  [[ "$(sha256_file "$target/.p2t2c/project_config.yaml")" == "$project_config_before" ]] || fail "$rel 0.14.1 upgrade rewrote project configuration"
+  [[ "$(sha256_file "$target/docs/sot/product/HISTORICAL_0141.md")" == "$truth_before" ]] || fail "$rel 0.14.1 upgrade rewrote project Truth"
+  [[ "$(sha256_file "$target/docs/change_packs/$closed_id.md")" == "$closed_before" ]] || fail "$rel 0.14.1 upgrade rewrote receipt-v2 CPK"
+  [[ "$(sha256_file "$sidecar")" == "$sidecar_before" ]] || fail "$rel 0.14.1 upgrade rewrote receipt-v2 sidecar"
+  [[ "$(sha256_file "$target/.p2t2c/runs/$active_id/contract.json")" == "$active_contract_before" ]] || fail "$rel 0.14.1 upgrade rewrote active CPK-v3 contract"
+  [[ "$(sha256_file "$target/.p2t2c/runs/$active_id/events.jsonl")" == "$active_events_before" ]] || fail "$rel 0.14.1 upgrade rewrote active event-v1 ledger"
+  grep -q 'profile: "p2t2c-adaptive-v2"' "$target/.p2t2c/project_config.yaml" || fail "$rel 0.14.1 upgrade did not preserve adaptive-v2 project semantics"
+  (cd "$target" && bash .p2t2c/bin/check_p2t2c.sh)
+
+  cp -R "$target" "$completion_target"
+  (cd "$completion_target" && ./.p2t2c/bin/p2t2c status --work-id "$active_id" --json) | grep -q '"state":"active"' \
+    || fail "$rel upgraded adaptive-v2 status cannot recover active work"
+  (cd "$completion_target" && ./.p2t2c/bin/p2t2c evidence summary --work-id "$active_id" --json) | grep -q '"state":"active"' \
+    || fail "$rel upgraded adaptive-v2 evidence summary cannot recover active work"
+  record_verification "$completion_target" "$active_id" impacted
+  record_verification "$completion_target" "$active_id" governance
+  close_work "$completion_target" "$active_id" impacted
+  assert_receipt_v2_pair "$completion_target" "$completion_target/docs/change_packs/$active_id.md" "$active_id"
+  (cd "$completion_target" && bash .p2t2c/bin/check_p2t2c.sh)
+
+  upgrade_dir="$(find "$target/.p2t2c/upgrade" -mindepth 1 -maxdepth 1 -type d | LC_ALL=C sort | awk 'END {print}')"
+  (cd "$target" && bash .p2t2c/bin/p2t2c_upgrade.sh --rollback "$upgrade_dir")
+  target_inventory "$target" > "$inventory_after"
+  assert_target_inventory_equal "$inventory_before" "$inventory_after" "$rel 0.14.1 rollback"
+  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.14.1" ]] || fail "$rel rollback did not restore 0.14.1"
+  [[ ! -e "$target/.p2t2c/lib/P2T2C/Documents.pm" ]] || fail "$rel rollback retained 0.15 document core"
+  [[ "$(sha256_file "$target/.p2t2c/project_config.yaml")" == "$project_config_before" ]] || fail "$rel rollback rewrote project configuration"
+  [[ "$(sha256_file "$target/docs/change_packs/$closed_id.md")" == "$closed_before" ]] || fail "$rel rollback rewrote receipt-v2 CPK"
+  [[ "$(sha256_file "$sidecar")" == "$sidecar_before" ]] || fail "$rel rollback rewrote receipt-v2 sidecar"
+  [[ "$(sha256_file "$target/.p2t2c/runs/$active_id/events.jsonl")" == "$active_events_before" ]] || fail "$rel rollback rewrote active event-v1 ledger"
+  (cd "$target" && bash .p2t2c/bin/check_p2t2c.sh)
+
+  mkdir -p "$inherit_target"
+  make -C "$legacy_source" p2t2c-install TARGET="$inherit_target" >/dev/null
+  rm -f "$inherit_target/.p2t2c/project_config.yaml"
+  initialize_fixture_git "$inherit_target"
+  local inherit_before="$tmp_root/$rel-0141-inherit.before" inherit_after="$tmp_root/$rel-0141-inherit.after" inherit_upgrade
+  target_inventory "$inherit_target" > "$inherit_before"
+  (cd "$inherit_target" && "$release_root/.p2t2c/bin/p2t2c_upgrade.sh" --apply --source "$release_root")
+  [[ ! -e "$inherit_target/.p2t2c/project_config.yaml" ]] || fail "$rel no-config upgrade unexpectedly created project configuration"
+  (cd "$inherit_target" && ./.p2t2c/bin/p2t2c context --phase admit-route --intent 'compatibility probe' --json) \
+    | grep -q '"profile":"p2t2c-adaptive-v2"' || fail "$rel no-config upgrade silently switched effective methodology"
+  inherit_upgrade="$(find "$inherit_target/.p2t2c/upgrade" -mindepth 1 -maxdepth 1 -type d | LC_ALL=C sort | awk 'END {print}')"
+  (cd "$inherit_target" && bash .p2t2c/bin/p2t2c_upgrade.sh --rollback "$inherit_upgrade")
+  target_inventory "$inherit_target" > "$inherit_after"
+  assert_target_inventory_equal "$inherit_before" "$inherit_after" "$rel no-config 0.14.1 rollback"
 }
 
 run_parity_preflight() {
@@ -2051,6 +2194,9 @@ install_suite_target() {
       < <(find "$target/.p2t2c/install" -maxdepth 3 -type f \( -name validation.log -o -name install-report.md \) 2>/dev/null)
     fail "fresh suite install failed"
   fi
+  # Legacy contract fixtures are created only inside release-smoke workspaces.
+  # Fresh installations themselves expose only the 0.15 core document roots.
+  mkdir -p "$target/docs/change_packs" "$target/docs/closure/evidence" "$target/docs/adr" "$target/docs/submit_proposals" "$target/specs"
 }
 
 suite_target=""
@@ -2089,6 +2235,9 @@ case_contract_advisory_required() { run_advisory_required_contracts "$suite_targ
 case_contract_review() { run_review_contracts "$suite_target"; checkpoint_fixture_git "$suite_target" review; }
 case_contract_architectural_r2() { run_architectural_r2_contract "$suite_target"; }
 case_contract_cli() { run_cli_examples "$suite_target"; (cd "$suite_target" && bash .p2t2c/bin/check_p2t2c.sh); }
+case_contract_core_v1() { bash "$repo_root/scripts/core_workflow_smoke_test.sh" "$suite_source" documents; }
+case_security_docs_migrate() { bash "$repo_root/scripts/core_workflow_smoke_test.sh" "$suite_source" migration-security; }
+case_transaction_docs_migrate() { bash "$repo_root/scripts/core_workflow_smoke_test.sh" "$suite_source" migration-transaction; }
 
 run_contract_suite() {
   suite_rel="P2T2C_EN"
@@ -2428,6 +2577,7 @@ run_locale_worker() {
 
 case_migration_013() { run_upgrade_013_contract "$suite_rel" "$suite_source"; }
 case_migration_014() { run_upgrade_014_contract "$suite_rel" "$suite_source"; }
+case_migration_0141() { run_upgrade_0141_contract "$suite_rel" "$suite_source"; }
 run_migration_worker() {
   suite_rel="$1"
   suite_source="$(copy_release_source "$suite_rel" migration)"

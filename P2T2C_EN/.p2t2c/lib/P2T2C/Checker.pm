@@ -10,6 +10,7 @@ use File::Spec ();
 use Cwd qw(abs_path);
 use Fcntl qw(:mode O_WRONLY O_CREAT O_EXCL O_NOFOLLOW);
 use JSON::PP ();
+use P2T2C::Documents ();
 
 sub new {
     my ($class,%args)=@_;
@@ -341,10 +342,15 @@ sub validate_truth_manifest {
         my @declared_ids=sort($ids_raw=~/"(RULE-[A-Z]+-[0-9]+)"/g);
         my @actual_ids=sort(($self->raw($path)//'')=~/^#{2,3}\s+(RULE-[A-Z]+-[0-9]+)/mg);
         $self->error("docs/sot/manifest.yaml rule_ids mismatch for $path") if join("\0",@declared_ids) ne join("\0",@actual_ids);
-        $self->error("docs/sot/manifest.yaml topics missing for $path") if $raw!~/path:\s*"\Q$path\E".*?topics:\s*\[[^\]]*"[^\]]+\]/s;
+        my($truth_block)=$raw=~/(^  - path:\s*"\Q$path\E"\s*\n.*?)(?=^  - path:|^adrs:|\z)/ms;
+        my($decision_raw)=($truth_block//'')=~/^\s*decision_ids:\s*\[([^\]]*)\]/m;
+        my@declared_decisions=sort(($decision_raw//'')=~/"(DEC-[A-Z0-9._-]+)"/g);
+        my@actual_decisions=sort(($self->raw($path)//'')=~/^#{2,3}\s+(DEC-[A-Z0-9._-]+)/mg);
+        $self->error("docs/sot/manifest.yaml decision_ids mismatch for $path") if join("\0",@declared_decisions) ne join("\0",@actual_decisions);
+        $self->error("docs/sot/manifest.yaml topics missing for $path") if ($truth_block//'')!~/^\s*topics:\s*\[[^\]]*"[^\]]+\]/m;
     }
     $self->error('docs/sot/manifest.yaml must declare at least one Truth locator with digest and rule_ids') if !@blocks;
-    for my $path ($self->files('docs/sot',sub {$_[0]=~/\.md\z/&&$_[0]!~/_HISTORY\.md\z/})) {
+    for my $path ($self->files('docs/sot',sub {$_[0]=~/\.md\z/&&$_[0]!~/(?:_HISTORY|\/history)\.md\z/i})) {
         $self->warning("UNINDEXED_PROJECT_TRUTH: $path") if !$declared_truth{$path};
     }
     my @adrs=$raw=~/(?:^|\n)  - path:\s*"([^"]+)"\n    id:\s*"([^"]+)"\n    sha256:\s*"([0-9a-f]{64})"\n    status:\s*"([^"]+)"\n    topics:\s*\[([^\]]*)\]/g;
@@ -383,13 +389,13 @@ sub run {
     else {for my $line (split /\r?\n/,$mraw) {next if $line=~/^\s*(?:#.*)?$/;$line=~s/^\s+|\s+$//g;if($line=~m{\A/|(?:\A|/)\.\.(?:/|\z)|//}){$self->error("$manifest contains unsafe path: $line");next}push @required,$line}}
     $self->error("$manifest contains no managed paths") if !@required;
     $self->error("missing required file: $_") for grep {!-f $_} @required;
-    $self->phrase('.p2t2c/VERSION','0.14.1'); $self->phrase('.p2t2c/manifest.yaml','version: "0.14.1"');
+    $self->phrase('.p2t2c/VERSION','0.15.0'); $self->phrase('.p2t2c/manifest.yaml','version: "0.15.0"');
     $self->phrase('docs/sot/manifest.yaml','truth_root: "docs/sot"');
     $self->phrase('docs/sot/governance/P2T2C_GOVERNANCE.md','RULE-GOV-009');
     $self->phrase('docs/sot/governance/P2T2C_GOVERNANCE.md','RULE-GOV-018');
     my $language=''; my $sot=$self->raw('docs/sot/manifest.yaml')//''; $language=$1 if $sot=~/^language:\s*"?([^"\s]+)"?/m;
-    if ($language eq 'en-US') {$self->phrase('P2T2C_README.md','Risk-Routed Workflow');$self->phrase('P2T2C_AGENTS.md','AI Entry')}
-    elsif ($language eq 'zh-CN') {$self->phrase('P2T2C_README.md','风险路由工作流');$self->phrase('P2T2C_AGENTS.md','AI 入口')}
+    if ($language eq 'en-US') {$self->phrase('P2T2C_README.md','Core Workflow');$self->phrase('P2T2C_AGENTS.md','AI Entry')}
+    elsif ($language eq 'zh-CN') {$self->phrase('P2T2C_README.md','核心工作流');$self->phrase('P2T2C_AGENTS.md','AI 入口')}
     else {$self->error("unknown docs/sot/manifest.yaml language: $language")}
     my $method=$self->methodology_values(); my $enforcement=$method->{enforcement}//'advisory';
     my$method_defaults=$self->{methodology_defaults};
@@ -431,14 +437,17 @@ sub run {
     my @spec=$self->files('specs',sub {$_[0]=~m{/spec\.md\z}}); for (@spec) {(-f $_&&$self->raw($_)=~/\A---/)?$self->validate_spec($_):$self->error("$_ is an execution spec instance without frontmatter")}
     my @work=$self->files('specs',sub {$_[0]=~m{/work\.md\z}}); for (@work) {(-f $_&&$self->raw($_)=~/\A---/)?$self->validate_work($_):$self->error("$_ is an execution work instance without frontmatter")}
     my @cr=$self->files('docs/closure',sub {$_[0]=~m{/CR-[^/]+\.md\z}});push@cr,grep{m{\Adocs/closure/CR-[^/]+\.md\z}}@{$self->{extra_artifacts}};my%cr_seen;@cr=grep{!$cr_seen{$_}++}@cr;$self->validate_cr($_,$method) for @cr;
+    my$core_ok=eval{P2T2C::Documents::validate_layout();1};
+    if(!$core_ok){my$e=$@;$e=~s/^ERROR: documents:\s*//;$e=~s/\s+\z//;$self->error("invalid core document layout: $e")}
     $self->validate_truth_manifest(); $self->validate_obsolete();
     if ($language eq 'en-US') {
         for my $path ('P2T2C_AGENTS.md','P2T2C_README.md',$self->files('docs',sub {1}),$self->files('.p2t2c/prompts',sub {1}),$self->files('.p2t2c/templates',sub {1})) {
-            next if !-f$path; $self->error("English release root contains CJK text in managed docs") if ($self->raw($path)//'')=~/\p{Han}/;
+            next if !-f$path||$path=~m{\Adocs/reference/archive(?:/|\z)}; $self->error("English release root contains CJK text in managed docs") if ($self->raw($path)//'')=~/\p{Han}/;
         }
     }
-    my %rules; for my $truth ($self->files('docs/sot',sub {$_[0]=~/\.md\z/&&$_[0]!~/_HISTORY\.md\z/})) {my $raw=$self->raw($truth)//'';$rules{$1}++ while $raw=~/^#{2,3}\s+(RULE-[A-Z]+-[0-9]+)/mg}
+    my(%rules,%decisions); for my $truth ($self->files('docs/sot',sub {$_[0]=~/\.md\z/&&$_[0]!~/(?:_HISTORY|\/history)\.md\z/i})) {my $raw=$self->raw($truth)//'';$rules{$1}++ while $raw=~/^#{2,3}\s+(RULE-[A-Z]+-[0-9]+)/mg;$decisions{$1}++ while $raw=~/^#{2,3}\s+(DEC-[A-Z0-9._-]+)/mg}
     my @dup=sort grep {$rules{$_}>1} keys %rules; $self->error('duplicate current Rule IDs: '.join(',',@dup)) if @dup;
+    my@dup_decisions=sort grep{$decisions{$_}>1}keys%decisions;$self->error('duplicate current Decision IDs: '.join(',',@dup_decisions))if@dup_decisions;
     return @{$self->{errors}}?1:0;
 }
 

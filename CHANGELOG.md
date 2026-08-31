@@ -2,6 +2,14 @@
 
 All notable changes to P2T2C are documented here.
 
+## 0.15.0 - 2026-08-31
+
+- Replaced the unreleased assurance-heavy candidate with an OpenSpec-inspired core: optional Explore, Propose, Apply, optional Verify, and Archive.
+- Reduced new-work documents to `docs/proposals/SP-*` plus `docs/specs/<change>/{design.md,tasks.md}`; SOT remains the only current behavioral authority and Decision Records replace active ADR files.
+- Added lightweight document validation and an Archive command that only marks tasks completed after known blockers clear; it runs no tests, review, CI, release smoke, or evidence projection.
+- Added explicit, journaled `docs-migrate` dry-run/apply/rollback for byte-preserving cold archival and reference rewriting; normal upgrade never moves project documents.
+- Preserved adaptive-v2 CPK v3, event v1, receipt v1/v2, context/evidence/verify/close, and frozen 0.14.x upgrades for active legacy work.
+
 ## 0.14.1 - 2026-08-27
 
 - Added bounded deterministic `context`, `status`, and `evidence summary` views, managed defaults plus a compact project-owned configuration overlay, and three phase skills so routine Agents load only the active decision surface while exact Truth and cold evidence remain authoritative.

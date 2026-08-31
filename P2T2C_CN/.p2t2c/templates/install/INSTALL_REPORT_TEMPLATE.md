@@ -45,7 +45,7 @@ Target: `{target-path}`
 
 - {验证结果}
 
-## 0.14.1 运行边界
+## 0.15.0 运行边界
 
-- 安装的工作流资产包含 `p2t2c` context/verify dispatcher、不可变 defaults、阶段 Skill、receipt v2 schema 与受管的 evidence 目录 README。
-- 安装没有创建或复制活动 run、checker cache 条目、收口 evidence sidecar、初始 advisory 示例以外的项目配置实例或历史制品。
+- 安装的工作流资产包含 core SP/design/tasks 模板、Documents Archive、显式 docs-migrate，以及 0.14.x context/evidence/verify/close 兼容引擎。
+- 安装没有创建活动 SP/specs、run、cache、冷归档实例或证据；新项目配置显式选择 core-v1，legacy defaults 保持 adaptive-v2。
