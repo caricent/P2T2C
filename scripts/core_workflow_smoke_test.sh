@@ -325,11 +325,16 @@ mkdir -p "$migration"
 bash "$source_root/.p2t2c/bin/p2t2c_install.sh" --apply --target "$migration" >/dev/null
 write_r1 "$migration" "111-core-before-rollback" "SP-20260831-core-before-rollback"
 mkdir -p "$migration/.p2t2c/upgrade/fake-rollback"
+for inventory in updated-files.txt created-files.txt removed-files.txt; do
+  : > "$migration/.p2t2c/upgrade/fake-rollback/$inventory"
+done
+mkdir -p "$migration/.p2t2c/upgrade/fake-rollback/backup/.p2t2c"
+printf '%s\n' 'version: "0.14.1"' > "$migration/.p2t2c/upgrade/fake-rollback/backup/.p2t2c/manifest.yaml"
 set +e
 (cd "$migration" && bash .p2t2c/bin/p2t2c_upgrade.sh --rollback .p2t2c/upgrade/fake-rollback) >/dev/null 2>&1
 core_template_rollback_status=$?
 set -e
-[[ "$core_template_rollback_status" -ne 0 ]] || { echo "ERROR: template rollback accepted active 0.15 core documents" >&2; exit 1; }
+[[ "$core_template_rollback_status" -ne 0 ]] || { echo "ERROR: a pre-core rollback accepted active standard documents" >&2; exit 1; }
 mkdir -p "$migration/docs/submit_proposals" "$migration/specs/900-legacy" "$migration/docs/adr" "$migration/docs/change_packs" "$migration/docs/sot/product"
 cat > "$migration/docs/submit_proposals/SP-20200101-legacy.md" <<'EOF'
 # SP-20200101-legacy
@@ -496,6 +501,8 @@ product_after_digest="$(shasum -a 256 "$migration/docs/sot/product/PRODUCT.md" |
 grep -q "sha256: \"$product_after_digest\"" "$migration/docs/sot/manifest.yaml"
 grep -q "truth_digest: $product_after_digest" "$migration/docs/proposals/SP-20260831-core-before-rollback.md"
 (cd "$migration" && shasum -a 256 -c .p2t2c/CHECKSUMS.sha256 >/dev/null && shasum -a 256 -c .p2t2c/lock.sha256 >/dev/null)
+mv "$migration/docs/proposals/SP-20260831-core-before-rollback.md" "$tmp_root/parked-core-proposal.md"
+mv "$migration/docs/specs/111-core-before-rollback" "$tmp_root/parked-core-spec"
 set +e
 (cd "$migration" && bash .p2t2c/bin/p2t2c_upgrade.sh --rollback .p2t2c/upgrade/fake-rollback) >/dev/null 2>&1
 template_rollback_status=$?
@@ -517,6 +524,8 @@ missing_report_template_status=$?
 set -e
 [[ "$missing_report_template_status" -ne 0 ]] || { echo "ERROR: template rollback ignored a deleted applied migration report" >&2; exit 1; }
 mv "$tmp_root/deleted-applied-report.json" "$migration/$report"
+mv "$tmp_root/parked-core-proposal.md" "$migration/docs/proposals/SP-20260831-core-before-rollback.md"
+mv "$tmp_root/parked-core-spec" "$migration/docs/specs/111-core-before-rollback"
 fake_dir="$migration/.p2t2c/docs-migrate/forged"
 mkdir -p "$fake_dir"
 cp "$migration/$report" "$fake_dir/report.json"

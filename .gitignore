@@ -29,3 +29,9 @@ coverage/
 # FUSE mount residue (transient)
 .fuse_hidden*
 **/.fuse_hidden*
+
+**/.p2t2c/documents/
+
+**/.p2t2c/prepared/
+
+**/.p2t2c/.documents-lock/

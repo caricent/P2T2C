@@ -1,21 +1,10 @@
 # P2T2C Release Selector
 
-P2T2C means **Proposal-to-Truth-to-Code**. Version 0.15 uses an action-oriented core workflow:
+P2T2C means **Proposal-to-Truth-to-Code**. This branch prepares **0.16.0-rc.1**. The model chooses how to retrieve context, implement, diagnose, and check; goals, Truth, necessary decisions, actual acceptance, and safe document completion remain explicit.
 
-```text
-Explore optional -> Propose -> Apply -> Verify optional -> Archive
-```
+For eligible simple R1, the model prefers compact v2 with one SP when consumer support exists. Complex R1, every R2, and unsupported integrations retain standard v1 with SP, design.md, and tasks.md. Existing work is not converted; create without an explicit shape retains standard compatibility.
 
-## Active Documents
-
-- `docs/proposals/SP-*.md`: why, what, observable outcomes, and the human decision.
-- `docs/specs/<change>/design.md`: implementation approach.
-- `docs/specs/<change>/tasks.md`: implementation checklist and completion summary.
-- `docs/sot/**`: the only current behavioral authority.
-
-Historical ADRs, CPKs, CR/evidence, and legacy specs move only through explicit `docs-migrate` into non-authoritative `docs/reference/archive/**`.
-
-P2T2C does not orchestrate project tests, CI, or code review. Archive checks known blockers and marks tasks completed in place; it runs no tests or release smoke.
+This work delivers P2T2C templates and validates their tools in isolated projects; it does not modify consumer repositories. Compact remains a candidate capability. Long-term efficiency and cross-device studies are optional, not prerequisites for simpler methods. Normal closure archives once without stacked diagnostic commands or rerunning project tests and review. See the selected release root for authoritative rules, commands, and compatibility details.
 
 ## Release Roots
 
@@ -23,6 +12,8 @@ P2T2C does not orchestrate project tests, CI, or code review. Archive checks kno
 - `P2T2C_CN/`: Chinese release root
 
 The repository root is only a selector and aggregate release-check surface. Current Truth lives inside each release root under `docs/sot/**`.
+
+Release templates keep `docs/proposals/` and `docs/specs/` empty except for their README files. Reusable templates live in `.p2t2c/templates/core/`; actual SP, design, and tasks records are created only when a project starts work. Framework maintenance records are kept outside the template repository.
 
 ## Release Checks
 

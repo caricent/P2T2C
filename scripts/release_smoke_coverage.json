@@ -32,6 +32,10 @@
     {"id":"locale.release-parity","suite":"locale","language_scope":"repo_once","legacy_function":"check_release_parity.sh"},
     {"id":"locale.release-metadata","suite":"locale","language_scope":"bilingual_parallel","legacy_function":"make check/checksums"},
     {"id":"locale.fresh-install-surface","suite":"locale","language_scope":"bilingual_parallel","legacy_function":"assert_installed_assets"},
-    {"id":"locale.compact-effective-config","suite":"locale","language_scope":"bilingual_parallel","legacy_function":"run_locale_worker"}
+    {"id":"locale.compact-effective-config","suite":"locale","language_scope":"bilingual_parallel","legacy_function":"run_locale_worker"},
+    {"id":"contract.compact-v2-documents","suite":"contract","language_scope":"neutral_once","legacy_function":"test_core_compact.py --suite contract"},
+    {"id":"security.compact-v2-boundaries","suite":"security","language_scope":"neutral_once","legacy_function":"test_core_compact.py --suite security"},
+    {"id":"transaction.compact-v2-recovery","suite":"transaction","language_scope":"neutral_once","legacy_function":"test_core_compact.py --suite transaction"},
+    {"id":"migration.0.15-core","suite":"migration","language_scope":"bilingual_parallel","legacy_function":"test_core_upgrade.py"}
   ]
 }

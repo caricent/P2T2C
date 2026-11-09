@@ -18,6 +18,8 @@ fixture_014_archive="$repo_root/scripts/fixtures/p2t2c-0.14.0-release-roots.tar.
 fixture_014_digest="72c785a2fa0e8835732abf76eb93012c9b68a36c2344e6674550a135d6eb0256"
 fixture_0141_archive="$repo_root/scripts/fixtures/p2t2c-0.14.1-release-roots.tar.gz"
 fixture_0141_digest="7c1491a3df3500c8a9cd31cd3f50257975654a40b86189bd50b9cfbee566e0f2"
+fixture_015_archive="$repo_root/scripts/fixtures/p2t2c-0.15.0-release-roots.tar.gz"
+fixture_015_digest="258735e9f92a321e148a3a83af4503194f5709f815ecbb8c971572cac480e52f"
 
 usage() {
   cat <<'EOF'
@@ -257,6 +259,10 @@ check_smoke_coverage() {
     || fail "frozen EN release fixture is not 0.14.1"
   [[ "$(tar -xOzf "$fixture_0141_archive" P2T2C_CN/.p2t2c/VERSION | tr -d '[:space:]')" == "0.14.1" ]] \
     || fail "frozen CN release fixture is not 0.14.1"
+  [[ -f "$fixture_015_archive" && "$(sha256_file "$fixture_015_archive")" == "$fixture_015_digest" ]] || fail "0.15.0 release fixture missing or changed"
+  if tar -tzf "$fixture_015_archive" | grep -Eq '(^/|(^|/)\.\.(/|$))'; then fail "unsafe 0.15.0 archive path"; fi
+  [[ "$(tar -xOzf "$fixture_015_archive" P2T2C_EN/.p2t2c/VERSION | tr -d '[:space:]')" == "0.15.0" ]] || fail "frozen EN fixture is not 0.15.0"
+  [[ "$(tar -xOzf "$fixture_015_archive" P2T2C_CN/.p2t2c/VERSION | tr -d '[:space:]')" == "0.15.0" ]] || fail "frozen CN fixture is not 0.15.0"
 }
 
 refresh_source_metadata() {
@@ -1800,7 +1806,7 @@ assert_installed_assets() {
   diff -u "$expected" "$actual"
 
   [[ -f "$target/.p2t2c/project_config.yaml" ]] || fail "new install omitted project configuration"
-  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.15.0" ]] || fail "new install did not install 0.15.0"
+  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.16.0-rc.1" ]] || fail "new install did not install 0.16.0-rc.1"
   grep -q 'enforcement: "required"' "$release_root/.p2t2c/project_config.yaml" || fail "release root project configuration is not required-mode"
   if managed_paths "$release_root/.p2t2c/managed-files.txt" | grep -qx '.p2t2c/project_config.yaml'; then
     fail "project-owned project_config.yaml entered the managed inventory"
@@ -1899,7 +1905,7 @@ run_upgrade_013_contract() {
     fail "$rel 0.13.0 long-hop upgrade failed"
   fi
 
-  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.15.0" ]] || fail "upgrade did not install 0.15.0"
+  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.16.0-rc.1" ]] || fail "upgrade did not install 0.16.0-rc.1"
   [[ -f "$target/.p2t2c/managed-files.txt" ]] || fail "upgrade omitted managed-files.txt"
   [[ -f "$target/.p2t2c/bin/p2t2c_run.sh" ]] || fail "upgrade omitted evidence runner"
   [[ -x "$target/.p2t2c/bin/p2t2c" ]] || fail "upgrade omitted the context/verify dispatcher"
@@ -1985,7 +1991,7 @@ run_upgrade_014_contract() {
     fail "$rel frozen 0.14.0 direct upgrade failed"
   fi
 
-  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.15.0" ]] || fail "$rel direct upgrade did not install 0.15.0"
+  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.16.0-rc.1" ]] || fail "$rel direct upgrade did not install 0.16.0-rc.1"
   [[ "$(sha256_file "$target/.p2t2c/project_config.yaml")" == "$project_config_before" ]] || fail "$rel direct upgrade rewrote project configuration"
   [[ "$(sha256_file "$target/docs/sot/product/HISTORICAL_014.md")" == "$truth_before" ]] || fail "$rel direct upgrade rewrote project Truth"
   [[ "$(sha256_file "$target/docs/change_packs/CPK-20260710-historical-v2.md")" == "$v2_before" ]] || fail "$rel direct upgrade rewrote historical v2 CPK"
@@ -2065,7 +2071,7 @@ run_upgrade_0141_contract() {
     fail "$rel frozen 0.14.1 direct upgrade failed"
   fi
 
-  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.15.0" ]] || fail "$rel 0.14.1 upgrade did not install 0.15.0"
+  [[ "$(tr -d '[:space:]' < "$target/.p2t2c/VERSION")" == "0.16.0-rc.1" ]] || fail "$rel 0.14.1 upgrade did not install 0.16.0-rc.1"
   [[ -f "$target/.p2t2c/lib/P2T2C/Documents.pm" && -f "$target/.p2t2c/schemas/proposal-v1.schema.json" ]] \
     || fail "$rel 0.14.1 upgrade omitted core document assets"
   [[ "$(sha256_file "$target/.p2t2c/project_config.yaml")" == "$project_config_before" ]] || fail "$rel 0.14.1 upgrade rewrote project configuration"
@@ -2235,6 +2241,9 @@ case_contract_advisory_required() { run_advisory_required_contracts "$suite_targ
 case_contract_review() { run_review_contracts "$suite_target"; checkpoint_fixture_git "$suite_target" review; }
 case_contract_architectural_r2() { run_architectural_r2_contract "$suite_target"; }
 case_contract_cli() { run_cli_examples "$suite_target"; (cd "$suite_target" && bash .p2t2c/bin/check_p2t2c.sh); }
+case_contract_compact_v2() { python3 "$repo_root/scripts/test_core_compact.py" "$suite_source" --suite contract; }
+case_security_compact_v2() { python3 "$repo_root/scripts/test_core_compact.py" "$suite_source" --suite security; }
+case_transaction_compact_v2() { python3 "$repo_root/scripts/test_core_compact.py" "$suite_source" --suite transaction; }
 case_contract_core_v1() { bash "$repo_root/scripts/core_workflow_smoke_test.sh" "$suite_source" documents; }
 case_security_docs_migrate() { bash "$repo_root/scripts/core_workflow_smoke_test.sh" "$suite_source" migration-security; }
 case_transaction_docs_migrate() { bash "$repo_root/scripts/core_workflow_smoke_test.sh" "$suite_source" migration-transaction; }
@@ -2575,6 +2584,7 @@ run_locale_worker() {
   run_registered_cases locale bilingual_parallel
 }
 
+case_migration_015_core() { python3 "$repo_root/scripts/test_core_upgrade.py" "$suite_source"; }
 case_migration_013() { run_upgrade_013_contract "$suite_rel" "$suite_source"; }
 case_migration_014() { run_upgrade_014_contract "$suite_rel" "$suite_source"; }
 case_migration_0141() { run_upgrade_0141_contract "$suite_rel" "$suite_source"; }

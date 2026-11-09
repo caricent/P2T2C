@@ -389,8 +389,11 @@ sub run {
     else {for my $line (split /\r?\n/,$mraw) {next if $line=~/^\s*(?:#.*)?$/;$line=~s/^\s+|\s+$//g;if($line=~m{\A/|(?:\A|/)\.\.(?:/|\z)|//}){$self->error("$manifest contains unsafe path: $line");next}push @required,$line}}
     $self->error("$manifest contains no managed paths") if !@required;
     $self->error("missing required file: $_") for grep {!-f $_} @required;
-    $self->phrase('.p2t2c/VERSION','0.15.0'); $self->phrase('.p2t2c/manifest.yaml','version: "0.15.0"');
+    $self->phrase('.p2t2c/VERSION','0.16.0-rc.1'); $self->phrase('.p2t2c/manifest.yaml','version: "0.16.0-rc.1"');
     $self->phrase('docs/sot/manifest.yaml','truth_root: "docs/sot"');
+    $self->phrase('.p2t2c/manifest.yaml','document_formats: "standard-v1,compact-v2"');
+    $self->phrase('.p2t2c/manifest.yaml','default_shape: "standard"');
+    $self->phrase('.p2t2c/manifest.yaml','compact_status: "trial"');
     $self->phrase('docs/sot/governance/P2T2C_GOVERNANCE.md','RULE-GOV-009');
     $self->phrase('docs/sot/governance/P2T2C_GOVERNANCE.md','RULE-GOV-018');
     my $language=''; my $sot=$self->raw('docs/sot/manifest.yaml')//''; $language=$1 if $sot=~/^language:\s*"?([^"\s]+)"?/m;
@@ -432,7 +435,7 @@ sub run {
         if (($method->{profile}//'') eq 'p2t2c-adaptive-v2') {
         } elsif (($method->{profile}//'') eq 'p2t2c-balanced-v1') {
         }
-    } elsif (-f '.p2t2c/project_config.yaml') {$self->warning('methodology enforcement is advisory; set methodology.enforcement: required to enforce method evidence for new declared artifacts')}
+    } elsif (-f '.p2t2c/project_config.yaml') {$self->warning('methodology enforcement is advisory; set methodology.enforcement: required to enforce method evidence for existing legacy artifacts')}
     my @cpk=$self->files('docs/change_packs',sub {$_[0]=~m{/CPK-[^/]+\.md\z}});push@cpk,grep{m{\Adocs/change_packs/CPK-[^/]+\.md\z}}@{$self->{extra_artifacts}};my%cpk_seen;@cpk=grep{!$cpk_seen{$_}++}@cpk;$self->validate_cpk($_,$method) for @cpk;
     my @spec=$self->files('specs',sub {$_[0]=~m{/spec\.md\z}}); for (@spec) {(-f $_&&$self->raw($_)=~/\A---/)?$self->validate_spec($_):$self->error("$_ is an execution spec instance without frontmatter")}
     my @work=$self->files('specs',sub {$_[0]=~m{/work\.md\z}}); for (@work) {(-f $_&&$self->raw($_)=~/\A---/)?$self->validate_work($_):$self->error("$_ is an execution work instance without frontmatter")}

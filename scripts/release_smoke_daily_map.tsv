@@ -3,11 +3,14 @@ scripts/release_smoke_test.sh	contract,security,transaction,migration,locale
 scripts/release_smoke_coverage.json	contract,security,transaction,migration,locale
 scripts/release_smoke_registry.tsv	contract,security,transaction,migration,locale
 scripts/release_smoke_daily_map.tsv	contract,locale
+scripts/test_core_compact.py	contract,security,transaction,migration
+scripts/test_core_upgrade.py	migration
 scripts/check_release_parity.sh	locale
 scripts/fixtures/*	migration
 P2T2C_*/.p2t2c/bin/p2t2c_install.sh	security,transaction,migration,locale
 P2T2C_*/.p2t2c/bin/p2t2c_upgrade.sh	security,transaction,migration,locale
 P2T2C_*/.p2t2c/bin/*	contract,security,transaction
+P2T2C_*/.p2t2c/lib/P2T2C/Document*	contract,security,transaction,migration
 P2T2C_*/.p2t2c/lib/*	contract,security
 P2T2C_*/.p2t2c/schemas/*	contract,security
 P2T2C_*/.p2t2c/defaults.yaml	contract,security,locale

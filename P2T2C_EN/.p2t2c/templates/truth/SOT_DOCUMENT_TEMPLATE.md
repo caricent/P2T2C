@@ -1,50 +1,27 @@
-# {SOT Document Title}
+# {Specification topic}
 
-Status: Draft | Active | Deprecated
-Owner: {team / person}
-Last updated: {YYYY-MM-DD}
-Related ADRs: {links}
-Related SPs: {links}
+Status: Active
+Owner: {Maintainer role}
 
----
+## Authority
 
-## AI Reading Contract
+{Scope, applicability, and specific authoritative sources for adjacent domains.}
 
-- Canonical scope: {authoritative scope of this document}
-- Must-read with: {documents that must be read together}
-- Do not infer: {what AI must not infer}
-- Stop-the-line if: {when AI must pause for human confirmation}
+## Global Constraints
 
----
+{Invariants needed for local reading; omit if there is no separate content.}
 
-## 1. Purpose
+## RULE-AREA-001: Rule title
 
-What does this document define? What does it not define?
+Status: Active
 
----
+{Complete current rule, necessary conditions, exceptions, and a verifiable basis. Reference specific clauses for dependencies.}
 
-## 2. Rule Index
+## DEC-AREA-001: Necessary Durable Decision
 
-| Rule ID | Title | Status |
-|---|---|---|
-| RULE-XXX-001 | {title} | Active |
+Status: Active
+Date: YYYY-MM-DD
 
----
+{Current choice, applicability, and its most important reason; omit unnecessary decisions.}
 
-## 3. Rules
-
-Use `.p2t2c/templates/truth/RULE_BLOCK_TEMPLATE.md` for each rule block.
-
----
-
-## 4. Non-goals
-
-- {what this SoT does not own}
-
----
-
-## 5. Change Log
-
-| Date | Change | SP / ADR |
-|---|---|---|
-| {YYYY-MM-DD} | Created | {link} |
+Writing guidance: organize by responsibility and update in place. Preserve stable IDs and meaning without copying task logs, one-time authorizations, or whole sources. Choose headings and length as useful; do not append history to current rules.

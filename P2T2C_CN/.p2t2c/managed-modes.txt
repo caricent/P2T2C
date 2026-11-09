@@ -10,3 +10,4 @@ default 0644
 0755 .p2t2c/bin/p2t2c_install.sh
 0755 .p2t2c/bin/p2t2c_run.sh
 0755 .p2t2c/bin/p2t2c_upgrade.sh
+0755 .p2t2c/bin/p2t2c_runtime_guard.pl

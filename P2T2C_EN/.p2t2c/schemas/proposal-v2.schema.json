@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "P2T2C compact proposal front matter v2",
+  "type": "object",
+  "required": [
+    "artifact",
+    "schema_version",
+    "id",
+    "status",
+    "risk",
+    "decision",
+    "decision_ref",
+    "specs_ref",
+    "truth_ref",
+    "truth_digest",
+    "shape",
+    "work_status"
+  ],
+  "properties": {
+    "artifact": {
+      "const": "proposal"
+    },
+    "schema_version": {
+      "const": 2
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^SP-[0-9]{8}-[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "approved"
+      ]
+    },
+    "risk": {
+      "const": "R1"
+    },
+    "decision": {
+      "const": "not_required"
+    },
+    "decision_ref": {
+      "const": "none"
+    },
+    "specs_ref": {
+      "const": "none"
+    },
+    "truth_ref": {
+      "const": "none"
+    },
+    "truth_digest": {
+      "const": "none"
+    },
+    "shape": {
+      "const": "compact"
+    },
+    "work_status": {
+      "enum": [
+        "planned",
+        "in_progress",
+        "completed"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

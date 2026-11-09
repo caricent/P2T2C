@@ -1,4 +1,4 @@
-version: "0.15.0"
+version: "0.16.0-rc.1"
 workflow: "P2T2C Core Workflow"
 upgrade_model: "ai_readable_safe_upgrade"
 language: "zh-CN"
@@ -15,6 +15,7 @@ metadata:
   lock_file: ".p2t2c/lock.sha256"
   upgrade_root: ".p2t2c/upgrade"
   docs_migration_root: ".p2t2c/docs-migrate"
+  document_transaction_root: ".p2t2c/documents"
   internal_asset_root: ".p2t2c"
   script_root: ".p2t2c/bin"
   skill_root: ".p2t2c/skills"
@@ -32,6 +33,9 @@ canonical_entries:
 
 policy:
   new_work_profile: "p2t2c-core-v1"
+  document_formats: "standard-v1,compact-v2"
+  default_shape: "standard"
+  compact_status: "trial"
   core_actions: "explore,propose,apply,verify,archive"
   active_document_roots: "docs/proposals,docs/specs,docs/sot"
   cold_archive_root: "docs/reference/archive"
@@ -65,6 +69,6 @@ policy:
 
 compatibility:
   new_install: "新安装直接使用 proposals/specs/sot 核心布局；项目测试与 CI 不由 Archive 编排。"
-  new_work_after_upgrade: "0.15 新工作使用 core actions；既有 CPK/run 继续使用原配置和 legacy 引擎。"
+  new_work_after_upgrade: "0.16 新工作使用 core actions；既有 CPK/run 继续使用原配置和 legacy 引擎。"
   historical_artifacts: "CPK v2/v3、event v1、receipt v1/v2、CR、ADR 与旧 specs 不改写；只有显式 docs-migrate 才移动到冷归档。"
   project_truth: "普通升级不得修改项目拥有的 SOT 或决策。"

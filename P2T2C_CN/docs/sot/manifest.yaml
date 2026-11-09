@@ -5,9 +5,9 @@ truth_root: "docs/sot"
 
 truth_documents:
   - path: "docs/sot/governance/P2T2C_GOVERNANCE.md"
-    sha256: "9495632de31553655fe853dbfdfa29ded9f49b3163a391f7a88b2c26aa6d0eae"
-    rule_ids: ["RULE-GOV-001", "RULE-GOV-002", "RULE-GOV-003", "RULE-GOV-004", "RULE-GOV-006", "RULE-GOV-007", "RULE-GOV-008", "RULE-GOV-009", "RULE-GOV-014", "RULE-GOV-015", "RULE-GOV-016", "RULE-GOV-017", "RULE-GOV-018", "RULE-GOV-019", "RULE-GOV-020"]
-    decision_ids: ["DEC-GOV-013", "DEC-GOV-014", "DEC-GOV-015", "DEC-GOV-016", "DEC-GOV-017"]
+    sha256: "fb95dc89aa631a89bb7a5e8366b54b6a9defd9dd02aaf3edd196c708f1d4b62c"
+    rule_ids: ["RULE-GOV-001", "RULE-GOV-002", "RULE-GOV-003", "RULE-GOV-004", "RULE-GOV-006", "RULE-GOV-007", "RULE-GOV-008", "RULE-GOV-009", "RULE-GOV-014", "RULE-GOV-015", "RULE-GOV-016", "RULE-GOV-017", "RULE-GOV-018", "RULE-GOV-019", "RULE-GOV-020", "RULE-GOV-024", "RULE-GOV-025", "RULE-GOV-026"]
+    decision_ids: ["DEC-GOV-013", "DEC-GOV-014", "DEC-GOV-015", "DEC-GOV-016", "DEC-GOV-017", "DEC-GOV-020"]
     topics: ["治理", "Truth", "核心动作", "proposal", "design", "tasks", "Archive", "文档迁移", "legacy 兼容", "安装升级", "双语发行"]
 
 adrs: []

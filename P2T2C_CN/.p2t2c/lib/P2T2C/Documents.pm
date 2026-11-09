@@ -3,13 +3,15 @@ use strict;
 use warnings;
 
 use Digest::SHA qw(sha256_hex);
-use Fcntl qw(:mode O_RDONLY O_WRONLY O_CREAT O_EXCL O_NOFOLLOW);
+use Fcntl qw(:mode :flock O_RDONLY O_WRONLY O_RDWR O_CREAT O_EXCL O_NOFOLLOW);
 use File::Basename qw(dirname basename);
 use JSON::PP ();
 use Errno qw(EEXIST);
 
 my $JSON = JSON::PP->new->canonical(1)->utf8(1);
 my $DIGEST = qr/\A[0-9a-f]{64}\z/;
+our $READ_OVERLAY;
+my $MUTATION_MUTEX;
 
 sub fail { die "ERROR: documents: $_[0]\n" }
 
@@ -34,6 +36,7 @@ sub safe_rel {
 
 sub read_safe {
     my ($path,$label)=@_; $label//=q(file);
+    return $READ_OVERLAY->{$path} if ref($READ_OVERLAY) eq 'HASH' && exists $READ_OVERLAY->{$path};
     safe_rel($path,0,$label);
     sysopen(my $fh,$path,O_RDONLY|O_NOFOLLOW) or fail("cannot open $label: $path");
     my @st=stat($fh);
@@ -52,18 +55,51 @@ sub safe_dir {
     return 1;
 }
 
+my $MUTATION_PARENT;
+
 sub acquire_lock {
-    my$lock='.p2t2c/.documents-lock';my$owner="$lock/owner";
-    if(-d$lock&&!-l$lock){my$pid=eval{my$r=read_safe($owner,q(document lock));$r=~s/\s+\z//;$r};
-        fail(q(another document mutation owns the project))if defined($pid)&&$pid=~/\A[1-9][0-9]*\z/&&kill(0,$pid);
-        unlink$owner if-f$owner&&!-l$owner;rmdir$lock or fail(q(stale document lock cannot be recovered));}
-    mkdir$lock,0700 or fail(q(another document mutation owns the project));
-    sysopen(my$fh,$owner,O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW,0600)or fail(q(cannot record document lock owner));print{$fh}"$$\n";close$fh;
-    return$lock;
+    require P2T2C::DocsMigration;
+    my($mutex,$parent);
+    P2T2C::DocsMigration::in_directory('.p2t2c',0,'document lock parent',sub {
+        opendir($parent,q(.))or fail(q(cannot hold document lock parent));
+        mkdir'upgrade',0700 or fail(q(cannot create document mutex directory))if!-e'upgrade'&&! -l'upgrade';
+        P2T2C::DocsMigration::in_directory('upgrade',0,'document mutex parent',sub {
+            sysopen($mutex,'.documents-mutex',O_RDWR|O_CREAT|O_NOFOLLOW,0600)or fail(q(cannot open document mutex));
+            my@held=stat$mutex;my@visible=lstat'.documents-mutex';
+            fail(q(unsafe document mutex))if!@held||!@visible||!S_ISREG($held[2])||$held[3]!=1||$held[4]!=$<||($held[2]&07777)!=0600||S_ISLNK($visible[2])||$visible[0]!=$held[0]||$visible[1]!=$held[1];
+            flock($mutex,LOCK_EX|LOCK_NB)or fail(q(another document mutation owns the project));return 1;
+        });
+        # The persistent kernel mutex serializes current runtimes. Keep the
+        # PID-directory protocol for old tools and format-compatible rollback.
+        my$lock='.documents-lock';my$owner="$lock/owner";
+        if(-d$lock&&!-l$lock){
+            my$pid=eval{my$r=read_safe($owner,q(document lock));$r=~s/\s+\z//;$r};
+            fail(q(incomplete legacy document lock requires inspection))if!defined($pid)||$pid!~/\A[1-9][0-9]*\z/;
+            fail(q(another document mutation owns the project))if kill(0,$pid);
+            unlink$owner or fail(q(cannot remove stale document lock owner));rmdir$lock or fail(q(stale document lock cannot be recovered));
+        }
+        mkdir$lock,0700 or fail(q(another document mutation owns the project));
+        sysopen(my$fh,$owner,O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW,0600)or fail(q(cannot record document lock owner));
+        print{$fh}"$$\n";close$fh or fail(q(cannot close document lock owner));return 1;
+    });
+    my@held=stat$parent;my@visible=lstat'.p2t2c';
+    fail(q(document lock parent changed))if!@visible||S_ISLNK($visible[2])||$held[0]!=$visible[0]||$held[1]!=$visible[1];
+    $MUTATION_MUTEX=$mutex;$MUTATION_PARENT=$parent;return'.p2t2c/.documents-lock';
 }
 
 sub release_lock {
-    my$lock=$_[0]//'.p2t2c/.documents-lock';unlink"$lock/owner"or fail(q(cannot remove document lock owner));rmdir$lock or fail(q(cannot release document lock));
+    my$lock=$_[0]//'.p2t2c/.documents-lock';
+    fail(q(invalid document lock ownership))if$lock ne'.p2t2c/.documents-lock'||!defined$MUTATION_PARENT||!defined$MUTATION_MUTEX;
+    opendir(my$root,q(.))or fail(q(cannot hold release root));my$error;
+    my$ok=eval{
+        chdir$MUTATION_PARENT or fail(q(cannot enter held lock parent));
+        my$owner=read_safe('.documents-lock/owner',q(document lock owner));$owner=~s/\s+\z//;
+        fail(q(document lock owner changed))if$owner ne"$$";
+        unlink'.documents-lock/owner'or fail(q(cannot remove document lock owner));rmdir'.documents-lock'or fail(q(cannot release document lock));1;
+    };$error=$@if!$ok;
+    my$restored=chdir$root;closedir$root;closedir$MUTATION_PARENT;undef$MUTATION_PARENT;
+    flock($MUTATION_MUTEX,LOCK_UN)or fail(q(cannot unlock document mutex));close$MUTATION_MUTEX;undef$MUTATION_MUTEX;
+    die$error if!$ok;fail(q(cannot restore release root))if!$restored;
 }
 
 sub assert_no_pending_migration {
@@ -88,7 +124,7 @@ sub yaml_scalar {
 }
 
 sub frontmatter {
-    my ($path)=@_; my $original=read_safe($path,q(document));my$raw=$original;$raw=~s/\r\n/\n/g;
+    my ($path,$original)=@_; $original=read_safe($path,q(document)) if !defined $original;my$raw=$original;$raw=~s/\r\n/\n/g;
     my($head,$body)=$raw=~/\A---\n(.*?)\n---\n?(.*)\z/s;
     fail("$path has malformed frontmatter") if !defined$head;
     my(%fm,%rawfm,%seen);
@@ -123,18 +159,29 @@ sub validate_proposal {
     my($path,$allow_legacy,$require_current)=@_;
     fail("proposal path is invalid: $path") if $path!~m{\Adocs/proposals/(SP-[0-9]{8}-[a-z0-9]+(?:-[a-z0-9]+)*)\.md\z};
     my$path_id=$1;my$raw=read_safe($path,q(proposal));
-    if($raw!~/\A---\r?\n/){fail("$path legacy proposal heading is invalid")if!$allow_legacy||$raw!~/^#\s+\Q$path_id\E\s*$/m;return{path=>$path,legacy=>1,raw=>$raw}}
-    my($fm,$rawfm,$body)=frontmatter($path);
+    if($raw!~/\A---\r?\n/){
+        fail("$path declares controlled metadata without frontmatter")if without_fences($raw)=~/^(?:artifact|schema_version|shape|work_status):/m;
+        fail("$path legacy proposal heading is invalid")if!$allow_legacy||$raw!~/^#\s+\Q$path_id\E\s*$/m;return{path=>$path,legacy=>1,raw=>$raw}}
+    my($fm,$rawfm,$body)=frontmatter($path,$raw);
     my@required=qw(artifact schema_version id status risk decision decision_ref specs_ref truth_ref truth_digest);
+    my$version=$rawfm->{schema_version}//q();my$compact=$version eq '2';
+    fail("$path has unsupported proposal schema_version") if $version!~/\A[12]\z/;
+    push @required,qw(shape work_status) if $compact;
     exact_fields($path,$fm,\@required,[]);
     fail("$path artifact must be proposal") if $fm->{artifact}ne'proposal';
-    fail("$path schema_version must be unquoted integer 1") if $rawfm->{schema_version}ne'1';
     fail("$path id does not match filename") if $fm->{id}ne$path_id;
     fail("$path status must be proposed or approved") if $fm->{status}!~/\A(?:proposed|approved)\z/;
     fail("$path risk must be R1 or R2") if $fm->{risk}!~/\AR[12]\z/;
     fail("$path decision is invalid") if $fm->{decision}!~/\A(?:not_required|pending|approved)\z/;
     fail("$path decision_ref is unsafe") if !defined($fm->{decision_ref})||ref($fm->{decision_ref})||length($fm->{decision_ref})>512||$fm->{decision_ref}=~/[\x00-\x1f\x7f]/;
-    fail("$path specs_ref is invalid") if $fm->{specs_ref}!~m{\Adocs/specs/[0-9]{3,4}-[a-z0-9]+(?:-[a-z0-9]+)*\z};
+    if($compact){
+        fail("$path compact shape must be compact") if $fm->{shape} ne 'compact';
+        fail("$path compact permits R1 only") if $fm->{risk} ne 'R1';
+        fail("$path compact specs_ref must be none") if $fm->{specs_ref} ne 'none';
+        fail("$path compact work_status is invalid") if $fm->{work_status}!~/\A(?:planned|in_progress|completed)\z/;
+    }else{
+        fail("$path specs_ref is invalid") if $fm->{specs_ref}!~m{\Adocs/specs/[0-9]{3,4}-[a-z0-9]+(?:-[a-z0-9]+)*\z};
+    }
     if($fm->{risk}eq'R1'){
         fail("$path R1 decision fields are invalid") if $fm->{decision}ne'not_required'||$fm->{decision_ref}ne'none';
         fail("$path R1 Truth fields must be none") if $fm->{truth_ref}ne'none'||$fm->{truth_digest}ne'none';
@@ -155,13 +202,47 @@ sub validate_proposal {
                 fail("$path approved R2 Truth digest is stale")if sha256_hex(read_safe($fm->{truth_ref},q(Truth)))ne$fm->{truth_digest};}
         }
     }
+    if($compact){
+        my$machine=without_fences($body);
+        my$entries=$machine=~/^##\s+(?:Tasks|任务)\s*$/m ? task_entries($path,$machine) : [];
+        my$completion=completion($path,$machine);
+        my$doc={path=>$path,fm=>$fm,body=>$body,raw=>$raw,shape=>'compact',entries=>$entries,completion=>$completion};
+        assert_compact_complete($doc) if $fm->{work_status} eq 'completed';
+        return $doc;
+    }
     section($path,$body,q(Why),q(为什么));
     section($path,$body,q(What changes),q(变更内容));
     section($path,$body,q(Non-goals),q(非目标));
     section($path,$body,q(Observable outcomes),q(可观察结果));
     section($path,$body,q(Truth impact),q(Truth 影响));
     section($path,$body,q(Decision),q(决策));
-    return{path=>$path,fm=>$fm,body=>$body,raw=>$raw};
+    return{path=>$path,fm=>$fm,body=>$body,raw=>$raw,shape=>'standard'};
+}
+
+sub without_fences {
+    my($body)=@_;my($character,$length);my@lines;
+    for my$line(split /\n/,$body,-1){
+        if(defined $character){
+            if($line=~/^ {0,3}(\Q$character\E{$length,})\s*$/){undef $character;undef $length}
+            push @lines,q();next;
+        }
+        if($line=~/^ {0,3}(`{3,}|~{3,})/){$character=substr($1,0,1);$length=length($1);push @lines,q();next}
+        push @lines,$line;
+    }
+    return join "\n",@lines;
+}
+
+sub assert_compact_complete {
+    my($doc)=@_;my($path,$fm,$c)=@{$doc}{qw(path fm completion)};
+    fail("$path cannot complete from planned status") if $fm->{work_status} eq 'planned';
+    fail("$path proposal is not approved") if $fm->{status} ne 'approved';
+    fail("$path contains incomplete tasks") if grep {$_->{state} eq ' '} @{$doc->{entries}};
+    fail("$path records failed tests") if $c->{Tests} eq 'failed';
+    fail("$path records unresolved Verify Critical") if $c->{Verify} eq 'critical';
+    fail("$path records known blockers") if $c->{Known_blockers} ne 'none';
+    fail("$path records pending dangerous operations") if $c->{Dangerous_operations} eq 'pending';
+    fail("$path completion summary is still pending") if lc($c->{Summary}) eq 'pending';
+    return 1;
 }
 
 sub validate_design {
@@ -250,6 +331,8 @@ sub validate_tasks {
 }
 
 sub validate_layout {
+    require P2T2C::DocumentTransactions;
+    P2T2C::DocumentTransactions::assert_no_pending();
     return 1 if !-d'docs/proposals'&&!-d'docs/specs';
     my@proposals;
     if(-d'docs/proposals'){
@@ -268,7 +351,9 @@ sub validate_layout {
             validate_tasks("$dir/tasks.md",0);
         }
     }
-    for my$proposal(@proposals){next if$proposal->{legacy};my$dir=$proposal->{fm}{specs_ref};fail("$proposal->{path} references missing specs directory: $dir")if!-d$dir}
+    # v1 permits historical proposals that still reference the current spec.
+    # Targeted operations check ownership; global validation keeps v1 semantics.
+    for my$proposal(@proposals){next if$proposal->{legacy}||($proposal->{shape}//q())eq'compact';my$dir=$proposal->{fm}{specs_ref};fail("$proposal->{path} references missing specs directory: $dir")if!-d$dir}
     return 1;
 }
 
@@ -336,9 +421,14 @@ sub archive_test_pause {
     select undef,undef,undef,$ms/1000;
 }
 
+sub recover_standard_archive {
+    return recover_archive_guard($_[0]);
+}
+
 sub archive_spec {
-    my($spec)=@_;fail(q(invalid spec id))if!defined$spec||$spec!~/\A[0-9]{3,4}-[a-z0-9]+(?:-[a-z0-9]+)*\z/;
+    my($spec,$expected_digest)=@_;fail(q(invalid spec id))if!defined$spec||$spec!~/\A[0-9]{3,4}-[a-z0-9]+(?:-[a-z0-9]+)*\z/;
     my$path="docs/specs/$spec/tasks.md";recover_archive_guard($path);my$doc=validate_tasks($path,1);
+    fail(q(main record changed after external acceptance checks))if defined($expected_digest)&&sha256_hex($doc->{raw})ne$expected_digest;
     return{schema_version=>1,action=>'archive',state=>'completed',spec=>$spec,tasks=>$path,proposal=>$doc->{fm}{proposal},design=>$doc->{fm}{design},tests=>$doc->{completion}{Tests},verify=>$doc->{completion}{Verify},idempotent=>$JSON->true}if$doc->{fm}{status}eq'completed';
     fail("$path must be in_progress before archive") if $doc->{fm}{status}ne'in_progress';
     my$updated=$doc->{raw};$updated=~s/^(status:\h*)in_progress(\h*)(\r?)$/${1}completed${2}${3}/m

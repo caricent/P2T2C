@@ -1,16 +1,14 @@
 ---
 name: p2t2c-core
-description: 使用 Explore、Propose、Apply、可选 Verify 与 Archive 推进 0.15 新工作。
+description: 在明确目标、规范和授权内推进当前 core 工作；按需选择记录形态，完成必要检查并安全归档。
 ---
 
 # P2T2C Core
 
-- Explore 可选且不创建文档。
-- R1/R2 必须创建 docs/proposals/SP-*，并在 docs/specs/<change>/ 创建 design.md 与 tasks.md。
-- 清晰 R1 或用户已明确批准的 R2 不重复询问。
-- Apply 只围绕 SP 可观察结果工作，按项目惯例运行必要测试；P2T2C 不编排测试或 reviewer。
-- 实现发现 Truth 漂移时把 SP decision 改为 pending，并停止固化语义。
-- Verify 可选，只报告 completeness、correctness、coherence；未解决 Critical 写入 tasks Completion。
-- Archive 只调用 p2t2c archive --spec <NNN-name>，不运行测试、review 或 release smoke。
-- docs/reference/archive 是非权威冷历史，不能替代 SOT。
-- 旧 CPK/run 继续使用 legacy context/evidence/verify/close。
+- 依据 P2T2C_AGENTS.md 与适用 SOT 自主选择工作方法，不强制完整方法链。
+- 接入支持时由模型优先为简单 R1 选择 compact v2；其他工作沿用 standard，不让用户选模板。
+- 保留已有 SP 身份和格式；复杂度增加时只扩展活动 compact。
+- 未决 R2 不实施；明确决定先落实 SOT。实现偏差按 R1 修复，普通失败继续授权内诊断。
+- 真实检查与必要接续写主记录；缺失必要验收写 Known blockers: present。
+- 按影响完成必要检查，复用仍有效结果；无阻塞后归档一次。不要叠加结构、就绪及全仓校验，项目有包装入口则使用它；Archive 不重跑项目检查。
+- legacy 只按当前具体工作识别；不转换原配置与证据，不默认加载冷历史。

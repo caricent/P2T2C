@@ -303,7 +303,7 @@ project_overlay_diff="$(diff -u \
 }
 
 for root in "$en" "$cn"; do
-  grep -q '^version: "0.15.0"$' "$root/.p2t2c/manifest.yaml" || error "$root manifest is not version 0.15.0"
+  grep -q '^version: "0.16.0-rc.1"$' "$root/.p2t2c/manifest.yaml" || error "$root manifest is not version 0.16.0-rc.1"
   grep -q 'managed_files: ".p2t2c/managed-files.txt"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare managed-files.txt"
   grep -q 'managed_modes: ".p2t2c/managed-modes.txt"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare managed-modes.txt"
   grep -q 'new_work_profile: "p2t2c-core-v1"' "$root/.p2t2c/manifest.yaml" || error "$root manifest does not declare core-v1"
@@ -367,6 +367,11 @@ if [[ ! -f "$fixture" ]]; then
   error "missing byte-exact 0.14.1 release fixture"
 elif [[ "$(shasum -a 256 "$fixture" | awk '{print $1}')" != "$fixture_expected" ]]; then
   error "0.14.1 release fixture digest differs"
+fi
+fixture="$repo_root/scripts/fixtures/p2t2c-0.15.0-release-roots.tar.gz"
+fixture_expected="258735e9f92a321e148a3a83af4503194f5709f815ecbb8c971572cac480e52f"
+if [[ ! -f "$fixture" ]] || [[ "$(shasum -a 256 "$fixture" | awk '{print $1}')" != "$fixture_expected" ]]; then
+  error "0.15.0 release fixture missing or changed"
 fi
 [[ -f "$repo_root/scripts/release_smoke_coverage.json" ]] || error "missing release smoke coverage manifest"
 

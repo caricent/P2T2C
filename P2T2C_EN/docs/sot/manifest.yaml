@@ -5,9 +5,9 @@ truth_root: "docs/sot"
 
 truth_documents:
   - path: "docs/sot/governance/P2T2C_GOVERNANCE.md"
-    sha256: "cac43bb931cb3134aec67c33dc86a04dd857563eee3abdcb4ae695a639a1cd13"
-    rule_ids: ["RULE-GOV-001", "RULE-GOV-002", "RULE-GOV-003", "RULE-GOV-004", "RULE-GOV-006", "RULE-GOV-007", "RULE-GOV-008", "RULE-GOV-009", "RULE-GOV-014", "RULE-GOV-015", "RULE-GOV-016", "RULE-GOV-017", "RULE-GOV-018", "RULE-GOV-019", "RULE-GOV-020"]
-    decision_ids: ["DEC-GOV-013", "DEC-GOV-014", "DEC-GOV-015", "DEC-GOV-016", "DEC-GOV-017"]
+    sha256: "22d11d85b04e407509910a27312062578ba9639d61468e80b99e3b526e3fd85d"
+    rule_ids: ["RULE-GOV-001", "RULE-GOV-002", "RULE-GOV-003", "RULE-GOV-004", "RULE-GOV-006", "RULE-GOV-007", "RULE-GOV-008", "RULE-GOV-009", "RULE-GOV-014", "RULE-GOV-015", "RULE-GOV-016", "RULE-GOV-017", "RULE-GOV-018", "RULE-GOV-019", "RULE-GOV-020", "RULE-GOV-024", "RULE-GOV-025", "RULE-GOV-026"]
+    decision_ids: ["DEC-GOV-013", "DEC-GOV-014", "DEC-GOV-015", "DEC-GOV-016", "DEC-GOV-017", "DEC-GOV-020"]
     topics: ["governance", "Truth", "core actions", "proposal", "design", "tasks", "Archive", "document migration", "legacy compatibility", "install upgrade", "bilingual release"]
 
 adrs: []

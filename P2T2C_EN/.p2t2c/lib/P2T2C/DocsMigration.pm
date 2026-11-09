@@ -174,7 +174,12 @@ sub pending_reports {
 }
 
 sub template_rollback_ready {
-    my$lock=P2T2C::Documents::acquire_lock();my$error;my$ok=eval{
+    my($supports_core,$lock_held)=@_;
+    if($lock_held){my$owner=P2T2C::Documents::read_safe('.p2t2c/.documents-lock/owner',q(runtime lock));$owner=~s/\s+\z//;
+        fail(q(invalid inherited runtime lock))if$owner ne($ENV{P2T2C_RUNTIME_LOCK_OWNER}//q())||$owner!~/\A[1-9][0-9]*\z/||!kill(0,$owner)}
+    my$lock=$lock_held?undef:P2T2C::Documents::acquire_lock();my$error;my$ok=eval{
+        if($supports_core){fail(q(unfinished document migration blocks runtime rollback))if pending_reports();}
+        else{
         my$reports=0;
         if(-d$ROOT){for my$path(operation_reports()){my$report=eval{$JSON->decode(read_raw($path,0,q(migration report)))};fail("invalid migration report: $path")if$@||ref$report ne'HASH';
             validate_report($report,dirname$path);fail("document layout must be rolled back first: $path")if($report->{status}//q())ne'rolled_back';$reports++;
@@ -184,8 +189,8 @@ sub template_rollback_ready {
         if(-d'docs/specs'){fail(q(core specs instances block template rollback))if grep{m{\Adocs/specs/[^/]+/(?:design|tasks)\.md\z}}walk_files('docs/specs')}
         for my$root(qw(docs/reference/archive/proposals docs/reference/archive/specs docs/reference/archive/adr docs/reference/archive/change_packs docs/reference/archive/closure)){
             next if!-d$root;my@files=walk_files($root);fail("migrated document layout blocks template rollback: $root")if@files;
-        }1;
-    };$error=$@if!$ok;my$released=eval{P2T2C::Documents::release_lock($lock);1};$error.=$@if!$released;die$error if!$ok||!$released;return 1;
+        }}1;
+    };$error=$@if!$ok;my$released=eval{P2T2C::Documents::release_lock($lock)if defined$lock;1};$error.=$@if!$released;die$error if!$ok||!$released;return 1;
 }
 
 sub front_value {
@@ -530,6 +535,7 @@ sub public_plan {
 }
 
 sub dry_run {
+    require P2T2C::DocumentTransactions;P2T2C::DocumentTransactions::assert_no_pending();
     my(%args)=@_;my@pending=pending_reports();fail('unfinished migration requires apply/rollback recovery: '.join(',',@pending))if@pending;
     my$plan=build_plan(%args);my$status=@{$plan->{moves}}||@{$plan->{rewrites}}?'planned':'not_applicable';return public_plan($plan,'dry-run',$status);
 }
@@ -537,6 +543,7 @@ sub dry_run {
 sub apply {
     my(%args)=@_;my$lock=P2T2C::Documents::acquire_lock();my($result,$error,$active,$dir);
     my$ok=eval{
+        require P2T2C::DocumentTransactions;P2T2C::DocumentTransactions::assert_no_pending();
         recover_pending();my$plan=build_plan(%args);if(!@{$plan->{moves}}&&!@{$plan->{rewrites}}){$result=public_plan($plan,'apply','not_applicable');return 1}
         ensure_dir($ROOT);my$id=strftime('%Y%m%dT%H%M%SZ',gmtime)."-$$-".int(rand 1_000_000);$dir="$ROOT/$id";ensure_dir($dir);ensure_dir("$dir/backup");
         $active={action=>'docs-migrate',mode=>'apply',schema_version=>1,operation_id=>$id,status=>'applying',created_at=>strftime('%Y-%m-%dT%H:%M:%SZ',gmtime),
@@ -556,6 +563,7 @@ sub apply {
 sub rollback {
     my($path)=@_;safe_rel($path,q(report));fail("report must be inside $ROOT")if$path!~m{\A\Q$ROOT\E/[A-Za-z0-9._-]+/report\.json\z};
     my$lock=P2T2C::Documents::acquire_lock();my($result,$error,$active_report,$active_dir,$rolling);my$ok=eval{
+        require P2T2C::DocumentTransactions;P2T2C::DocumentTransactions::assert_no_pending();
         recover_pending();my$report=$JSON->decode(read_raw($path,0,q(migration report)));my$dir=dirname$path;validate_report($report,$dir);
         fail(q(migration report is not applied))if($report->{status}//q())ne'applied';preflight_rollback($report);
         $active_report=$report;$active_dir=$dir;$report->{status}='rolling_back';save_report($dir,$report);$rolling=1;restore_legacy($report,$dir);$report->{status}='rolled_back';$report->{rolled_back_at}=strftime('%Y-%m-%dT%H:%M:%SZ',gmtime);save_report($dir,$report);$result=$report;1;

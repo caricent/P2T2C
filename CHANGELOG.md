@@ -2,6 +2,16 @@
 
 All notable changes to P2T2C are documented here.
 
+## 0.16.0-rc.1 - 2026-11-09
+
+- Release candidate for fast, reliable solo collaboration with AI. Prefer compact for eligible simple R1 in supported integrations; retain standard elsewhere and when create omits its shape. Scope is P2T2C templates and isolated tool validation; consumer repository integration is excluded. No stable-release or fixed-speed claim.
+- Clarified model-owned methods, applicable-rule reading, impact-appropriate checks, evidence reuse, effective authorization, and truthful completion. Normal closure archives once without stacked diagnostic checks. Removed mandatory long-term comparative trials; SOT writing guidance remains advisory.
+- Added compact proposal v2, mechanical creation, targeted validation/readiness, proposal-based Archive, explicit recovery, and source-bound expansion into standard v1 with the same SP identity. No tasks v2 or mandatory acceptance matrix.
+- Added target-bound, recoverable document transactions with before/after validation and concurrent-edit preservation. Successful transactions discard their payload copies; unresolved conflicts retain recovery material.
+- Preserved standard archive --spec JSON and existing legacy configuration/evidence. Supported runtime replacement holds the document mutation lock and rejects incompatible records before downgrade, including completed compact.
+- Added bilingual contract, safety, and fault tests; the complete release regression passed.
+- Kept proposals/specs as empty template entry points with README files only; moved completed framework maintenance records outside the template repository.
+
 ## 0.15.0 - 2026-08-31
 
 - Replaced the unreleased assurance-heavy candidate with an OpenSpec-inspired core: optional Explore, Propose, Apply, optional Verify, and Archive.

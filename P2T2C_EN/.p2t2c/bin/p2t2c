@@ -7,8 +7,13 @@ context_engine="$script_dir/p2t2c_context.pl"
 usage() {
   cat <<'EOF'
 Usage:
-  p2t2c archive --spec NNN-name [--json]
-  p2t2c validate-docs [--json]
+  p2t2c create --id SP-YYYYMMDD-name [--shape standard|compact] [--risk R1|R2]
+    [--spec NNN-name] [--truth-ref docs/sot/...md] [--json]
+  p2t2c expand --proposal SP-YYYYMMDD-name --prepared DIR [--source-digest SHA256] [--json]
+  p2t2c archive --proposal SP-YYYYMMDD-name [--record-digest SHA256] [--json]
+  p2t2c archive --spec NNN-name [--record-digest SHA256] [--json]
+  p2t2c validate-docs [--proposal SP-YYYYMMDD-name] [--ready] [--json]
+  p2t2c recover --proposal SP-YYYYMMDD-name [--json]
   p2t2c docs-migrate --dry-run|--apply|--rollback REPORT [migration options]
 
 Legacy 0.14.x work only:
@@ -22,14 +27,14 @@ EOF
 
 command_name="${1:-}"
 case "$command_name" in
-  archive|validate-docs)
+  create|expand|archive|validate-docs|recover|compatibility)
     documents_runner="$script_dir/p2t2c_documents.pl"
     [[ -f "$documents_runner" && ! -L "$documents_runner" ]] || {
       echo "ERROR: document workflow engine is not installed" >&2
       exit 2
     }
     shift
-    documents_command="archive"
+    documents_command="$command_name"
     [[ "$command_name" == "validate-docs" ]] && documents_command="validate"
     exec perl "$documents_runner" "$documents_command" "$@"
     ;;

@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+P2T2C_RUNTIME_OPERATION_ARGS=("$@")
+P2T2C_RUNTIME_GUARD_ROOT="$(cd "$(dirname "$0")/../.." && pwd -P)"
+
 usage() {
   cat <<'EOF'
 Usage:
@@ -72,13 +75,16 @@ project_config_created=0
 
 is_project_owned() {
   case "$1" in
+    README.md|AGENTS.md|CLAUDE.md|Makefile|project_config.yaml|.cursor/rules/*)
+      return 0
+      ;;
     docs/reference/archive/README.md)
       return 1
       ;;
     docs/sot/manifest.yaml|docs/sot/governance/P2T2C_GOVERNANCE.md|docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md)
       return 1
       ;;
-    .p2t2c/project_config.yaml|.p2t2c/runs/*|.p2t2c/cache/*|.p2t2c/install/*|.p2t2c/upgrade/*|.p2t2c/docs-migrate/*|.p2t2c/.documents-lock)
+    .p2t2c/project_config.yaml|.p2t2c/runs/*|.p2t2c/cache/*|.p2t2c/install/*|.p2t2c/upgrade/*|.p2t2c/docs-migrate/*|.p2t2c/documents/*|.p2t2c/prepared/*|.p2t2c/.documents-lock)
       return 0
       ;;
     docs/sot/*)
@@ -399,6 +405,7 @@ load_managed_files() {
     ".p2t2c/bin/p2t2c_context.pl" \
     ".p2t2c/bin/p2t2c_docs_migrate.pl" \
     ".p2t2c/bin/p2t2c_documents.pl" \
+    ".p2t2c/bin/p2t2c_runtime_guard.pl" \
     ".p2t2c/bin/p2t2c_evidence.pl" \
     ".p2t2c/bin/p2t2c_install.sh" \
     ".p2t2c/bin/p2t2c_run.sh" \
@@ -407,11 +414,15 @@ load_managed_files() {
     ".p2t2c/lib/P2T2C/Checker.pm" \
     ".p2t2c/lib/P2T2C/DocsMigration.pm" \
     ".p2t2c/lib/P2T2C/Documents.pm" \
+    ".p2t2c/lib/P2T2C/DocumentActions.pm" \
+    ".p2t2c/lib/P2T2C/DocumentTransactions.pm" \
+    ".p2t2c/templates/core/COMPACT_SP_TEMPLATE.md" \
     ".p2t2c/schemas/closure-receipt-v2.schema.json" \
     ".p2t2c/schemas/context-capsule-v1.schema.json" \
     ".p2t2c/schemas/design-v1.schema.json" \
     ".p2t2c/schemas/evidence-summary-v1.schema.json" \
     ".p2t2c/schemas/proposal-v1.schema.json" \
+    ".p2t2c/schemas/proposal-v2.schema.json" \
     ".p2t2c/schemas/tasks-v1.schema.json" \
     ".p2t2c/schemas/work-status-v1.schema.json" \
     ".p2t2c/skills/admit-route/SKILL.md" \
@@ -651,6 +662,21 @@ if [[ "${#missing_source[@]}" -gt 0 ]]; then
   echo "Install stopped. The source release is incomplete."
   exit 1
 fi
+
+
+with_document_runtime_guard() {
+  local runtime="$1"
+  if [[ -n "${P2T2C_RUNTIME_LOCK_OWNER:-}" ]]; then
+    perl "$P2T2C_RUNTIME_GUARD_ROOT/.p2t2c/bin/p2t2c_runtime_guard.pl" --check "$target_root" "$P2T2C_RUNTIME_LOCK_OWNER" \
+      || die "runtime operation does not own the document lock"
+    return
+  fi
+  [[ -z "$SOURCE_SNAPSHOT" || ! -e "$SOURCE_SNAPSHOT" ]] || rm -f "$SOURCE_SNAPSHOT"
+  SOURCE_SNAPSHOT=""
+  exec perl "$P2T2C_RUNTIME_GUARD_ROOT/.p2t2c/bin/p2t2c_runtime_guard.pl" "$target_root" "$runtime" "$P2T2C_RUNTIME_GUARD_ROOT/.p2t2c/bin/p2t2c_install.sh" "${P2T2C_RUNTIME_OPERATION_ARGS[@]}"
+}
+
+with_document_runtime_guard "$source_root"
 
 install_id="$(date +%Y%m%d-%H%M%S)"
 TRANSACTION_ACTIVE=1

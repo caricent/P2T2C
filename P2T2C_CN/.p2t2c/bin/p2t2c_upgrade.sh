@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+P2T2C_RUNTIME_OPERATION_ARGS=("$@")
+P2T2C_RUNTIME_GUARD_ROOT="$(cd "$(dirname "$0")/../.." && pwd -P)"
+
 usage() {
   cat <<'EOF'
 Usage:
@@ -61,13 +64,16 @@ upgrade_dir=""
 
 is_project_owned() {
   case "$1" in
+    README.md|AGENTS.md|CLAUDE.md|Makefile|project_config.yaml|.cursor/rules/*)
+      return 0
+      ;;
     docs/reference/archive/README.md)
       return 1
       ;;
     docs/sot/manifest.yaml|docs/sot/governance/P2T2C_GOVERNANCE.md|docs/sot/governance/P2T2C_GOVERNANCE_HISTORY.md)
       return 1
       ;;
-    .p2t2c/project_config.yaml|.p2t2c/runs/*|.p2t2c/cache/*|.p2t2c/install/*|.p2t2c/upgrade/*|.p2t2c/docs-migrate/*|.p2t2c/.documents-lock)
+    .p2t2c/project_config.yaml|.p2t2c/runs/*|.p2t2c/cache/*|.p2t2c/install/*|.p2t2c/upgrade/*|.p2t2c/docs-migrate/*|.p2t2c/documents/*|.p2t2c/prepared/*|.p2t2c/.documents-lock)
       return 0
       ;;
     docs/sot/*)
@@ -343,7 +349,13 @@ load_managed_files() {
       exit 2
     fi
   done
+  if [[ "$(version_from "$root")" != "0.15.0" ]]; then
+    for rel in ".p2t2c/bin/p2t2c_runtime_guard.pl" ".p2t2c/lib/P2T2C/DocumentActions.pm" ".p2t2c/lib/P2T2C/DocumentTransactions.pm" ".p2t2c/templates/core/COMPACT_SP_TEMPLATE.md" ".p2t2c/schemas/proposal-v2.schema.json"; do
+      managed_contains "$rel" || die "managed-file manifest omits required release asset: $rel"
+    done
+  fi
 }
+
 
 load_managed_modes() {
   local policy="$source_root/.p2t2c/managed-modes.txt" line mode rel existing
@@ -506,10 +518,11 @@ write_lock() {
 }
 
 assert_docs_layout_rollback_ready() {
-  [[ -f "$target_root/.p2t2c/lib/P2T2C/DocsMigration.pm" && ! -L "$target_root/.p2t2c/lib/P2T2C/DocsMigration.pm" ]] \
-    || die "docs-migrate validator is missing; cannot roll back template"
-  (cd "$target_root" && perl -I.p2t2c/lib -MP2T2C::DocsMigration -e 'P2T2C::DocsMigration::template_rollback_ready()') \
-    || die "roll back document layout first"
+  local runtime="$1"
+  (cd "$target_root" && perl -I"$P2T2C_RUNTIME_GUARD_ROOT/.p2t2c/lib" -MP2T2C::DocumentActions -e '
+    my $cap=P2T2C::DocumentActions::runtime_capabilities($ARGV[0]);
+    P2T2C::DocsMigration::template_rollback_ready($cap->{standard},1);
+  ' "$runtime") || die "restore a document layout compatible with the target runtime first"
 }
 
 rollback() {
@@ -561,11 +574,30 @@ rollback() {
   cleanup_empty_legacy_dirs
 }
 
+
+with_document_runtime_guard() {
+  local runtime="$1"
+  if [[ -n "${P2T2C_RUNTIME_LOCK_OWNER:-}" ]]; then
+    perl "$P2T2C_RUNTIME_GUARD_ROOT/.p2t2c/bin/p2t2c_runtime_guard.pl" --check "$target_root" "$P2T2C_RUNTIME_LOCK_OWNER" \
+      || die "runtime operation does not own the document lock"
+    return
+  fi
+  [[ -z "$SOURCE_SNAPSHOT" || ! -e "$SOURCE_SNAPSHOT" ]] || rm -f "$SOURCE_SNAPSHOT"
+  SOURCE_SNAPSHOT=""
+  exec perl "$P2T2C_RUNTIME_GUARD_ROOT/.p2t2c/bin/p2t2c_runtime_guard.pl" "$target_root" "$runtime" "$P2T2C_RUNTIME_GUARD_ROOT/.p2t2c/bin/p2t2c_upgrade.sh" "${P2T2C_RUNTIME_OPERATION_ARGS[@]}"
+}
+
 assert_root_dir "$target_root" "target"
 
 if [[ "$mode" == "rollback" ]]; then
   resolve_rollback_dir "$rollback_dir"
-  assert_docs_layout_rollback_ready
+  for inventory in updated-files.txt created-files.txt removed-files.txt; do
+    assert_rel_components "$rollback_dir" "$inventory" regular "rollback transaction inventory"
+  done
+  rollback_runtime="$rollback_dir/backup"
+  [[ -f "$rollback_runtime/.p2t2c/manifest.yaml" ]] || rollback_runtime="$target_root"
+  with_document_runtime_guard "$rollback_runtime"
+  assert_docs_layout_rollback_ready "$rollback_runtime"
   assert_rel_components "$target_root" ".p2t2c/managed-files.txt" optional_regular "rollback managed manifest"
   assert_rel_components "$rollback_dir" "backup/.p2t2c/managed-files.txt" optional_regular "rollback backup manifest"
   assert_rel_components "$target_root" ".p2t2c/lock.sha256" optional_regular "rollback target lock"
@@ -599,6 +631,12 @@ fi
 
 source_root="$(cd "$source_dir" && pwd -P)"
 assert_root_dir "$source_root" "source"
+if [[ "$mode" == "dry-run" ]]; then
+  (cd "$target_root" && perl "$P2T2C_RUNTIME_GUARD_ROOT/.p2t2c/bin/p2t2c_documents.pl" compatibility --runtime "$source_root" --json) \
+    || die "target documents are incompatible with the requested runtime"
+else
+  with_document_runtime_guard "$source_root"
+fi
 load_managed_files "$source_root" ".p2t2c/managed-files.txt"
 load_managed_modes
 validate_source_checksums
@@ -714,6 +752,25 @@ for managed_rel in "${ALL_MANAGED[@]}"; do
     fi
   done < <(obsolete_list "$migration")
 done
+
+if grep -q 'document_formats: "standard-v1,compact-v2"' "$target_root/.p2t2c/manifest.yaml" 2>/dev/null \
+  && ! grep -q 'document_formats: "standard-v1,compact-v2"' "$source_root/.p2t2c/manifest.yaml"; then
+  while IFS= read -r rel || [[ -n "$rel" ]]; do
+    [[ -z "$rel" || "${rel:0:1}" == "#" ]] && continue
+    validate_rel_path "$rel" "retired managed path"
+    managed_contains "$rel" && continue
+    is_project_owned "$rel" && continue
+    [[ " ${removes[*]} " == *" $rel "* ]] && continue
+    assert_rel_components "$target_root" "$rel" optional_regular "retired managed asset"
+    [[ -f "$target_root/$rel" ]] || continue
+    locked_hash="$(lock_hash_for "$rel" || true)"
+    if [[ -n "$locked_hash" && "$(sha256_file "$target_root/$rel")" == "$locked_hash" ]]; then
+      removes+=("$rel")
+    else
+      conflicts+=("$rel (retired modified)")
+    fi
+  done < "$target_root/.p2t2c/managed-files.txt"
+fi
 
 generated_phase_map=".p2t2c/generated/phase_rules.txt"
 if [[ -f "$target_root/$generated_phase_map" ]] && [[ ! " ${removes[*]} " =~ " $generated_phase_map " ]]; then
